@@ -1,0 +1,25 @@
+name: Validate Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'force-app/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SF CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL_DEV }}" > authfile.txt
+          sf org login sfdx-url --sfdx-url-file authfile.txt --alias ar-flow-dev --set-default
+          rm authfile.txt
+
+      - name: Validate (Dry Run)
+        run: sf project deploy start --source-dir force-app --target-org ar-flow-dev --dry-run --wait 30

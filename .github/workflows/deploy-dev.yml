@@ -1,0 +1,28 @@
+name: Deploy to Dev Sandbox
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'force-app/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SF CLI
+        run: npm install -g @salesforce/cli
+
+      - name: Authenticate to Dev Org
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL_DEV }}" > authfile.txt
+          sf org login sfdx-url --sfdx-url-file authfile.txt --alias ar-flow-dev --set-default
+          rm authfile.txt
+
+      - name: Deploy to Salesforce
+        run: sf project deploy start --source-dir force-app --target-org ar-flow-dev --wait 30
+
+      - name: Run Tests
+        run: sf apex run test --target-org ar-flow-dev --code-coverage --result-format human --wait 20
