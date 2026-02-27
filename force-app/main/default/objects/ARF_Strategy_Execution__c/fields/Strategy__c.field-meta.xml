@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Strategy__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Strategy template being executed</description>
+    <externalId>false</externalId>
+    <label>Strategy</label>
+    <referenceTo>ARF_Collection_Strategy__c</referenceTo>
+    <relationshipLabel>Executions</relationshipLabel>
+    <relationshipName>Executions</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

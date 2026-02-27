@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Category__c</fullName>
+    <description>Deduction category</description>
+    <externalId>false</externalId>
+    <label>Category</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value><fullName>Promotion</fullName><default>false</default><label>Promotion</label></value>
+                <value><fullName>Trade Allowance</fullName><default>false</default><label>Trade Allowance</label></value>
+                <value><fullName>Co-op Advertising</fullName><default>false</default><label>Co-op Advertising</label></value>
+                <value><fullName>Slotting Fee</fullName><default>false</default><label>Slotting Fee</label></value>
+                <value><fullName>Volume Rebate</fullName><default>false</default><label>Volume Rebate</label></value>
+                <value><fullName>Pricing Error</fullName><default>false</default><label>Pricing Error</label></value>
+                <value><fullName>Shortage</fullName><default>false</default><label>Shortage</label></value>
+                <value><fullName>Damaged</fullName><default>false</default><label>Damaged</label></value>
+                <value><fullName>Freight</fullName><default>false</default><label>Freight</label></value>
+                <value><fullName>Returns</fullName><default>false</default><label>Returns</label></value>
+                <value><fullName>Compliance</fullName><default>false</default><label>Compliance</label></value>
+                <value><fullName>Other</fullName><default>false</default><label>Other</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

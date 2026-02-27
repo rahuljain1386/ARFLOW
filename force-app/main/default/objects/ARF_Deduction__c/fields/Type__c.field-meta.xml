@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Type__c</fullName>
+    <description>Trade or non-trade classification</description>
+    <externalId>false</externalId>
+    <label>Deduction Type</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value><fullName>Trade</fullName><default>false</default><label>Trade</label></value>
+                <value><fullName>Non-Trade</fullName><default>false</default><label>Non-Trade</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

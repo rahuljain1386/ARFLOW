@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resolution_Type__c</fullName>
+    <description>How the dispute was resolved</description>
+    <externalId>false</externalId>
+    <label>Resolution Type</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value><fullName>Full Credit</fullName><default>false</default><label>Full Credit</label></value>
+                <value><fullName>Partial Credit</fullName><default>false</default><label>Partial Credit</label></value>
+                <value><fullName>Denied</fullName><default>false</default><label>Denied</label></value>
+                <value><fullName>Write Off</fullName><default>false</default><label>Write Off</label></value>
+                <value><fullName>Return Replace</fullName><default>false</default><label>Return Replace</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

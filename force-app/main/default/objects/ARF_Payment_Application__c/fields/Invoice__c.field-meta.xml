@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Invoice__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Invoice this payment is applied to</description>
+    <externalId>false</externalId>
+    <label>Invoice</label>
+    <referenceTo>ARF_Invoice__c</referenceTo>
+    <relationshipLabel>Payment_Applications</relationshipLabel>
+    <relationshipName>Payment_Applications</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

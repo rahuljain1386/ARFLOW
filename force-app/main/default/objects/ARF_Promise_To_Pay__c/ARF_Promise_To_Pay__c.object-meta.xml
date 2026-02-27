@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Customer payment promises with tracking</description>
+    <enableActivities>true</enableActivities>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <label>Promise to Pay</label>
+    <nameField>
+        <displayFormat>ARF-{0000}</displayFormat>
+        <label>Promise to Pay Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Promises to Pay</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

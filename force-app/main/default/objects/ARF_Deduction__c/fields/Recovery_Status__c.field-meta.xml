@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Recovery_Status__c</fullName>
+    <description>Status of recovery effort</description>
+    <externalId>false</externalId>
+    <label>Recovery Status</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value><fullName>Not Started</fullName><default>false</default><label>Not Started</label></value>
+                <value><fullName>In Progress</fullName><default>false</default><label>In Progress</label></value>
+                <value><fullName>Recovered</fullName><default>false</default><label>Recovered</label></value>
+                <value><fullName>Partially Recovered</fullName><default>false</default><label>Partially Recovered</label></value>
+                <value><fullName>Unrecoverable</fullName><default>false</default><label>Unrecoverable</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

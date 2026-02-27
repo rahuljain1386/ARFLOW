@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Payment records synced from ERP</description>
+    <enableActivities>true</enableActivities>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <label>AR Payment</label>
+    <nameField>
+        <displayFormat>ARF-{0000}</displayFormat>
+        <label>AR Payment Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>AR Payments</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

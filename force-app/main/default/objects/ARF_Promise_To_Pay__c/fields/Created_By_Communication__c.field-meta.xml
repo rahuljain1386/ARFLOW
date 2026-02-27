@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Created_By_Communication__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Communication that created this promise</description>
+    <externalId>false</externalId>
+    <label>Source Communication</label>
+    <referenceTo>ARF_Communication__c</referenceTo>
+    <relationshipLabel>Related_Promises</relationshipLabel>
+    <relationshipName>Related_Promises</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

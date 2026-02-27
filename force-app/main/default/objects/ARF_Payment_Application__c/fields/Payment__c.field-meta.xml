@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payment__c</fullName>
+    <description>Parent payment record</description>
+    <externalId>false</externalId>
+    <label>Payment</label>
+    <referenceTo>ARF_Payment__c</referenceTo>
+    <relationshipLabel>Payment_Applications</relationshipLabel>
+    <relationshipName>Payment_Applications</relationshipName>
+    <relationshipOrder>0</relationshipOrder>
+    <reparentableMasterDetail>true</reparentableMasterDetail>
+    <trackHistory>true</trackHistory>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Assignment_Rules__c</fullName>
+    <description>JSON rules for auto-assigning this strategy</description>
+    <externalId>false</externalId>
+    <label>Assignment Rules</label>
+    <length>10000</length>
+    <trackHistory>false</trackHistory>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>
