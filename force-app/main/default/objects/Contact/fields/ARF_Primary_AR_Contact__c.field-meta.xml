@@ -5,6 +5,5 @@
     <description>Whether this is the primary AR contact</description>
     <externalId>false</externalId>
     <label>Primary AR Contact</label>
-    <trackHistory>true</trackHistory>
     <type>Checkbox</type>
 </CustomField>

@@ -6,7 +6,6 @@
     <label>Direct Phone</label>
     <length>20</length>
     <required>false</required>
-    <trackHistory>true</trackHistory>
     <type>Text</type>
     <unique>false</unique>
 </CustomField>

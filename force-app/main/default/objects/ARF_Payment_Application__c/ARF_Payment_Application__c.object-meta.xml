@@ -13,5 +13,5 @@
         <type>AutoNumber</type>
     </nameField>
     <pluralLabel>Payment Applications</pluralLabel>
-    <sharingModel>ReadWrite</sharingModel>
+    <sharingModel>ControlledByParent</sharingModel>
 </CustomObject>

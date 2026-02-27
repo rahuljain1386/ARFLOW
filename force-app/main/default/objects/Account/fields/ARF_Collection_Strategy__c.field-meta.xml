@@ -5,7 +5,6 @@
     <externalId>false</externalId>
     <label>Collection Strategy</label>
     <required>false</required>
-    <trackHistory>true</trackHistory>
     <type>Picklist</type>
     <valueSet>
         <restricted>true</restricted>

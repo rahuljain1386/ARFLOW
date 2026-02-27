@@ -9,6 +9,5 @@
     <relationshipLabel>Collector_Accounts</relationshipLabel>
     <relationshipName>Collector_Accounts</relationshipName>
     <required>false</required>
-    <trackHistory>true</trackHistory>
     <type>Lookup</type>
 </CustomField>

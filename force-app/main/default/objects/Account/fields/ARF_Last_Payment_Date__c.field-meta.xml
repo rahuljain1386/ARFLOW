@@ -5,6 +5,5 @@
     <externalId>false</externalId>
     <label>Last Payment Date</label>
     <required>false</required>
-    <trackHistory>true</trackHistory>
     <type>Date</type>
 </CustomField>
