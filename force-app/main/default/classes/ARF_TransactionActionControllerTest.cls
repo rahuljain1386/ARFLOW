@@ -221,15 +221,42 @@ private class ARF_TransactionActionControllerTest {
     static void testExecuteContactCustomer_EmptyInvoices() {
         Account acct = getTestAccount();
         Test.startTest();
+        Id commId = ARF_TransactionActionController.executeContactCustomer(
+            acct.Id, new List<Id>(), 'Phone', null, null, null, null,
+            'Call without invoices', 'General inquiry', false, null, null,
+            null, null, null, false, null, null, null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, commId, 'Should succeed without invoices');
+        ARF_Communication__c comm = [SELECT Invoice_Count__c, Total_Balance__c FROM ARF_Communication__c WHERE Id = :commId];
+        System.assertEquals(0, comm.Invoice_Count__c, 'Invoice count should be 0');
+        System.assertEquals(0, comm.Total_Balance__c, 'Total balance should be 0');
+
+        List<ARF_Communication_Invoice__c> junctions = [SELECT Id FROM ARF_Communication_Invoice__c WHERE Communication__c = :commId];
+        System.assertEquals(0, junctions.size(), 'Should create no junction records');
+    }
+
+    @isTest
+    static void testGetOpenInvoicesForAccount() {
+        Account acct = getTestAccount();
+        Test.startTest();
+        List<ARF_Invoice__c> result = ARF_TransactionActionController.getOpenInvoicesForAccount(acct.Id);
+        Test.stopTest();
+
+        System.assertEquals(3, result.size(), 'Should return all 3 open invoices');
+        // Verify ordered by Due_Date__c ASC
+        System.assert(result[0].Due_Date__c <= result[1].Due_Date__c, 'Should be ordered by due date');
+    }
+
+    @isTest
+    static void testGetOpenInvoicesForAccount_NullAccount() {
+        Test.startTest();
         try {
-            ARF_TransactionActionController.executeContactCustomer(
-                acct.Id, new List<Id>(), 'Email', null, null, null, null,
-                null, null, false, null, null, null, null, null,
-                false, null, null, null
-            );
+            ARF_TransactionActionController.getOpenInvoicesForAccount(null);
             System.assert(false, 'Should have thrown exception');
         } catch (AuraHandledException e) {
-            System.assertNotEquals(null, e.getMessage(), 'Should throw error for empty invoices');
+            System.assertNotEquals(null, e.getMessage());
         }
         Test.stopTest();
     }

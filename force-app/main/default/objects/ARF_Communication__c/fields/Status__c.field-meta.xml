@@ -19,6 +19,7 @@
                 <value><fullName>Bounced</fullName><default>false</default><label>Bounced</label></value>
                 <value><fullName>Failed</fullName><default>false</default><label>Failed</label></value>
                 <value><fullName>Received</fullName><default>false</default><label>Received</label></value>
+                <value><fullName>In Progress</fullName><default>false</default><label>In Progress</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -10,7 +10,7 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
         ARF_Communication__c comm = [
             SELECT Id, Account__c, Subject__c, Body__c, From_Address__c,
                    Match_Method__c, Match_Confidence__c, Needs_Review__c,
-                   Thread_ID__c
+                   Thread_ID__c, Channel__c
             FROM ARF_Communication__c
             WHERE Id = :communicationId
             LIMIT 1
@@ -71,7 +71,8 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
 
     @TestVisible
     private String buildPrompt(ARF_Communication__c comm) {
-        return 'You are an AR (Accounts Receivable) email classifier. Analyze the following email and return JSON only:\n' +
+        String channelLabel = comm.Channel__c == 'SMS' ? 'SMS message' : (comm.Channel__c == 'Phone' ? 'call transcript' : 'email');
+        return 'You are an AR (Accounts Receivable) communication classifier. Analyze the following ' + channelLabel + ' and return JSON only:\n' +
             '{\n' +
             '  "intent": "one of: payment_inquiry, dispute, promise_to_pay, invoice_request, general, escalation, payment_confirmation",\n' +
             '  "confidence": 0.0-1.0,\n' +
@@ -307,10 +308,20 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
             return;
         }
 
-        // Query account name for email body
+        String channel = comm.Channel__c != null ? comm.Channel__c : 'Email';
+
+        if (channel == 'SMS') {
+            sendSmsAcknowledgment(comm, intent, summary);
+        } else if (channel == 'Phone') {
+            sendCallSummaryEmail(comm, intent, summary);
+        } else {
+            sendEmailAcknowledgment(comm, intent, summary);
+        }
+    }
+
+    private void sendEmailAcknowledgment(ARF_Communication__c comm, String intent, String summary) {
         Account acct = [SELECT Name FROM Account WHERE Id = :comm.Account__c LIMIT 1];
 
-        // Look up OrgWideEmailAddress — skip send if none available
         List<OrgWideEmailAddress> owas = [SELECT Id, Address FROM OrgWideEmailAddress LIMIT 1];
         if (owas.isEmpty()) {
             System.debug(LoggingLevel.WARN, 'ARF_AIEmailClassifier: No OrgWideEmailAddress configured, skipping ack');
@@ -329,7 +340,6 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
 
         Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
 
-        // Create outbound Communication record
         ARF_Communication__c outbound = new ARF_Communication__c(
             Account__c = comm.Account__c,
             Channel__c = 'Email',
@@ -344,6 +354,111 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
             Thread_ID__c = comm.Thread_ID__c
         );
         insert outbound;
+    }
+
+    private void sendSmsAcknowledgment(ARF_Communication__c comm, String intent, String summary) {
+        if (!ARF_TwilioService.isConfigured()) {
+            System.debug(LoggingLevel.WARN, 'ARF_AIEmailClassifier: Twilio not configured, skipping SMS ack');
+            return;
+        }
+
+        String smsBody = buildSmsAckBody(intent);
+
+        try {
+            String smsSid = ARF_TwilioService.sendSms(comm.From_Address__c, smsBody);
+
+            ARF_Communication__c outbound = new ARF_Communication__c(
+                Account__c = comm.Account__c,
+                Channel__c = 'SMS',
+                Direction__c = 'Outbound',
+                Subject__c = 'SMS Ack: ' + intent,
+                Body__c = smsBody,
+                To_Address__c = comm.From_Address__c,
+                From_Address__c = ARF_TwilioService.getConfig().Phone_Number__c,
+                Status__c = 'Sent',
+                Sent_Date__c = Datetime.now(),
+                Thread_ID__c = smsSid
+            );
+            insert outbound;
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'ARF_AIEmailClassifier SMS ack error: ' + e.getMessage());
+        }
+    }
+
+    private void sendCallSummaryEmail(ARF_Communication__c comm, String intent, String summary) {
+        Account acct = [SELECT Name FROM Account WHERE Id = :comm.Account__c LIMIT 1];
+
+        List<OrgWideEmailAddress> owas = [SELECT Id, Address FROM OrgWideEmailAddress LIMIT 1];
+        if (owas.isEmpty()) return;
+
+        // Send internal email summary of the call to the AR team
+        String subject = 'Call Summary: ' + intent + ' — ' + acct.Name;
+        String htmlBody = buildCallSummaryBody(intent, summary, acct.Name, comm.Body__c);
+
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setToAddresses(new List<String>{ owas[0].Address });
+        email.setSubject(subject);
+        email.setHtmlBody(htmlBody);
+        email.setOrgWideEmailAddressId(owas[0].Id);
+        email.setSaveAsActivity(false);
+
+        Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ email });
+
+        ARF_Communication__c outbound = new ARF_Communication__c(
+            Account__c = comm.Account__c,
+            Channel__c = 'Email',
+            Direction__c = 'Outbound',
+            Subject__c = subject,
+            Body__c = htmlBody,
+            HTML_Body__c = htmlBody,
+            To_Address__c = owas[0].Address,
+            From_Address__c = owas[0].Address,
+            Status__c = 'Sent',
+            Sent_Date__c = Datetime.now(),
+            Thread_ID__c = comm.Thread_ID__c
+        );
+        insert outbound;
+    }
+
+    @TestVisible
+    private String buildSmsAckBody(String intent) {
+        if (intent == 'Dispute') {
+            return 'Your dispute has been received and logged. Our AR team will investigate and follow up. Reply STOP to opt out.';
+        } else if (intent == 'Promise to Pay') {
+            return 'Thank you for your payment commitment. We have recorded your promise to pay. Reply STOP to opt out.';
+        } else if (intent == 'Escalation') {
+            return 'Your request has been escalated to a senior representative who will contact you shortly. Reply STOP to opt out.';
+        } else if (intent == 'Invoice Request') {
+            return 'We received your invoice inquiry. Our team will respond with the requested information. Reply STOP to opt out.';
+        }
+        return 'We have received your message and will respond shortly. Reply STOP to opt out.';
+    }
+
+    @TestVisible
+    private String buildCallSummaryBody(String intent, String summary, String accountName, String transcript) {
+        String intentAction;
+        if (intent == 'Dispute') {
+            intentAction = 'A dispute has been auto-created based on this call.';
+        } else if (intent == 'Promise to Pay') {
+            intentAction = 'A promise to pay has been auto-recorded based on this call.';
+        } else if (intent == 'Escalation') {
+            intentAction = 'An escalation task has been created based on this call.';
+        } else if (intent == 'Invoice Request') {
+            intentAction = 'An invoice inquiry was identified during this call.';
+        } else {
+            intentAction = 'No auto-action was taken.';
+        }
+
+        return '<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333;">' +
+            '<h2 style="color: #1a73e8;">Call Summary — ' + (accountName != null ? accountName : '') + '</h2>' +
+            '<p><strong>AI Intent:</strong> ' + intent + '</p>' +
+            '<p><strong>Summary:</strong> ' + (summary != null ? summary : 'N/A') + '</p>' +
+            '<p><strong>Action Taken:</strong> ' + intentAction + '</p>' +
+            '<hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />' +
+            '<h3>Transcript</h3>' +
+            '<pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; white-space: pre-wrap; font-size: 13px;">' +
+            (transcript != null ? transcript : 'No transcript available') +
+            '</pre></div>';
     }
 
     @TestVisible

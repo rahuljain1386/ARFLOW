@@ -225,10 +225,10 @@ private class ARF_AIEmailClassifierTest {
 
     @isTest
     static void testBuildPrompt() {
-        ARF_Communication__c comm = [SELECT Id, Subject__c, Body__c, From_Address__c FROM ARF_Communication__c WHERE Account__c != null LIMIT 1];
+        ARF_Communication__c comm = [SELECT Id, Subject__c, Body__c, From_Address__c, Channel__c FROM ARF_Communication__c WHERE Account__c != null LIMIT 1];
         ARF_AIEmailClassifier classifier = new ARF_AIEmailClassifier(comm.Id);
         String prompt = classifier.buildPrompt(comm);
-        System.assert(prompt.contains('email classifier'));
+        System.assert(prompt.contains('communication classifier'));
         System.assert(prompt.contains(comm.Subject__c));
         // Verify new entity types in prompt
         System.assert(prompt.contains('po_numbers'), 'Prompt should request PO numbers');

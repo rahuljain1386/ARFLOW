@@ -148,17 +148,18 @@ public with sharing class ARF_TransactionActionController {
         if (accountId == null) {
             throw new AuraHandledException('Account ID is required');
         }
-        if (invoiceIds == null || invoiceIds.isEmpty()) {
-            throw new AuraHandledException('At least one invoice must be selected');
-        }
+        Boolean hasInvoices = invoiceIds != null && !invoiceIds.isEmpty();
 
         // Query invoices for totals
-        List<ARF_Invoice__c> invoices = [
-            SELECT Id, Balance__c FROM ARF_Invoice__c WHERE Id IN :invoiceIds
-        ];
+        List<ARF_Invoice__c> invoices = new List<ARF_Invoice__c>();
         Decimal totalBalance = 0;
-        for (ARF_Invoice__c inv : invoices) {
-            if (inv.Balance__c != null) totalBalance += inv.Balance__c;
+        if (hasInvoices) {
+            invoices = [
+                SELECT Id, Balance__c FROM ARF_Invoice__c WHERE Id IN :invoiceIds
+            ];
+            for (ARF_Invoice__c inv : invoices) {
+                if (inv.Balance__c != null) totalBalance += inv.Balance__c;
+            }
         }
 
         // 1. Create Communication record
@@ -176,8 +177,8 @@ public with sharing class ARF_TransactionActionController {
             Status__c = 'Draft',
             Sent_Date__c = Datetime.now(),
             Template_Used__c = templateName,
-            Has_Attachment__c = attachStatement == true,
-            Invoice_Count__c = invoiceIds.size(),
+            Has_Attachment__c = attachStatement == true && hasInvoices,
+            Invoice_Count__c = hasInvoices ? invoiceIds.size() : 0,
             Total_Balance__c = totalBalance
         );
         if (String.isNotBlank(fromAddressId)) {
@@ -186,21 +187,64 @@ public with sharing class ARF_TransactionActionController {
         insert comm;
 
         // 2. Create junction records
-        List<ARF_Communication_Invoice__c> junctions = new List<ARF_Communication_Invoice__c>();
-        for (Id invId : invoiceIds) {
-            junctions.add(new ARF_Communication_Invoice__c(
-                Communication__c = comm.Id,
-                Invoice__c = invId
-            ));
+        if (hasInvoices) {
+            List<ARF_Communication_Invoice__c> junctions = new List<ARF_Communication_Invoice__c>();
+            for (Id invId : invoiceIds) {
+                junctions.add(new ARF_Communication_Invoice__c(
+                    Communication__c = comm.Id,
+                    Invoice__c = invId
+                ));
+            }
+            insert junctions;
         }
-        insert junctions;
 
-        // 3. If email channel and sending enabled, send actual email
+        // 3a. If SMS channel, send via Twilio
+        if (channel == 'SMS' && contactId != null) {
+            try {
+                if (ARF_TwilioService.isConfigured()) {
+                    String phone = getContactPhone(contactId);
+                    if (String.isNotBlank(phone)) {
+                        String smsBody = String.isNotBlank(htmlBody) ? htmlBody.stripHtmlTags() : subject;
+                        String smsSid = ARF_TwilioService.sendSms(phone, smsBody);
+                        comm.Thread_ID__c = smsSid;
+                        comm.To_Address__c = phone;
+                        comm.Status__c = 'Sent';
+                    } else {
+                        comm.Status__c = 'Sent'; // Log only
+                    }
+                } else {
+                    comm.Status__c = 'Sent'; // Log only, Twilio not configured
+                }
+                update comm;
+            } catch (Exception e) {
+                comm.Status__c = 'Failed';
+                update comm;
+            }
+        }
+
+        // 3b. If Phone channel and Twilio configured, initiate call
+        if (channel == 'Phone' && contactId != null && ARF_TwilioService.isConfigured()) {
+            try {
+                String phone = getContactPhone(contactId);
+                if (String.isNotBlank(phone)) {
+                    String callSid = ARF_TwilioService.initiateCall(phone);
+                    comm.Thread_ID__c = callSid;
+                    comm.Status__c = 'In Progress';
+                    update comm;
+                }
+            } catch (Exception e) {
+                System.debug(LoggingLevel.ERROR, 'Twilio call initiation failed: ' + e.getMessage());
+                // Keep existing logged call behavior
+            }
+        }
+
+        // 3c. If email channel and sending enabled, send actual email
         String format = String.isNotBlank(attachmentFormat) ? attachmentFormat : 'csv';
         if (channel == 'Email' && String.isNotBlank(toAddress)) {
             try {
                 sendEmail(comm, fromAddressId, toAddress, ccAddresses, bccAddresses,
-                         subject, htmlBody, attachStatement, accountId, invoiceIds, format);
+                         subject, htmlBody, attachStatement && hasInvoices, accountId,
+                         hasInvoices ? invoiceIds : new List<Id>(), format);
                 comm.Status__c = 'Sent';
                 update comm;
             } catch (Exception e) {
@@ -487,6 +531,24 @@ public with sharing class ARF_TransactionActionController {
         return promises;
     }
 
+    // ===== OPEN INVOICES FOR ACCOUNT =====
+
+    @AuraEnabled(cacheable=true)
+    public static List<ARF_Invoice__c> getOpenInvoicesForAccount(Id accountId) {
+        if (accountId == null) {
+            throw new AuraHandledException('Account ID is required');
+        }
+        return [
+            SELECT Id, Name, Document_Number__c, Invoice_Date__c, Due_Date__c,
+                   Amount__c, Balance__c, Status__c, Days_Past_Due__c
+            FROM ARF_Invoice__c
+            WHERE Account__c = :accountId
+              AND Status__c NOT IN ('Paid', 'Cancelled', 'Written Off')
+            ORDER BY Due_Date__c ASC
+            LIMIT 200
+        ];
+    }
+
     // ===== PRIVATE HELPERS =====
 
     private static Contact getPrimaryContact(Id accountId) {
@@ -506,7 +568,7 @@ public with sharing class ARF_TransactionActionController {
     }
 
     @TestVisible
-    private static String buildInvoiceHtmlTable(List<ARF_Invoice__c> invoices) {
+    public static String buildInvoiceHtmlTable(List<ARF_Invoice__c> invoices) {
         if (invoices == null || invoices.isEmpty()) return '';
         String html = '<table style="border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:12px;">';
         html += '<tr style="background-color:#f2f2f2;">';
@@ -540,7 +602,7 @@ public with sharing class ARF_TransactionActionController {
     }
 
     @TestVisible
-    private static String replaceMergeFields(
+    public static String replaceMergeFields(
         String template, Account acct, Contact primaryContact,
         List<ARF_Invoice__c> invoices, String invoiceTableHtml
     ) {
@@ -592,26 +654,58 @@ public with sharing class ARF_TransactionActionController {
         mail.setHtmlBody(htmlBody);
         mail.setWhatId(accountId);
 
+        Blob fileBody;
+        String fileName;
+        String contentType;
+
         if (attachStatement == true) {
             String format = String.isNotBlank(attachmentFormat) ? attachmentFormat : 'csv';
             if (format == 'pdf') {
                 String pdfBase64 = ARF_InvoiceStatementPDFCtrl.generatePdf(accountId, invoiceIds);
-                Messaging.EmailFileAttachment pdfAttach = new Messaging.EmailFileAttachment();
-                pdfAttach.setFileName('Invoice_Statement.pdf');
-                pdfAttach.setBody(EncodingUtil.base64Decode(pdfBase64));
-                pdfAttach.setContentType('application/pdf');
-                mail.setFileAttachments(new List<Messaging.EmailFileAttachment>{ pdfAttach });
+                fileBody = EncodingUtil.base64Decode(pdfBase64);
+                fileName = 'Invoice_Statement.pdf';
+                contentType = 'application/pdf';
             } else {
                 String csvBase64 = generateInvoiceCsv(accountId, invoiceIds);
-                Messaging.EmailFileAttachment csvAttach = new Messaging.EmailFileAttachment();
-                csvAttach.setFileName('Invoice_Statement.csv');
-                csvAttach.setBody(EncodingUtil.base64Decode(csvBase64));
-                csvAttach.setContentType('text/csv');
-                mail.setFileAttachments(new List<Messaging.EmailFileAttachment>{ csvAttach });
+                fileBody = EncodingUtil.base64Decode(csvBase64);
+                fileName = 'Invoice_Statement.csv';
+                contentType = 'text/csv';
             }
+
+            Messaging.EmailFileAttachment attach = new Messaging.EmailFileAttachment();
+            attach.setFileName(fileName);
+            attach.setBody(fileBody);
+            attach.setContentType(contentType);
+            mail.setFileAttachments(new List<Messaging.EmailFileAttachment>{ attach });
         }
 
         Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
+
+        // Persist the attachment as a Salesforce file linked to the Communication record
+        if (fileBody != null && comm.Id != null) {
+            try {
+                ContentVersion cv = new ContentVersion(
+                    Title = fileName,
+                    PathOnClient = fileName,
+                    VersionData = fileBody,
+                    FirstPublishLocationId = comm.Id
+                );
+                insert cv;
+            } catch (Exception e) {
+                // Non-critical: email was sent, attachment save failed silently
+            }
+        }
+    }
+
+    @TestVisible
+    private static String getContactPhone(Id contactId) {
+        if (contactId == null) return null;
+        List<Contact> contacts = [
+            SELECT Phone, MobilePhone FROM Contact WHERE Id = :contactId LIMIT 1
+        ];
+        if (contacts.isEmpty()) return null;
+        Contact c = contacts[0];
+        return c.MobilePhone != null ? c.MobilePhone : c.Phone;
     }
 
     private static String safe(String val) {
