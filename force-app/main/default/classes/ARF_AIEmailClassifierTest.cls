@@ -60,6 +60,11 @@ private class ARF_AIEmailClassifierTest {
 
     @TestSetup
     static void setupTestData() {
+        // Set up API key so classifier doesn't skip callout
+        ARF_AI_Config__c config = ARF_AI_Config__c.getOrgDefaults();
+        config.API_Key__c = 'test-key-for-unit-tests';
+        upsert config;
+
         Account acct = new Account(Name = 'AI Test Account');
         insert acct;
 

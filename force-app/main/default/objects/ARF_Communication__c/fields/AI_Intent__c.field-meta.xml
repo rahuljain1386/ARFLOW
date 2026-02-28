@@ -16,6 +16,9 @@
                 <value><fullName>Query</fullName><default>false</default><label>Query</label></value>
                 <value><fullName>Promise to Pay</fullName><default>false</default><label>Promise to Pay</label></value>
                 <value><fullName>Invoice Request</fullName><default>false</default><label>Invoice Request</label></value>
+                <value><fullName>Escalation</fullName><default>false</default><label>Escalation</label></value>
+                <value><fullName>Payment Inquiry</fullName><default>false</default><label>Payment Inquiry</label></value>
+                <value><fullName>General</fullName><default>false</default><label>General</label></value>
                 <value><fullName>Complaint</fullName><default>false</default><label>Complaint</label></value>
                 <value><fullName>Out of Office</fullName><default>false</default><label>Out of Office</label></value>
                 <value><fullName>Other</fullName><default>false</default><label>Other</label></value>

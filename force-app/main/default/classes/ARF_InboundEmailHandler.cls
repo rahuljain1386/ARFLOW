@@ -1,7 +1,7 @@
 public class ARF_InboundEmailHandler implements Messaging.InboundEmailHandler {
 
     public Messaging.InboundEmailResult handleInboundEmail(
-        Messaging.InboundEmail email, Messaging.InboundEmailEnvelope envelope
+        Messaging.InboundEmail email, Messaging.InboundEnvelope envelope
     ) {
         Messaging.InboundEmailResult result = new Messaging.InboundEmailResult();
         result.success = true;

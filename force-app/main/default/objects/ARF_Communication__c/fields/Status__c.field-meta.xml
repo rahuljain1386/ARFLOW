@@ -18,6 +18,7 @@
                 <value><fullName>Replied</fullName><default>false</default><label>Replied</label></value>
                 <value><fullName>Bounced</fullName><default>false</default><label>Bounced</label></value>
                 <value><fullName>Failed</fullName><default>false</default><label>Failed</label></value>
+                <value><fullName>Received</fullName><default>false</default><label>Received</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

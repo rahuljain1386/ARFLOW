@@ -227,12 +227,8 @@ private class ARF_AccountRollupJobTest {
     }
 
     @isTest
-    static void testDaysPastDueOnInvoices() {
-        Test.startTest();
-        Database.executeBatch(new ARF_AccountRollupJob(), 200);
-        Test.stopTest();
-
-        // Verify DPD was updated on individual invoices
+    static void testDaysPastDueFormula() {
+        // DPD is a formula field — verify it returns expected values without batch
         ARF_Invoice__c inv = [
             SELECT Days_Past_Due__c FROM ARF_Invoice__c
             WHERE Document_Number__c = 'RU-001' LIMIT 1

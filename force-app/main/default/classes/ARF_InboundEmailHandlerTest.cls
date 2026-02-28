@@ -36,7 +36,7 @@ private class ARF_InboundEmailHandlerTest {
         email.inReplyTo = 'thread-12345';
         email.messageId = 'msg-001';
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();
@@ -63,7 +63,7 @@ private class ARF_InboundEmailHandlerTest {
         email.fromAddress = 'tester@testcorp.com';
         email.messageId = 'msg-002';
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();
@@ -90,7 +90,7 @@ private class ARF_InboundEmailHandlerTest {
         email.fromAddress = 'newperson@testcorp.com';
         email.messageId = 'msg-003';
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();
@@ -116,7 +116,7 @@ private class ARF_InboundEmailHandlerTest {
         email.fromAddress = 'stranger@unknown.org';
         email.messageId = 'msg-004';
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();
@@ -148,7 +148,7 @@ private class ARF_InboundEmailHandlerTest {
         att.mimeTypeSubType = 'application/pdf';
         email.binaryAttachments = new List<Messaging.InboundEmail.BinaryAttachment>{ att };
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();
@@ -175,7 +175,7 @@ private class ARF_InboundEmailHandlerTest {
         email.messageId = 'msg-006';
         email.ccAddresses = new String[]{ 'boss@testcorp.com', 'team@testcorp.com' };
 
-        Messaging.InboundEmailEnvelope envelope = new Messaging.InboundEmailEnvelope();
+        Messaging.InboundEnvelope envelope = new Messaging.InboundEnvelope();
         envelope.toAddress = 'ar-inbox@test.com';
 
         Test.startTest();

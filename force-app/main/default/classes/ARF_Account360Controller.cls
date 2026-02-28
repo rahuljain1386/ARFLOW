@@ -279,7 +279,7 @@ public with sharing class ARF_Account360Controller {
         for (ARF_Dispute__c d : disputes) {
             d.Status__c = newStatus;
             if (newStatus == 'Closed' && String.isBlank(d.Resolution_Type__c)) {
-                d.Resolution_Type__c = 'Resolved';
+                d.Resolution_Type__c = 'Full Credit';
             }
         }
 

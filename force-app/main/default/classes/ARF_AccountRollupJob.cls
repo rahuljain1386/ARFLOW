@@ -128,14 +128,12 @@ public class ARF_AccountRollupJob implements Database.Batchable<SObject>, Schedu
             }
         }
 
-        // 8. Aging Buckets + DPD update on individual invoices
+        // 8. Aging Buckets (DPD is a formula field on ARF_Invoice__c, computed live)
         Map<Id, Decimal> currentBucket = new Map<Id, Decimal>();
         Map<Id, Decimal> bucket1_30 = new Map<Id, Decimal>();
         Map<Id, Decimal> bucket31_60 = new Map<Id, Decimal>();
         Map<Id, Decimal> bucket61_90 = new Map<Id, Decimal>();
         Map<Id, Decimal> bucket90Plus = new Map<Id, Decimal>();
-
-        List<ARF_Invoice__c> invoiceUpdates = new List<ARF_Invoice__c>();
 
         for (ARF_Invoice__c inv : [
             SELECT Id, Account__c, Balance__c, Due_Date__c
@@ -150,9 +148,6 @@ public class ARF_AccountRollupJob implements Database.Batchable<SObject>, Schedu
             Decimal bal = inv.Balance__c != null ? inv.Balance__c : 0;
             Id acctId = inv.Account__c;
 
-            // Update DPD on invoice
-            invoiceUpdates.add(new ARF_Invoice__c(Id = inv.Id, Days_Past_Due__c = dpd));
-
             // Bucket by DPD
             if (dpd <= 0) {
                 currentBucket.put(acctId, (currentBucket.containsKey(acctId) ? currentBucket.get(acctId) : 0) + bal);
@@ -165,11 +160,6 @@ public class ARF_AccountRollupJob implements Database.Batchable<SObject>, Schedu
             } else {
                 bucket90Plus.put(acctId, (bucket90Plus.containsKey(acctId) ? bucket90Plus.get(acctId) : 0) + bal);
             }
-        }
-
-        // Update invoice DPD values
-        if (!invoiceUpdates.isEmpty()) {
-            update invoiceUpdates;
         }
 
         // 9. Last Contact Method: most recent communication channel

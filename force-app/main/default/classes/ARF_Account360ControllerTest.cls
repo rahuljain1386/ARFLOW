@@ -569,7 +569,7 @@ private class ARF_Account360ControllerTest {
         Test.stopTest();
         ARF_Dispute__c updated = [SELECT Status__c, Resolution_Type__c FROM ARF_Dispute__c WHERE Id = :disputes[0].Id];
         System.assertEquals('Closed', updated.Status__c);
-        System.assertEquals('Resolved', updated.Resolution_Type__c, 'Resolution type should default to Resolved');
+        System.assertEquals('Full Credit', updated.Resolution_Type__c, 'Resolution type should default to Full Credit');
     }
 
     @isTest
