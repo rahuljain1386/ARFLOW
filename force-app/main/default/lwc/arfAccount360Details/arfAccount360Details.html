@@ -1,24 +1,93 @@
 <template>
     <div class="slds-p-around_medium">
         <lightning-record-view-form record-id={recordId} object-api-name="Account">
-            <div class="slds-grid slds-wrap">
-                <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
-                    <lightning-output-field field-name="Name"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_DSO__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Avg_Days_To_Pay__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Assigned_Collector__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Last_Contact_Date__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Last_Payment_Date__c"></lightning-output-field>
-                </div>
-                <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
-                    <lightning-output-field field-name="ARF_Available_Credit__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Stop_Status__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Collection_Strategy__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Open_Invoice_Count__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Overdue_Invoice_Count__c"></lightning-output-field>
-                    <lightning-output-field field-name="ARF_Open_Dispute_Count__c"></lightning-output-field>
+
+            <!-- Account Info -->
+            <div class="slds-section slds-is-open slds-m-bottom_small">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-p-horizontal_small slds-truncate" title="Account Info">Account Info</span>
+                </h3>
+                <div class="slds-section__content slds-p-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="Name"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Assigned_Collector__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Collection_Strategy__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Stop_Status__c"></lightning-output-field>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_Credit_Limit__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Available_Credit__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Risk_Score__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Template_Locale__c"></lightning-output-field>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- AR Metrics -->
+            <div class="slds-section slds-is-open slds-m-bottom_small">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-p-horizontal_small slds-truncate" title="AR Metrics">AR Metrics</span>
+                </h3>
+                <div class="slds-section__content slds-p-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_Total_AR__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Past_Due__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_In_Dispute__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Total_Disputed__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Promised_Amount__c"></lightning-output-field>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_DSO__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Avg_Days_To_Pay__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Open_Invoice_Count__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Overdue_Invoice_Count__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Open_Dispute_Count__c"></lightning-output-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aging Buckets -->
+            <div class="slds-section slds-is-open slds-m-bottom_small">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-p-horizontal_small slds-truncate" title="Aging Buckets">Aging Buckets</span>
+                </h3>
+                <div class="slds-section__content slds-p-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_Current__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_1_30_Days__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_31_60_Days__c"></lightning-output-field>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_61_90_Days__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Over_90_Days__c"></lightning-output-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity -->
+            <div class="slds-section slds-is-open">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-p-horizontal_small slds-truncate" title="Activity">Activity</span>
+                </h3>
+                <div class="slds-section__content slds-p-top_x-small">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_Last_Contact_Date__c"></lightning-output-field>
+                            <lightning-output-field field-name="ARF_Last_Contact_Method__c"></lightning-output-field>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                            <lightning-output-field field-name="ARF_Last_Payment_Date__c"></lightning-output-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </lightning-record-view-form>
     </div>
 </template>

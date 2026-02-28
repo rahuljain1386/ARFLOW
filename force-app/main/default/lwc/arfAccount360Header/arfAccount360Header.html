@@ -225,6 +225,9 @@
                     <span class="info-value">
                         <lightning-formatted-date-time value={lastContactDate}
                             month="short" day="2-digit"></lightning-formatted-date-time>
+                        <template lwc:if={lastContactMethod}>
+                            <span class="contact-method">({lastContactMethod})</span>
+                        </template>
                     </span>
                 </div>
                 <div class="info-sep"></div>

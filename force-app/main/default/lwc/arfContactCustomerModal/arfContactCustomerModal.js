@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import getAccountSummary from '@salesforce/apex/ARF_Account360Controller.getAccountSummary';
 import getContactsForEmail from '@salesforce/apex/ARF_TransactionActionController.getContactsForEmail';
 import getEmailTemplates from '@salesforce/apex/ARF_TransactionActionController.getEmailTemplates';
 import getOrgWideEmailAddresses from '@salesforce/apex/ARF_TransactionActionController.getOrgWideEmailAddresses';
@@ -21,6 +22,7 @@ export default class ArfContactCustomerModal extends LightningElement {
     // Channel
     channel = 'Email';
     isSubmitting = false;
+    accountLocale = 'en_US';
 
     // Invoice management
     @track _modalInvoices = [];
@@ -183,11 +185,15 @@ export default class ArfContactCustomerModal extends LightningElement {
 
     async loadAllData() {
         try {
-            const [contacts, templates, orgEmails] = await Promise.all([
+            const [account, contacts, templates, orgEmails] = await Promise.all([
+                getAccountSummary({ accountId: this.accountId }),
                 getContactsForEmail({ accountId: this.accountId }),
                 getEmailTemplates({ locale: null, category: null }),
                 getOrgWideEmailAddresses()
             ]);
+
+            // Account locale for template filtering
+            this.accountLocale = account?.ARF_Template_Locale__c || 'en_US';
 
             // From addresses
             this.fromAddressOptions = (orgEmails || []).map(addr => ({
@@ -235,10 +241,14 @@ export default class ArfContactCustomerModal extends LightningElement {
                 this.selectedContactId = allContacts[0].id;
             }
 
-            // Templates
+            // Templates — filter by account locale, fallback to all
+            const localeTemplates = (templates || []).filter(
+                t => t.Locale__c === this.accountLocale
+            );
+            const displayTemplates = localeTemplates.length > 0 ? localeTemplates : (templates || []);
             this.templateOptions = [
                 { label: '-- None --', value: '' },
-                ...(templates || []).map(t => ({
+                ...displayTemplates.map(t => ({
                     label: `${t.Template_Name__c} (${t.Locale__c})`,
                     value: t.Id
                 }))

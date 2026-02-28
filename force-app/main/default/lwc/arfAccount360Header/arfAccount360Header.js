@@ -3,17 +3,15 @@ import { updateRecord } from 'lightning/uiRecordApi';
 import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAccountSummary from '@salesforce/apex/ARF_Account360Controller.getAccountSummary';
-import getAgingSummary from '@salesforce/apex/ARF_Account360Controller.getAgingSummary';
+// Aging now comes from Account rollup fields, no separate call needed
 import STICKY_NOTE_FIELD from '@salesforce/schema/Account.ARF_Sticky_Note__c';
 import ID_FIELD from '@salesforce/schema/Account.Id';
 
 export default class ArfAccount360Header extends LightningElement {
     @api recordId;
     account;
-    aging;
     error;
     _wiredResult;
-    _wiredAging;
 
     isEditingNote = false;
     editNoteValue = '';
@@ -27,14 +25,6 @@ export default class ArfAccount360Header extends LightningElement {
         } else if (result.error) {
             this.error = result.error;
             this.account = undefined;
-        }
-    }
-
-    @wire(getAgingSummary, { accountId: '$recordId' })
-    wiredAging(result) {
-        this._wiredAging = result;
-        if (result.data) {
-            this.aging = result.data;
         }
     }
 
@@ -58,6 +48,7 @@ export default class ArfAccount360Header extends LightningElement {
     get stopStatus() { return this.account?.ARF_Stop_Status__c || ''; }
     get hasStopStatus() { return !!this.stopStatus; }
     get lastContactDate() { return this.account?.ARF_Last_Contact_Date__c; }
+    get lastContactMethod() { return this.account?.ARF_Last_Contact_Method__c || ''; }
     get lastPaymentDate() { return this.account?.ARF_Last_Payment_Date__c; }
 
     // === Risk getters ===
@@ -110,23 +101,27 @@ export default class ArfAccount360Header extends LightningElement {
     get creditUsedFormatted() { return this.creditUsed; }
     get creditLimitFormatted() { return this.creditLimit; }
 
-    // === Aging breakdown ===
-    get hasAging() { return !!this.aging; }
+    // === Aging breakdown (from Account rollup fields) ===
+    get hasAging() { return !!this.account; }
 
     get agingTotal() {
-        if (!this.aging) return 0;
-        return Object.values(this.aging).reduce((sum, v) => sum + (v || 0), 0);
+        if (!this.account) return 0;
+        return (this.account.ARF_Current__c || 0) +
+            (this.account.ARF_1_30_Days__c || 0) +
+            (this.account.ARF_31_60_Days__c || 0) +
+            (this.account.ARF_61_90_Days__c || 0) +
+            (this.account.ARF_Over_90_Days__c || 0);
     }
 
     get agingBuckets() {
-        if (!this.aging || !this.agingTotal) return [];
+        if (!this.account || !this.agingTotal) return [];
         const total = this.agingTotal;
         const buckets = [
-            { key: 'current', label: 'Current', amount: this.aging['current'] || 0, colorClass: 'aging-current' },
-            { key: '1-30', label: '1-30', amount: this.aging['1-30'] || 0, colorClass: 'aging-1-30' },
-            { key: '31-60', label: '31-60', amount: this.aging['31-60'] || 0, colorClass: 'aging-31-60' },
-            { key: '61-90', label: '61-90', amount: this.aging['61-90'] || 0, colorClass: 'aging-61-90' },
-            { key: '90+', label: '90+', amount: this.aging['90+'] || 0, colorClass: 'aging-90-plus' }
+            { key: 'current', label: 'Current', amount: this.account.ARF_Current__c || 0, colorClass: 'aging-current' },
+            { key: '1-30', label: '1-30', amount: this.account.ARF_1_30_Days__c || 0, colorClass: 'aging-1-30' },
+            { key: '31-60', label: '31-60', amount: this.account.ARF_31_60_Days__c || 0, colorClass: 'aging-31-60' },
+            { key: '61-90', label: '61-90', amount: this.account.ARF_61_90_Days__c || 0, colorClass: 'aging-61-90' },
+            { key: '90+', label: '90+', amount: this.account.ARF_Over_90_Days__c || 0, colorClass: 'aging-90-plus' }
         ];
         return buckets.map(b => ({
             ...b,
