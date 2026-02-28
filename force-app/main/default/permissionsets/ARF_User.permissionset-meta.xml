@@ -223,6 +223,41 @@
         <field>Account.ARF_Template_Locale__c</field>
         <readable>true</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_Current__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_1_30_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_31_60_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_61_90_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_Over_90_Days__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_Last_Contact_Method__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Account.ARF_Total_Disputed__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
 
     <!-- ===== Contact Fields ===== -->
     <fieldPermissions>
@@ -335,6 +370,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ARF_Invoice__c.Ship_To__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Invoice__c.Promise_Status__c</field>
         <readable>true</readable>
     </fieldPermissions>
 
