@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <description>AR Flow — Invoice-to-Cash collections management suite</description>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <label>AR Flow</label>
+    <navType>Standard</navType>
+    <profileActionOverrides>
+        <actionName>View</actionName>
+        <content>ARF_Account_Record_Page</content>
+        <formFactor>Large</formFactor>
+        <pageOrSobjectType>Account</pageOrSobjectType>
+        <profile>Admin</profile>
+        <type>Flexipage</type>
+    </profileActionOverrides>
+    <tabs>standard-home</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-Contact</tabs>
+    <tabs>ARF_Invoice__c</tabs>
+    <tabs>ARF_Payment__c</tabs>
+    <tabs>ARF_Dispute__c</tabs>
+    <tabs>ARF_Deduction__c</tabs>
+    <tabs>ARF_Communication__c</tabs>
+    <tabs>ARF_Promise_To_Pay__c</tabs>
+    <tabs>ARF_Note__c</tabs>
+    <tabs>ARF_Collection_Strategy__c</tabs>
+    <tabs>ARF_Collection_Worklist</tabs>
+    <tabs>ARF_Email_Template__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

@@ -1,0 +1,148 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open dispute-modal">
+        <div class="slds-modal__container">
+            <!-- Header -->
+            <header class="slds-modal__header modal-header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                    title="Close" onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium">Create Disputes</h2>
+                <p class="slds-text-body_small slds-m-top_xx-small">{subtitle}</p>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_none">
+                <div class="split-panel">
+                    <!-- LEFT PANEL: Configure Disputes -->
+                    <div class="panel-left">
+                        <div class="panel-header">
+                            <lightning-icon icon-name="utility:settings" size="xx-small" class="panel-header-icon"></lightning-icon>
+                            <span class="panel-title">Configuration</span>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Apply same to all toggle -->
+                            <div class="global-config">
+                                <div class="toggle-row">
+                                    <lightning-input type="toggle" label="Apply same to all invoices"
+                                        checked={applyToAll} onchange={handleApplyToggle}
+                                        message-toggle-active="On" message-toggle-inactive="Off"></lightning-input>
+                                </div>
+                                <template lwc:if={applyToAll}>
+                                    <div class="slds-grid slds-gutters_x-small slds-m-top_small">
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <lightning-combobox label="Category" value={globalCategory}
+                                                options={categoryOptions} onchange={handleGlobalCategoryChange}>
+                                            </lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <lightning-combobox label="Subcategory" value={globalRootCause}
+                                                options={subcategoryOptions} onchange={handleGlobalRootCauseChange}>
+                                            </lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <lightning-combobox label="Priority" value={globalPriority}
+                                                options={priorityOptions} onchange={handleGlobalPriorityChange}>
+                                            </lightning-combobox>
+                                        </div>
+                                    </div>
+                                    <lightning-textarea label="Description" value={globalDescription}
+                                        onchange={handleGlobalDescriptionChange} max-length="10000"
+                                        placeholder="Describe the dispute reason..." class="slds-m-top_x-small">
+                                    </lightning-textarea>
+                                </template>
+                            </div>
+
+                            <!-- Per-invoice table -->
+                            <div class="invoice-table slds-m-top_small">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer compact-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-invoice">Invoice #</th>
+                                            <th scope="col" class="col-balance">Balance</th>
+                                            <template lwc:if={showPerRow}>
+                                                <th scope="col" class="col-category">Category</th>
+                                                <th scope="col" class="col-subcategory">Subcategory</th>
+                                                <th scope="col" class="col-priority">Priority</th>
+                                            </template>
+                                            <th scope="col" class="col-amount">Dispute Amt</th>
+                                            <th scope="col" class="col-remove"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={disputeRows} for:item="row">
+                                            <tr key={row.invoiceId}>
+                                                <td class="col-invoice">{row.documentNumber}</td>
+                                                <td class="col-balance">{row.formattedBalance}</td>
+                                                <template lwc:if={showPerRow}>
+                                                    <td class="col-category">
+                                                        <lightning-combobox value={row.category}
+                                                            options={categoryOptions} variant="label-hidden"
+                                                            data-id={row.invoiceId} data-field="category"
+                                                            onchange={handleRowFieldChange}></lightning-combobox>
+                                                    </td>
+                                                    <td class="col-subcategory">
+                                                        <lightning-combobox value={row.rootCause}
+                                                            options={subcategoryOptions} variant="label-hidden"
+                                                            data-id={row.invoiceId} data-field="rootCause"
+                                                            onchange={handleRowFieldChange}></lightning-combobox>
+                                                    </td>
+                                                    <td class="col-priority">
+                                                        <lightning-combobox value={row.priority}
+                                                            options={priorityOptions} variant="label-hidden"
+                                                            data-id={row.invoiceId} data-field="priority"
+                                                            onchange={handleRowFieldChange}></lightning-combobox>
+                                                    </td>
+                                                </template>
+                                                <td class="col-amount">
+                                                    <lightning-input type="number" value={row.amount}
+                                                        formatter="currency" step="0.01" variant="label-hidden"
+                                                        data-id={row.invoiceId} data-field="amount"
+                                                        onchange={handleRowFieldChange}></lightning-input>
+                                                </td>
+                                                <td class="col-remove">
+                                                    <lightning-button-icon icon-name="utility:close"
+                                                        variant="bare" alternative-text="Remove"
+                                                        data-id={row.invoiceId} onclick={handleRemoveRow}>
+                                                    </lightning-button-icon>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: Communication -->
+                    <div class="panel-right">
+                        <div class="panel-header">
+                            <lightning-icon icon-name="utility:email" size="xx-small" class="panel-header-icon"></lightning-icon>
+                            <span class="panel-title">Communication</span>
+                        </div>
+                        <div class="panel-body">
+                            <c-arf-communication-step
+                                account-id={accountId}
+                                invoice-ids={invoiceIdList}
+                                context-label="Dispute created"
+                                stacked>
+                            </c-arf-communication-step>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer modal-footer">
+                <lightning-button label="Cancel" onclick={handleCancel}
+                    class="slds-m-right_x-small"></lightning-button>
+                <lightning-button variant="brand" label={submitLabel}
+                    disabled={isSubmitDisabled} onclick={handleSubmit}></lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+
+    <template lwc:if={isSubmitting}>
+        <lightning-spinner alternative-text="Creating disputes..." size="medium"></lightning-spinner>
+    </template>
+</template>

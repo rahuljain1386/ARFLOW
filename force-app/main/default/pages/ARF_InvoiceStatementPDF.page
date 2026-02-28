@@ -1,0 +1,190 @@
+<apex:page controller="ARF_InvoiceStatementPDFCtrl" renderAs="pdf" applyBodyTag="false" applyHtmlTag="false" showHeader="false" sidebar="false">
+<html>
+<head>
+<style type="text/css">
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #333;
+        margin: 40px;
+    }
+    .header {
+        border-bottom: 3px solid #0070d2;
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+    .header h1 {
+        font-size: 22px;
+        color: #0070d2;
+        margin: 0 0 5px 0;
+    }
+    .header .subtitle {
+        font-size: 12px;
+        color: #666;
+    }
+    .account-info {
+        margin-bottom: 25px;
+    }
+    .account-info table {
+        width: 100%;
+    }
+    .account-info td {
+        vertical-align: top;
+        padding: 3px 0;
+    }
+    .account-info .label {
+        font-weight: bold;
+        color: #555;
+        width: 120px;
+    }
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .invoice-table th {
+        background-color: #0070d2;
+        color: white;
+        padding: 8px 10px;
+        text-align: left;
+        font-size: 10px;
+        text-transform: uppercase;
+    }
+    .invoice-table th.right {
+        text-align: right;
+    }
+    .invoice-table td {
+        padding: 7px 10px;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 11px;
+    }
+    .invoice-table td.right {
+        text-align: right;
+    }
+    .invoice-table tr.alt {
+        background-color: #f8f9fa;
+    }
+    .totals-row td {
+        font-weight: bold;
+        border-top: 2px solid #0070d2;
+        padding-top: 10px;
+        font-size: 12px;
+    }
+    .footer {
+        margin-top: 30px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+        font-size: 9px;
+        color: #999;
+        text-align: center;
+    }
+    .overdue {
+        color: #c23934;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Invoice Statement</h1>
+    <div class="subtitle">Generated on {!generatedDate}</div>
+</div>
+
+<div class="account-info">
+    <table>
+        <tr>
+            <td class="label">Account:</td>
+            <td>{!account.Name}</td>
+            <td class="label">Account #:</td>
+            <td>{!account.AccountNumber}</td>
+        </tr>
+        <tr>
+            <td class="label">Address:</td>
+            <td>
+                <apex:outputText value="{!account.BillingStreet}" rendered="{!NOT(ISBLANK(account.BillingStreet))}"/><br/>
+                <apex:outputText value="{!account.BillingCity}" rendered="{!NOT(ISBLANK(account.BillingCity))}"/><apex:outputText value=", " rendered="{!AND(NOT(ISBLANK(account.BillingCity)), NOT(ISBLANK(account.BillingState)))}"/>
+                <apex:outputText value="{!account.BillingState}" rendered="{!NOT(ISBLANK(account.BillingState))}"/>
+                <apex:outputText value=" {!account.BillingPostalCode}" rendered="{!NOT(ISBLANK(account.BillingPostalCode))}"/>
+            </td>
+            <td class="label">Invoices:</td>
+            <td>{!invoices.size}</td>
+        </tr>
+    </table>
+</div>
+
+<table class="invoice-table">
+    <tr>
+        <th>Document #</th>
+        <th>Invoice Date</th>
+        <th>Due Date</th>
+        <th>PO Number</th>
+        <th>Status</th>
+        <th class="right">Amount</th>
+        <th class="right">Balance</th>
+        <th class="right">Days Past Due</th>
+    </tr>
+    <apex:repeat value="{!invoices}" var="inv">
+        <tr>
+            <td>{!inv.Document_Number__c}</td>
+            <td>
+                <apex:outputText value="{0,date,MM/dd/yyyy}">
+                    <apex:param value="{!inv.Invoice_Date__c}"/>
+                </apex:outputText>
+            </td>
+            <td>
+                <apex:outputText value="{0,date,MM/dd/yyyy}">
+                    <apex:param value="{!inv.Due_Date__c}"/>
+                </apex:outputText>
+            </td>
+            <td>{!inv.PO_Number__c}</td>
+            <td>{!inv.Status__c}</td>
+            <td class="right">
+                <apex:outputText value="${0,number,#,##0.00}">
+                    <apex:param value="{!inv.Amount__c}"/>
+                </apex:outputText>
+            </td>
+            <td class="right">
+                <apex:outputText value="${0,number,#,##0.00}">
+                    <apex:param value="{!inv.Balance__c}"/>
+                </apex:outputText>
+            </td>
+            <td class="right">
+                <apex:outputPanel rendered="{!inv.Days_Past_Due__c > 0}">
+                    <span class="overdue">
+                        <apex:outputText value="{0,number,0}">
+                            <apex:param value="{!inv.Days_Past_Due__c}"/>
+                        </apex:outputText>
+                    </span>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!inv.Days_Past_Due__c <= 0}">
+                    <apex:outputText value="{0,number,0}">
+                        <apex:param value="{!inv.Days_Past_Due__c}"/>
+                    </apex:outputText>
+                </apex:outputPanel>
+            </td>
+        </tr>
+    </apex:repeat>
+    <tr class="totals-row">
+        <td colspan="5">Total ({!invoices.size} invoices)</td>
+        <td class="right">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!totalAmount}"/>
+            </apex:outputText>
+        </td>
+        <td class="right">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!totalBalance}"/>
+            </apex:outputText>
+        </td>
+        <td></td>
+    </tr>
+</table>
+
+<div class="footer">
+    This statement was generated automatically. Please contact us if you have any questions regarding these invoices.
+</div>
+
+</body>
+</html>
+</apex:page>

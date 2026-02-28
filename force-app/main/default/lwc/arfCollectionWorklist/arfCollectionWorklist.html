@@ -1,0 +1,68 @@
+<template>
+    <lightning-card title={cardTitle} icon-name="standard:work_order">
+        <div slot="actions">
+            <lightning-button label={toggleLabel} icon-name={toggleIcon}
+                onclick={handleToggleView} class="slds-m-right_x-small"></lightning-button>
+            <lightning-button label="Refresh" icon-name="utility:refresh"
+                onclick={handleRefresh}></lightning-button>
+        </div>
+
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-p-around_medium slds-text-color_error">
+                Error loading worklist. Please try again.
+            </div>
+        </template>
+
+        <template lwc:if={hasData}>
+            <lightning-datatable
+                key-field="accountId"
+                data={worklistData}
+                columns={columns}
+                hide-checkbox-column
+                sorted-by={sortedBy}
+                sorted-direction={sortedDirection}
+                onrowaction={handleRowAction}
+                onsort={handleSort}>
+            </lightning-datatable>
+        </template>
+
+        <template lwc:elseif={noError}>
+            <div class="slds-p-around_medium slds-text-align_center slds-text-color_weak">
+                No accounts to display. All accounts are up to date!
+            </div>
+        </template>
+    </lightning-card>
+
+    <!-- Log Call Modal -->
+    <template lwc:if={showCallModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleCloseCallModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Log Call</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input label="Subject" value={callSubject}
+                        onchange={handleCallSubjectChange} required></lightning-input>
+                    <lightning-textarea label="Notes" value={callBody}
+                        onchange={handleCallBodyChange} class="slds-m-top_small"></lightning-textarea>
+                    <lightning-input label="Duration (seconds)" type="number" value={callDuration}
+                        onchange={handleCallDurationChange} class="slds-m-top_small" min="0"></lightning-input>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCloseCallModal}></lightning-button>
+                    <lightning-button label="Save" variant="brand" onclick={handleSaveCall}
+                        class="slds-m-left_x-small"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

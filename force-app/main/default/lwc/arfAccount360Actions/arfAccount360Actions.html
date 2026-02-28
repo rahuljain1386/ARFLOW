@@ -1,0 +1,36 @@
+<template>
+    <div class="slds-p-around_small">
+        <lightning-button-group>
+            <lightning-button
+                label="Email"
+                icon-name="utility:email"
+                onclick={handleEmail}>
+            </lightning-button>
+            <lightning-button
+                label="SMS"
+                icon-name="utility:chat"
+                onclick={handleSMS}>
+            </lightning-button>
+            <lightning-button
+                label="Call"
+                icon-name="utility:call"
+                onclick={handleCall}>
+            </lightning-button>
+            <lightning-button
+                label="Note"
+                icon-name="utility:note"
+                onclick={handleNote}>
+            </lightning-button>
+            <lightning-button
+                label="Create Dispute"
+                icon-name="utility:warning"
+                onclick={handleDispute}>
+            </lightning-button>
+            <lightning-button
+                label="Promise to Pay"
+                icon-name="utility:money"
+                onclick={handlePromiseToPay}>
+            </lightning-button>
+        </lightning-button-group>
+    </div>
+</template>

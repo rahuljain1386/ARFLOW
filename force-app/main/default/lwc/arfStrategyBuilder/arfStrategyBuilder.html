@@ -1,0 +1,156 @@
+<template>
+    <lightning-card title={strategyName} icon-name="standard:strategy">
+        <div slot="actions">
+            <lightning-button label="Add Step" icon-name="utility:add"
+                onclick={handleAddStep} class="slds-m-right_x-small"></lightning-button>
+            <lightning-button label="Save" icon-name="utility:save" variant="brand"
+                onclick={handleSave} disabled={saveDisabled} class="slds-m-right_x-small"></lightning-button>
+            <lightning-button label={activateLabel} icon-name={activateIcon}
+                variant={activateVariant} onclick={handleToggleActive}></lightning-button>
+        </div>
+
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-p-around_medium slds-text-color_error">
+                Error loading strategy. Please try again.
+            </div>
+        </template>
+
+        <template lwc:if={isActive}>
+            <div class="slds-p-horizontal_medium slds-p-top_x-small">
+                <lightning-badge label="Active" class="slds-theme_success"></lightning-badge>
+            </div>
+        </template>
+
+        <template lwc:if={hasSteps}>
+            <div class="slds-p-around_medium">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col" style="width:50px">#</th>
+                            <th scope="col">Step Name</th>
+                            <th scope="col" style="width:70px">Day</th>
+                            <th scope="col" style="width:90px">Action</th>
+                            <th scope="col" style="width:100px">Subject</th>
+                            <th scope="col" style="width:60px">Promise</th>
+                            <th scope="col" style="width:60px">Dispute</th>
+                            <th scope="col" style="width:160px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={steps} for:item="step">
+                            <tr key={step.id}>
+                                <td>{step.stepNumber}</td>
+                                <td>{step.name}</td>
+                                <td>{step.dayOffset}</td>
+                                <td>{step.action}</td>
+                                <td>{step.subject}</td>
+                                <td>
+                                    <template lwc:if={step.skipIfPromise}>
+                                        <lightning-icon icon-name="utility:check" size="x-small"
+                                            alternative-text="Skip"></lightning-icon>
+                                    </template>
+                                </td>
+                                <td>
+                                    <template lwc:if={step.skipIfDispute}>
+                                        <lightning-icon icon-name="utility:check" size="x-small"
+                                            alternative-text="Skip"></lightning-icon>
+                                    </template>
+                                </td>
+                                <td>
+                                    <lightning-button-icon icon-name="utility:edit" data-index={step.index}
+                                        onclick={handleEditStep} alternative-text="Edit"
+                                        class="slds-m-right_xx-small"></lightning-button-icon>
+                                    <lightning-button-icon icon-name="utility:arrowup" data-index={step.index}
+                                        onclick={handleMoveUp} alternative-text="Move Up"
+                                        class="slds-m-right_xx-small"></lightning-button-icon>
+                                    <lightning-button-icon icon-name="utility:arrowdown" data-index={step.index}
+                                        onclick={handleMoveDown} alternative-text="Move Down"
+                                        class="slds-m-right_xx-small"></lightning-button-icon>
+                                    <lightning-button-icon icon-name="utility:delete" data-index={step.index}
+                                        onclick={handleDeleteStep} alternative-text="Delete"
+                                        variant="bare-destructive"></lightning-button-icon>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+
+        <template lwc:elseif={noError}>
+            <div class="slds-p-around_medium slds-text-align_center slds-text-color_weak">
+                No steps defined. Click "Add Step" to start building the strategy.
+            </div>
+        </template>
+    </lightning-card>
+
+    <!-- Step Editor Modal -->
+    <template lwc:if={showStepModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleCloseModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">{modalTitle}</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                            <lightning-input label="Step Name" value={editingStep.name}
+                                data-field="name" onchange={handleStepFieldChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-4 slds-p-bottom_small">
+                            <lightning-input label="Day Offset" type="number" value={editingStep.dayOffset}
+                                data-field="dayOffset" onchange={handleStepFieldChange} min="0" required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-4 slds-p-bottom_small">
+                            <lightning-combobox label="Action" value={editingStep.action}
+                                options={actionOptions} data-field="action"
+                                onchange={handleStepFieldChange} required></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-p-bottom_small">
+                            <lightning-input label="Subject" value={editingStep.subject}
+                                data-field="subject" onchange={handleStepFieldChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-p-bottom_small">
+                            <lightning-textarea label="Body / Notes" value={editingStep.body}
+                                data-field="body" onchange={handleStepFieldChange}></lightning-textarea>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                            <lightning-input label="Escalate To (Role)" value={editingStep.escalateTo}
+                                data-field="escalateTo" onchange={handleStepFieldChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                            <lightning-input label="Task Subject" value={editingStep.taskSubject}
+                                data-field="taskSubject" onchange={handleStepFieldChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-p-bottom_small">
+                            <lightning-input type="checkbox" label="Create Task" checked={editingStep.createTask}
+                                data-field="createTask" onchange={handleStepCheckboxChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-p-bottom_small">
+                            <lightning-input type="checkbox" label="Skip if Promise" checked={editingStep.skipIfPromise}
+                                data-field="skipIfPromise" onchange={handleStepCheckboxChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-p-bottom_small">
+                            <lightning-input type="checkbox" label="Skip if Dispute" checked={editingStep.skipIfDispute}
+                                data-field="skipIfDispute" onchange={handleStepCheckboxChange}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCloseModal}></lightning-button>
+                    <lightning-button label="Save Step" variant="brand" onclick={handleSaveStep}
+                        class="slds-m-left_x-small"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

@@ -1,0 +1,220 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <!-- Header -->
+            <div class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-modal__title slds-hyphenate">{modalTitle}</h2>
+            </div>
+
+            <!-- Body -->
+            <div class="slds-modal__content slds-p-around_medium">
+                <template lwc:if={isLoading}>
+                    <lightning-spinner alternative-text="Saving..." size="medium"></lightning-spinner>
+                </template>
+
+                <!-- Email Form -->
+                <template lwc:if={isEmail}>
+                    <lightning-combobox
+                        label="Contact"
+                        value={contactId}
+                        options={contactOptions}
+                        onchange={handleContactChange}>
+                    </lightning-combobox>
+                    <lightning-input
+                        label="To Address"
+                        type="email"
+                        value={toAddress}
+                        onchange={handleToAddressChange}>
+                    </lightning-input>
+                    <lightning-input
+                        label="Subject"
+                        value={subject}
+                        onchange={handleSubjectChange}
+                        required>
+                    </lightning-input>
+                    <lightning-textarea
+                        label="Body"
+                        value={body}
+                        onchange={handleBodyChange}
+                        max-length="32000">
+                    </lightning-textarea>
+                </template>
+
+                <!-- SMS Form -->
+                <template lwc:if={isSMS}>
+                    <lightning-combobox
+                        label="Contact"
+                        value={contactId}
+                        options={contactOptions}
+                        onchange={handleContactChange}>
+                    </lightning-combobox>
+                    <lightning-textarea
+                        label="Message"
+                        value={body}
+                        onchange={handleBodyChange}
+                        max-length="160"
+                        required>
+                    </lightning-textarea>
+                </template>
+
+                <!-- Call Form -->
+                <template lwc:if={isCall}>
+                    <lightning-combobox
+                        label="Contact"
+                        value={contactId}
+                        options={contactOptions}
+                        onchange={handleContactChange}>
+                    </lightning-combobox>
+                    <lightning-combobox
+                        label="Direction"
+                        value={direction}
+                        options={directionOptions}
+                        onchange={handleDirectionChange}>
+                    </lightning-combobox>
+                    <lightning-input
+                        label="Subject"
+                        value={subject}
+                        onchange={handleSubjectChange}>
+                    </lightning-input>
+                    <lightning-input
+                        label="Call Duration (seconds)"
+                        type="number"
+                        value={callDuration}
+                        onchange={handleCallDurationChange}
+                        min="0">
+                    </lightning-input>
+                    <lightning-textarea
+                        label="Notes"
+                        value={body}
+                        onchange={handleBodyChange}
+                        max-length="32000">
+                    </lightning-textarea>
+                </template>
+
+                <!-- Note Form -->
+                <template lwc:if={isNote}>
+                    <lightning-input
+                        label="Title"
+                        value={noteTitle}
+                        onchange={handleNoteTitleChange}
+                        required>
+                    </lightning-input>
+                    <lightning-combobox
+                        label="Type"
+                        value={noteType}
+                        options={noteTypeOptions}
+                        onchange={handleNoteTypeChange}>
+                    </lightning-combobox>
+                    <lightning-textarea
+                        label="Body"
+                        value={noteBody}
+                        onchange={handleNoteBodyChange}
+                        max-length="32000"
+                        required>
+                    </lightning-textarea>
+                    <lightning-combobox
+                        label="Related Invoice"
+                        value={invoiceId}
+                        options={invoiceOptions}
+                        onchange={handleInvoiceChange}>
+                    </lightning-combobox>
+                    <lightning-input
+                        label="Pin this note"
+                        type="checkbox"
+                        checked={isPinned}
+                        onchange={handlePinnedChange}>
+                    </lightning-input>
+                </template>
+
+                <!-- Dispute Form -->
+                <template lwc:if={isDispute}>
+                    <lightning-combobox
+                        label="Invoice"
+                        value={invoiceId}
+                        options={invoiceOptions}
+                        onchange={handleInvoiceChange}>
+                    </lightning-combobox>
+                    <lightning-input
+                        label="Dispute Amount"
+                        type="number"
+                        value={disputeAmount}
+                        onchange={handleDisputeAmountChange}
+                        formatter="currency"
+                        step="0.01"
+                        required>
+                    </lightning-input>
+                    <lightning-combobox
+                        label="Category"
+                        value={disputeCategory}
+                        options={disputeCategoryOptions}
+                        onchange={handleDisputeCategoryChange}
+                        required>
+                    </lightning-combobox>
+                    <lightning-combobox
+                        label="Priority"
+                        value={disputePriority}
+                        options={priorityOptions}
+                        onchange={handleDisputePriorityChange}>
+                    </lightning-combobox>
+                    <lightning-textarea
+                        label="Description"
+                        value={disputeDescription}
+                        onchange={handleDisputeDescriptionChange}
+                        max-length="10000">
+                    </lightning-textarea>
+                </template>
+
+                <!-- Promise to Pay Form -->
+                <template lwc:if={isPromiseToPay}>
+                    <lightning-input
+                        label="Promised Amount"
+                        type="number"
+                        value={promiseAmount}
+                        onchange={handlePromiseAmountChange}
+                        formatter="currency"
+                        step="0.01"
+                        required>
+                    </lightning-input>
+                    <lightning-input
+                        label="Promise Date"
+                        type="date"
+                        value={promiseDate}
+                        onchange={handlePromiseDateChange}
+                        required>
+                    </lightning-input>
+                    <lightning-combobox
+                        label="Related Invoice"
+                        value={invoiceId}
+                        options={invoiceOptions}
+                        onchange={handleInvoiceChange}>
+                    </lightning-combobox>
+                    <lightning-textarea
+                        label="Notes"
+                        value={promiseNotes}
+                        onchange={handlePromiseNotesChange}
+                        max-length="10000">
+                    </lightning-textarea>
+                </template>
+            </div>
+
+            <!-- Footer -->
+            <div class="slds-modal__footer">
+                <lightning-button
+                    label="Cancel"
+                    onclick={handleClose}>
+                </lightning-button>
+                <lightning-button
+                    label="Save"
+                    variant="brand"
+                    onclick={handleSave}
+                    disabled={isLoading}
+                    class="slds-m-left_x-small">
+                </lightning-button>
+            </div>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

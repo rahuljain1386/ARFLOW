@@ -1,0 +1,140 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open promise-modal">
+        <div class="slds-modal__container">
+            <!-- Header -->
+            <header class="slds-modal__header modal-header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                    title="Close" onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium">Promise To Pay</h2>
+                <p class="slds-text-body_small slds-m-top_xx-small">{subtitle}</p>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_none">
+                <div class="split-panel">
+                    <!-- LEFT PANEL: Configure Promise -->
+                    <div class="panel-left">
+                        <div class="panel-header">
+                            <lightning-icon icon-name="utility:settings" size="xx-small" class="panel-header-icon"></lightning-icon>
+                            <span class="panel-title">Configuration</span>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Global config -->
+                            <div class="global-config">
+                                <div class="slds-grid slds-gutters_x-small">
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <lightning-input type="date" label="Promise Date" value={globalPromiseDate}
+                                            required onchange={handleGlobalDateChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <lightning-input type="number" label="Total Amount" value={totalPromiseAmount}
+                                            formatter="currency" step="0.01"
+                                            onchange={handleTotalAmountChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3">
+                                        <div class="toggle-row slds-m-top_large">
+                                            <lightning-input type="toggle" label="Same date for all"
+                                                checked={applySameDate} onchange={handleSameDateToggle}
+                                                message-toggle-active="On" message-toggle-inactive="Off">
+                                            </lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <lightning-textarea label="Notes" value={globalNotes}
+                                    onchange={handleGlobalNotesChange} max-length="5000"
+                                    placeholder="Payment details, conditions..." class="slds-m-top_x-small">
+                                </lightning-textarea>
+                            </div>
+
+                            <!-- Per-invoice table -->
+                            <div class="invoice-table slds-m-top_small">
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer compact-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" class="col-invoice">Invoice #</th>
+                                            <th scope="col" class="col-balance">Balance</th>
+                                            <th scope="col" class="col-amount">Promise Amt</th>
+                                            <template lwc:if={showPerRowDate}>
+                                                <th scope="col" class="col-date">Promise Date</th>
+                                            </template>
+                                            <th scope="col" class="col-remove"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={promiseRows} for:item="row">
+                                            <tr key={row.invoiceId}>
+                                                <td class="col-invoice">{row.documentNumber}</td>
+                                                <td class="col-balance">{row.formattedBalance}</td>
+                                                <td class="col-amount">
+                                                    <lightning-input type="number" value={row.amount}
+                                                        formatter="currency" step="0.01" variant="label-hidden"
+                                                        data-id={row.invoiceId} data-field="amount"
+                                                        onchange={handleRowFieldChange}></lightning-input>
+                                                </td>
+                                                <template lwc:if={showPerRowDate}>
+                                                    <td class="col-date">
+                                                        <lightning-input type="date" value={row.promiseDate}
+                                                            variant="label-hidden"
+                                                            data-id={row.invoiceId} data-field="promiseDate"
+                                                            onchange={handleRowFieldChange}></lightning-input>
+                                                    </td>
+                                                </template>
+                                                <td class="col-remove">
+                                                    <lightning-button-icon icon-name="utility:close"
+                                                        variant="bare" alternative-text="Remove"
+                                                        data-id={row.invoiceId} onclick={handleRemoveRow}>
+                                                    </lightning-button-icon>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="total-row">
+                                            <td class="col-invoice"><strong>Total</strong></td>
+                                            <td class="col-balance"><strong>{formattedTotalBalance}</strong></td>
+                                            <td class="col-amount"><strong>{formattedTotalPromise}</strong></td>
+                                            <template lwc:if={showPerRowDate}>
+                                                <td class="col-date"></td>
+                                            </template>
+                                            <td class="col-remove"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: Communication -->
+                    <div class="panel-right">
+                        <div class="panel-header">
+                            <lightning-icon icon-name="utility:email" size="xx-small" class="panel-header-icon"></lightning-icon>
+                            <span class="panel-title">Communication</span>
+                        </div>
+                        <div class="panel-body">
+                            <c-arf-communication-step
+                                account-id={accountId}
+                                invoice-ids={invoiceIdList}
+                                context-label="Promise to Pay created"
+                                stacked>
+                            </c-arf-communication-step>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer modal-footer">
+                <lightning-button label="Cancel" onclick={handleCancel}
+                    class="slds-m-right_x-small"></lightning-button>
+                <lightning-button variant="brand" label={submitLabel}
+                    disabled={isSubmitDisabled} onclick={handleSubmit}></lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+
+    <template lwc:if={isSubmitting}>
+        <lightning-spinner alternative-text="Creating promises..." size="medium"></lightning-spinner>
+    </template>
+</template>

@@ -1,0 +1,72 @@
+<template>
+    <div class="slds-p-around_small">
+        <p class="slds-m-bottom_small slds-text-body_small">{cardTitle}</p>
+
+        <template lwc:if={hasAnyNotes}>
+            <!-- Pinned Notes -->
+            <template lwc:if={hasPinnedNotes}>
+                <div class="slds-m-bottom_medium">
+                    <p class="slds-text-title_caps slds-m-bottom_x-small">Pinned</p>
+                    <template for:each={pinnedNotes} for:item="note">
+                        <div key={note.Id} class="slds-box slds-box_x-small slds-m-bottom_x-small pinned-note">
+                            <div class="slds-grid slds-grid_align-spread">
+                                <div>
+                                    <a href={note.noteUrl}>
+                                        <strong>{note.Title__c}</strong>
+                                    </a>
+                                    <template lwc:if={note.Type__c}>
+                                        <span class="slds-badge slds-m-left_x-small">{note.Type__c}</span>
+                                    </template>
+                                </div>
+                                <div class="slds-text-body_small slds-text-color_weak">
+                                    <lightning-icon icon-name="utility:pin" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>
+                                    {note.authorName} &bull;
+                                    <lightning-formatted-date-time value={note.CreatedDate}></lightning-formatted-date-time>
+                                </div>
+                            </div>
+                            <p class="slds-m-top_xx-small slds-text-body_small">{note.truncatedBody}</p>
+                            <template lwc:if={note.invoiceRef}>
+                                <p class="slds-m-top_xx-small slds-text-body_small slds-text-color_weak">Invoice: {note.invoiceRef}</p>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Regular Notes -->
+            <template lwc:if={hasUnpinnedNotes}>
+                <template for:each={unpinnedNotes} for:item="note">
+                    <div key={note.Id} class="slds-box slds-box_x-small slds-m-bottom_x-small">
+                        <div class="slds-grid slds-grid_align-spread">
+                            <div>
+                                <a href={note.noteUrl}>
+                                    <strong>{note.Title__c}</strong>
+                                </a>
+                                <template lwc:if={note.Type__c}>
+                                    <span class="slds-badge slds-m-left_x-small">{note.Type__c}</span>
+                                </template>
+                            </div>
+                            <div class="slds-text-body_small slds-text-color_weak">
+                                {note.authorName} &bull;
+                                <lightning-formatted-date-time value={note.CreatedDate}></lightning-formatted-date-time>
+                            </div>
+                        </div>
+                        <p class="slds-m-top_xx-small slds-text-body_small">{note.truncatedBody}</p>
+                        <template lwc:if={note.invoiceRef}>
+                            <p class="slds-m-top_xx-small slds-text-body_small slds-text-color_weak">Invoice: {note.invoiceRef}</p>
+                        </template>
+                    </div>
+                </template>
+            </template>
+        </template>
+
+        <template lwc:elseif={error}>
+            <p class="slds-text-color_error">Error loading notes.</p>
+        </template>
+        <template lwc:else>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <p class="slds-text-body_regular">No notes found.</p>
+            </div>
+        </template>
+    </div>
+</template>

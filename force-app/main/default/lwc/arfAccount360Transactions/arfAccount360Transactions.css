@@ -1,0 +1,167 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.page-size-picker {
+    width: 70px;
+}
+
+.view-picker {
+    width: 160px;
+    flex-shrink: 0;
+}
+
+.search-box {
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+.toolbar-row {
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 8px;
+}
+
+.pagination-bar {
+    border-top: 1px solid #e5e5e5;
+}
+
+.slds-modal__content {
+    overflow: visible;
+}
+
+/* ===== Action Bar ===== */
+.action-bar {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafbfc;
+}
+
+/* Selection buttons */
+.sel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    margin-right: 4px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #444;
+    background: #fff;
+    border: 1px solid #d8dde6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+}
+.sel-btn:hover:not(:disabled) {
+    background: #f3f3f3;
+    border-color: #c9c7c5;
+}
+.sel-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.sel-btn-icon {
+    --slds-c-icon-color-foreground-default: #706e6b;
+}
+.sel-btn-clear {
+    color: #706e6b;
+}
+
+/* Selection summary pill */
+.selection-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    margin-left: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #0070d2;
+    background: #eaf5fe;
+    border: 1px solid #b0d5f5;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* ===== Action Buttons ===== */
+.action-buttons {
+    gap: 6px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    background: #fff;
+    border: 1px solid #d8dde6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+    position: relative;
+}
+
+/* Color accents — left border */
+.action-btn-notes {
+    border-left: 3px solid #b0adab;
+}
+.action-btn-disputes {
+    border-left: 3px solid #f59e0b;
+}
+.action-btn-contact {
+    border-left: 3px solid #0070d2;
+}
+.action-btn-promise {
+    border-left: 3px solid #2e844a;
+}
+
+/* Hover effects with tinted backgrounds */
+.action-btn-notes:hover:not(:disabled) {
+    background: #f5f5f4;
+    border-color: #b0adab;
+}
+.action-btn-disputes:hover:not(:disabled) {
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+.action-btn-contact:hover:not(:disabled) {
+    background: #eaf5fe;
+    border-color: #0070d2;
+}
+.action-btn-promise:hover:not(:disabled) {
+    background: #ecfdf5;
+    border-color: #2e844a;
+}
+
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Icon colors */
+.action-icon-notes {
+    --slds-c-icon-color-foreground-default: #b0adab;
+}
+.action-icon-disputes {
+    --slds-c-icon-color-foreground-default: #f59e0b;
+}
+.action-icon-contact {
+    --slds-c-icon-color-foreground-default: #0070d2;
+}
+.action-icon-promise {
+    --slds-c-icon-color-foreground-default: #2e844a;
+}
+
+/* Divider between actions and export */
+.action-divider {
+    width: 1px;
+    height: 24px;
+    background: #d8dde6;
+    margin: 0 4px;
+}

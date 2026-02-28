@@ -1,0 +1,84 @@
+<template>
+    <c-arf-account360-header
+        record-id={recordId}
+        onquickaction={handleQuickAction}>
+    </c-arf-account360-header>
+
+    <lightning-card>
+        <!-- Custom Tab Bar -->
+        <div class="tab-bar">
+            <template for:each={visibleTabs} for:item="tab">
+                <button key={tab.value} class={tab.tabClass} data-tab={tab.value} onclick={handleTabClick}>
+                    <lightning-icon icon-name={tab.iconName} size="xx-small" class="tab-icon"></lightning-icon>
+                    <span class="tab-label">{tab.label}</span>
+                    <template lwc:if={tab.hasBadge}>
+                        <span class={tab.badgeClass}>{tab.badgeCount}</span>
+                    </template>
+                </button>
+            </template>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <template lwc:if={isDetailsTab}>
+                <c-arf-account360-details record-id={recordId}></c-arf-account360-details>
+            </template>
+
+            <template lwc:if={isTransactionsTab}>
+                <c-arf-account360-transactions
+                    record-id={recordId}
+                    onrecordcreated={handleChildRecordCreated}>
+                </c-arf-account360-transactions>
+            </template>
+
+            <template lwc:if={isDisputesTab}>
+                <c-arf-account360-disputes record-id={recordId} refresh-key={refreshKey}></c-arf-account360-disputes>
+            </template>
+
+            <template lwc:if={isDeductionsTab}>
+                <c-arf-account360-deductions record-id={recordId} refresh-key={refreshKey}></c-arf-account360-deductions>
+            </template>
+
+            <template lwc:if={isEmailsTab}>
+                <c-arf-account360-emails
+                    record-id={recordId}
+                    refresh-key={refreshKey}
+                    onrecordcreated={handleChildRecordCreated}>
+                </c-arf-account360-emails>
+            </template>
+
+            <template lwc:if={isPaymentsTab}>
+                <c-arf-account360-payments record-id={recordId} refresh-key={refreshKey}></c-arf-account360-payments>
+            </template>
+
+            <template lwc:if={isPromisesTab}>
+                <c-arf-promise-to-pay record-id={recordId} refresh-key={refreshKey}></c-arf-promise-to-pay>
+            </template>
+
+            <template lwc:if={isNotesTab}>
+                <c-arf-account360-notes record-id={recordId} refresh-key={refreshKey}></c-arf-account360-notes>
+            </template>
+
+            <template lwc:if={isHistoryTab}>
+                <c-arf-account360-history record-id={recordId}></c-arf-account360-history>
+            </template>
+        </div>
+    </lightning-card>
+
+    <template lwc:if={isEmailAction}>
+        <c-arf-email-composer
+            record-id={recordId}
+            onclose={handleModalClose}
+            onrecordcreated={handleRecordCreated}>
+        </c-arf-email-composer>
+    </template>
+
+    <template lwc:if={showQuickActionModal}>
+        <c-arf-account360-quick-action-modal
+            record-id={recordId}
+            action-type={quickActionType}
+            onclose={handleModalClose}
+            onrecordcreated={handleRecordCreated}>
+        </c-arf-account360-quick-action-modal>
+    </template>
+</template>

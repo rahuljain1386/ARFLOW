@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Body_HTML__c</fullName>
+    <description>HTML email body with merge fields like {invoice_table}, {account_name}</description>
+    <externalId>false</externalId>
+    <label>Body HTML</label>
+    <length>131072</length>
+    <trackHistory>false</trackHistory>
+    <type>LongTextArea</type>
+    <visibleLines>20</visibleLines>
+</CustomField>

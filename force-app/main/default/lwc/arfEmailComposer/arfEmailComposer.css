@@ -1,0 +1,191 @@
+/* Modal sizing */
+.composer-modal {
+    width: 95% !important;
+    max-width: 1200px !important;
+    min-height: 80vh;
+}
+
+/* Header */
+.composer-header {
+    background: linear-gradient(135deg, #0070d2, #1b96ff) !important;
+    padding: 1rem 1.5rem !important;
+}
+.header-icon {
+    --slds-c-icon-color-foreground-default: #fff;
+}
+.header-title {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+.header-subtitle {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Body */
+.composer-body {
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Split layout */
+.composer-layout {
+    display: flex;
+    height: calc(80vh - 130px);
+    min-height: 500px;
+}
+
+.composer-left {
+    flex: 0 0 420px;
+    padding: 1.25rem;
+    overflow-y: auto;
+    border-right: 1px solid #e5e5e5;
+    background: #fafbfc;
+}
+
+.composer-right {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* Field labels */
+.field-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.35rem;
+}
+
+.composer-field {
+    margin-bottom: 0.85rem;
+}
+
+/* Pill container */
+.pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 8px;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    background: #fff;
+    min-height: 36px;
+    align-items: center;
+}
+
+.add-recipient {
+    flex: 1;
+    min-width: 120px;
+}
+
+.inline-input {
+    --slds-c-input-shadow: none;
+}
+
+/* BCC row */
+.bcc-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.bcc-input {
+    flex: 1;
+}
+.include-me-check {
+    flex: 0 0 auto;
+    margin-top: 0.25rem;
+}
+
+/* Divider */
+.composer-divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 1rem 0;
+}
+
+/* Body rich text editor */
+.body-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.rich-text-editor {
+    min-height: 180px;
+}
+
+/* Attachments */
+.options-section {
+    margin-bottom: 1rem;
+}
+.attachment-row {
+    margin-bottom: 0.5rem;
+}
+.format-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0.25rem 0 0 1.5rem;
+}
+.format-legend {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin-bottom: 0.25rem;
+}
+.format-radios {
+    --slds-c-button-group-spacing: 0;
+}
+
+/* Collapsible sections */
+.collapsible-section {
+    margin-bottom: 0.5rem;
+}
+.section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: left;
+}
+.section-toggle:hover {
+    background: #f3f3f3;
+    border-radius: 4px;
+}
+.section-toggle-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.toggle-icon {
+    --slds-c-icon-color-foreground-default: #706e6b;
+}
+.section-content {
+    padding: 0.5rem 0 0.5rem 1.25rem;
+}
+
+/* Follow-up fields */
+.follow-up-fields {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.follow-up-days {
+    flex: 0 0 80px;
+}
+.follow-up-subject {
+    flex: 1;
+}
+
+/* Footer */
+.composer-footer {
+    border-top: 1px solid #e5e5e5 !important;
+    background: #fafbfc !important;
+}

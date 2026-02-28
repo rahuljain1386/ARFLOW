@@ -1,0 +1,214 @@
+<template>
+    <!-- View Controls Bar -->
+    <div class="slds-grid slds-gutters slds-grid_vertical-align-center">
+        <!-- View Selector -->
+        <div class="slds-col slds-size_3-of-12">
+            <lightning-combobox label="View" value={selectedViewValue}
+                options={viewOptions} onchange={handleViewChange}
+                variant="label-hidden" placeholder="Select a view">
+            </lightning-combobox>
+        </div>
+
+        <!-- Column & Filter Buttons -->
+        <div class="slds-col slds-size_5-of-12">
+            <lightning-button-group>
+                <lightning-button label={columnsButtonLabel} icon-name="utility:table"
+                    variant="neutral" onclick={handleOpenColumnChooser}>
+                </lightning-button>
+                <lightning-button label={filterButtonLabel} icon-name="utility:filterList"
+                    variant={filterButtonVariant} onclick={handleOpenFilterBuilder}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+
+        <!-- Save / Delete / Default Actions -->
+        <div class="slds-col slds-size_4-of-12 slds-text-align_right">
+            <lightning-button label="Save View" icon-name="utility:save"
+                variant="neutral" onclick={handleOpenSaveDialog}
+                class="slds-m-right_x-small">
+            </lightning-button>
+            <template lwc:if={canDeleteView}>
+                <lightning-button-icon icon-name="utility:delete"
+                    alternative-text="Delete View" variant="border-filled"
+                    onclick={handleDeleteView} class="slds-m-right_x-small">
+                </lightning-button-icon>
+                <lightning-button-icon icon-name="utility:pinned"
+                    alternative-text="Set as Default" variant="border-filled"
+                    onclick={handleSetDefault}>
+                </lightning-button-icon>
+            </template>
+        </div>
+    </div>
+
+    <!-- Column Chooser Modal -->
+    <template lwc:if={showColumnChooser}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close"
+                        alternative-text="Close" class="slds-modal__close"
+                        onclick={handleCloseColumnChooser}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium">Choose Columns</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-dual-listbox
+                        label="Select columns to display"
+                        source-label="Available"
+                        selected-label="Visible"
+                        options={allColumnOptions}
+                        value={selectedColumns}
+                        onchange={handleColumnChange}>
+                    </lightning-dual-listbox>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral"
+                        onclick={handleCloseColumnChooser} class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button label="Apply" variant="brand"
+                        onclick={handleApplyColumns}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Filter Builder Modal -->
+    <template lwc:if={showFilterBuilder}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close"
+                        alternative-text="Close" class="slds-modal__close"
+                        onclick={handleCloseFilterBuilder}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium">Filter Invoices</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <template for:each={filterRows} for:item="row">
+                        <div key={row.id} class="slds-grid slds-gutters slds-m-bottom_x-small slds-grid_vertical-align-end">
+                            <!-- Field -->
+                            <div class="slds-col slds-size_3-of-12">
+                                <lightning-combobox label="Field" value={row.field}
+                                    options={fieldOptions} onchange={handleFilterFieldChange}
+                                    data-row-id={row.id} variant="label-hidden"
+                                    placeholder="Select field">
+                                </lightning-combobox>
+                            </div>
+                            <!-- Operator -->
+                            <div class="slds-col slds-size_3-of-12">
+                                <lightning-combobox label="Operator" value={row.operator}
+                                    options={row.operatorOptions} onchange={handleFilterOperatorChange}
+                                    data-row-id={row.id} variant="label-hidden"
+                                    placeholder="Select operator">
+                                </lightning-combobox>
+                            </div>
+                            <!-- Value -->
+                            <div class="slds-col slds-size_5-of-12">
+                                <template lwc:if={row.isText}>
+                                    <lightning-input type="text" value={row.value}
+                                        onchange={handleFilterValueChange}
+                                        data-row-id={row.id} variant="label-hidden"
+                                        placeholder="Enter value">
+                                    </lightning-input>
+                                </template>
+                                <template lwc:if={row.isNumber}>
+                                    <lightning-input type="number" value={row.value}
+                                        onchange={handleFilterValueChange}
+                                        data-row-id={row.id} variant="label-hidden"
+                                        placeholder="Enter number" step="0.01">
+                                    </lightning-input>
+                                </template>
+                                <template lwc:if={row.isDate}>
+                                    <lightning-input type="date" value={row.value}
+                                        onchange={handleFilterValueChange}
+                                        data-row-id={row.id} variant="label-hidden">
+                                    </lightning-input>
+                                </template>
+                                <template lwc:if={row.isPicklist}>
+                                    <lightning-combobox value={row.value}
+                                        options={row.statusOptions}
+                                        onchange={handleFilterValueChange}
+                                        data-row-id={row.id} variant="label-hidden"
+                                        placeholder="Select value">
+                                    </lightning-combobox>
+                                </template>
+                                <template lwc:if={row.isBoolean}>
+                                    <lightning-combobox value={row.value}
+                                        options={row.booleanOptions}
+                                        onchange={handleFilterValueChange}
+                                        data-row-id={row.id} variant="label-hidden"
+                                        placeholder="Select value">
+                                    </lightning-combobox>
+                                </template>
+                            </div>
+                            <!-- Delete Row -->
+                            <div class="slds-col slds-size_1-of-12 slds-text-align_center">
+                                <lightning-button-icon icon-name="utility:delete"
+                                    alternative-text="Remove" variant="bare"
+                                    onclick={handleRemoveFilter} data-row-id={row.id}>
+                                </lightning-button-icon>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-m-top_small">
+                        <lightning-button label="Add Filter" icon-name="utility:add"
+                            variant="neutral" onclick={handleAddFilter}>
+                        </lightning-button>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer slds-grid slds-grid_align-spread">
+                    <lightning-button label="Clear All" variant="destructive-text"
+                        onclick={handleClearFilters}>
+                    </lightning-button>
+                    <div>
+                        <lightning-button label="Cancel" variant="neutral"
+                            onclick={handleCloseFilterBuilder} class="slds-m-right_x-small">
+                        </lightning-button>
+                        <lightning-button label="Apply Filters" variant="brand"
+                            onclick={handleApplyFilters}>
+                        </lightning-button>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Save View Dialog -->
+    <template lwc:if={showSaveDialog}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close"
+                        alternative-text="Close" class="slds-modal__close"
+                        onclick={handleCloseSaveDialog}>
+                    </lightning-button-icon>
+                    <h2 class="slds-text-heading_medium">Save View</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input label="View Name" value={saveViewName}
+                        onchange={handleSaveViewNameChange} required
+                        placeholder="e.g., My Past Due View">
+                    </lightning-input>
+                    <div class="slds-m-top_small">
+                        <lightning-input type="checkbox" label="Set as default view"
+                            checked={saveAsDefault} onchange={handleSaveAsDefaultChange}>
+                        </lightning-input>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral"
+                        onclick={handleCloseSaveDialog} class="slds-m-right_x-small">
+                    </lightning-button>
+                    <lightning-button label="Save" variant="brand"
+                        onclick={handleSaveView}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

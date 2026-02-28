@@ -1,0 +1,4 @@
+.pinned-note {
+    border-left: 3px solid var(--lwc-brandPrimary, #0070d2);
+    background-color: var(--lwc-colorBackgroundHighlight, #fffbe5);
+}

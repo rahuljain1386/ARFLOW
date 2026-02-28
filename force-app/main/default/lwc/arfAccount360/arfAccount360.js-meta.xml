@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>AR Flow Account 360</masterLabel>
+    <description>Complete Account 360 view for AR Flow collections management</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Account</object>
+            </objects>
+            <property name="showDeductions" type="Boolean" label="Show Deductions Tab" default="true" />
+            <property name="showPayments" type="Boolean" label="Show Payments Tab" default="true" />
+            <property name="showPromises" type="Boolean" label="Show Promises Tab" default="true" />
+            <property name="showNotes" type="Boolean" label="Show Notes Tab" default="true" />
+            <property name="showHistory" type="Boolean" label="Show History Tab" default="true" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

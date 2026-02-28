@@ -1,0 +1,104 @@
+<template>
+    <div class="comm-container">
+        <!-- Header Row -->
+        <div class="comm-header">
+            <p class="slds-text-body_small slds-align-middle">{cardTitle}</p>
+            <div class="comm-header-actions">
+                <lightning-combobox
+                    value={selectedChannel}
+                    options={channelOptions}
+                    onchange={handleChannelChange}
+                    variant="label-hidden"
+                    class="channel-filter">
+                </lightning-combobox>
+                <lightning-button
+                    label="Compose"
+                    icon-name="utility:new"
+                    variant="brand"
+                    onclick={handleCompose}
+                    class="slds-m-left_small">
+                </lightning-button>
+            </div>
+        </div>
+
+        <!-- Communication Rows -->
+        <template lwc:if={hasData}>
+            <div class="comm-list">
+                <template for:each={filteredCommunications} for:item="comm">
+                    <div key={comm.Id} class="comm-row">
+                        <!-- Row Summary (clickable) -->
+                        <div class="comm-row-summary" data-id={comm.Id} onclick={handleRowClick}>
+                            <span class={comm.directionClass}>{comm.directionLabel}</span>
+                            <lightning-icon icon-name={comm.channelIcon} size="xx-small" class="comm-channel-icon"></lightning-icon>
+                            <span class="comm-subject" title={comm.Subject__c}>{comm.Subject__c}</span>
+                            <span class="comm-contact">{comm.contactName}</span>
+                            <template lwc:if={comm.hasAttachment}>
+                                <lightning-icon icon-name="utility:attach" size="xx-small" class="comm-attach-icon" alternative-text="Has attachment"></lightning-icon>
+                            </template>
+                            <span class="comm-date">{comm.formattedDate}</span>
+                            <div class="comm-actions" onclick={stopPropagation}>
+                                <lightning-button-icon
+                                    icon-name="utility:reply"
+                                    alternative-text="Reply"
+                                    title="Reply"
+                                    data-id={comm.Id}
+                                    onclick={handleReply}
+                                    size="small">
+                                </lightning-button-icon>
+                                <lightning-button-icon
+                                    icon-name="utility:forward"
+                                    alternative-text="Forward"
+                                    title="Forward"
+                                    data-id={comm.Id}
+                                    onclick={handleForward}
+                                    size="small">
+                                </lightning-button-icon>
+                            </div>
+                        </div>
+
+                        <!-- Expanded Body -->
+                        <template lwc:if={comm.isExpanded}>
+                            <div class="comm-expanded">
+                                <div class="comm-metadata">
+                                    <template lwc:if={comm.From_Address__c}>
+                                        <span><b>From:</b> {comm.From_Address__c}</span>
+                                    </template>
+                                    <template lwc:if={comm.To_Address__c}>
+                                        <span><b>To:</b> {comm.To_Address__c}</span>
+                                    </template>
+                                    <template lwc:if={comm.CC_Addresses__c}>
+                                        <span><b>CC:</b> {comm.CC_Addresses__c}</span>
+                                    </template>
+                                </div>
+                                <div class="comm-expanded-body" data-body-id={comm.Id} lwc:dom="manual"></div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template lwc:elseif={error}>
+            <p class="slds-text-color_error slds-p-around_medium">Error loading communications.</p>
+        </template>
+        <template lwc:else>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <p class="slds-text-body_regular">No communications found.</p>
+            </div>
+        </template>
+    </div>
+
+    <!-- Compose / Reply / Forward Modal -->
+    <template lwc:if={showComposeModal}>
+        <c-arf-contact-customer-modal
+            account-id={recordId}
+            selected-invoices={emptyInvoices}
+            reply-mode={composeReplyMode}
+            prefill-subject={composePrefillSubject}
+            prefill-body={composePrefillBody}
+            prefill-to={composePrefillTo}
+            prefill-cc={composePrefillCc}
+            onclose={handleComposeClose}
+            onsave={handleComposeSave}>
+        </c-arf-contact-customer-modal>
+    </template>
+</template>

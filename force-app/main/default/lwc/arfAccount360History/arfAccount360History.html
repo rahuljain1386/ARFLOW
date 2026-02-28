@@ -1,0 +1,22 @@
+<template>
+    <div class="slds-p-around_small">
+        <!-- Strategy Executions -->
+        <div>
+            <h3 class="slds-text-heading_small slds-m-bottom_small">Collection Strategy ({executionCount})</h3>
+            <template lwc:if={hasExecutions}>
+                <lightning-datatable
+                    key-field="Id"
+                    data={executions}
+                    columns={strategyColumns}
+                    hide-checkbox-column>
+                </lightning-datatable>
+            </template>
+            <template lwc:elseif={execError}>
+                <p class="slds-text-color_error">Error loading strategy executions.</p>
+            </template>
+            <template lwc:else>
+                <p class="slds-text-body_regular slds-text-color_weak">No strategy executions.</p>
+            </template>
+        </div>
+    </div>
+</template>

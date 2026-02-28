@@ -1,0 +1,277 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large" aria-modal="true">
+        <div class="slds-modal__container composer-modal">
+            <!-- Header -->
+            <div class="slds-modal__header composer-header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleClose} title="Close">
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                </button>
+                <div class="slds-media slds-media_center">
+                    <div class="slds-media__figure">
+                        <lightning-icon icon-name="utility:email" size="medium" class="header-icon"></lightning-icon>
+                    </div>
+                    <div class="slds-media__body">
+                        <h2 class="slds-text-heading_medium header-title">Compose Email</h2>
+                        <p class="slds-text-body_small header-subtitle">{accountName}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="slds-modal__content composer-body">
+                <div class="composer-layout">
+                    <!-- LEFT PANEL: Composition -->
+                    <div class="composer-left">
+                        <!-- FROM -->
+                        <div class="composer-field">
+                            <label class="field-label">FROM</label>
+                            <lightning-combobox
+                                value={selectedFromAddress}
+                                options={fromAddressOptions}
+                                onchange={handleFromChange}
+                                variant="label-hidden"
+                                placeholder="Select sender...">
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- TO -->
+                        <div class="composer-field">
+                            <label class="field-label">TO</label>
+                            <div class="pill-container">
+                                <template for:each={toRecipients} for:item="recip">
+                                    <lightning-pill
+                                        key={recip.email}
+                                        label={recip.label}
+                                        onremove={handleRemoveTo}
+                                        data-email={recip.email}>
+                                    </lightning-pill>
+                                </template>
+                                <div class="add-recipient">
+                                    <lightning-input
+                                        type="email"
+                                        variant="label-hidden"
+                                        placeholder="Add recipient..."
+                                        value={newToAddress}
+                                        onchange={handleNewToChange}
+                                        onkeyup={handleToKeyup}
+                                        class="inline-input">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CC -->
+                        <div class="composer-field">
+                            <label class="field-label">CC</label>
+                            <div class="pill-container">
+                                <template for:each={ccRecipients} for:item="recip">
+                                    <lightning-pill
+                                        key={recip.email}
+                                        label={recip.label}
+                                        onremove={handleRemoveCc}
+                                        data-email={recip.email}>
+                                    </lightning-pill>
+                                </template>
+                                <div class="add-recipient">
+                                    <lightning-input
+                                        type="email"
+                                        variant="label-hidden"
+                                        placeholder="Add CC..."
+                                        value={newCcAddress}
+                                        onchange={handleNewCcChange}
+                                        onkeyup={handleCcKeyup}
+                                        class="inline-input">
+                                    </lightning-input>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BCC -->
+                        <div class="composer-field">
+                            <label class="field-label">BCC</label>
+                            <div class="bcc-row">
+                                <lightning-input
+                                    type="email"
+                                    variant="label-hidden"
+                                    placeholder="BCC address..."
+                                    value={bccAddress}
+                                    onchange={handleBccChange}
+                                    class="bcc-input">
+                                </lightning-input>
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Include me"
+                                    checked={includeMeBcc}
+                                    onchange={handleIncludeMeChange}
+                                    class="include-me-check">
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                        <div class="composer-divider"></div>
+
+                        <!-- TEMPLATE -->
+                        <div class="composer-field">
+                            <label class="field-label">TEMPLATE</label>
+                            <lightning-combobox
+                                value={selectedTemplateId}
+                                options={templateOptions}
+                                onchange={handleTemplateChange}
+                                variant="label-hidden"
+                                placeholder="Select a template...">
+                            </lightning-combobox>
+                        </div>
+
+                        <!-- SUBJECT -->
+                        <div class="composer-field">
+                            <label class="field-label">SUBJECT</label>
+                            <lightning-input
+                                value={emailSubject}
+                                onchange={handleSubjectChange}
+                                variant="label-hidden"
+                                placeholder="Email subject...">
+                            </lightning-input>
+                        </div>
+
+                        <!-- BODY -->
+                        <div class="composer-field body-field">
+                            <label class="field-label">BODY</label>
+                            <lightning-input-rich-text
+                                value={emailBodyHtml}
+                                onchange={handleRichTextChange}
+                                formats={richTextFormats}
+                                placeholder="Compose your email..."
+                                class="rich-text-editor">
+                            </lightning-input-rich-text>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: Options -->
+                    <div class="composer-right">
+                        <!-- ATTACHMENTS -->
+                        <div class="options-section">
+                            <label class="field-label">ATTACHMENTS</label>
+                            <div class="attachment-row">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="Attach invoice statement"
+                                    checked={attachStatement}
+                                    onchange={handleAttachChange}>
+                                </lightning-input>
+                            </div>
+                            <template lwc:if={attachStatement}>
+                                <fieldset class="format-fieldset">
+                                    <legend class="format-legend">Format:</legend>
+                                    <lightning-radio-group
+                                        name="attachmentFormat"
+                                        options={formatOptions}
+                                        value={attachmentFormat}
+                                        onchange={handleFormatChange}
+                                        type="button"
+                                        class="format-radios">
+                                    </lightning-radio-group>
+                                </fieldset>
+                            </template>
+                        </div>
+
+                        <div class="composer-divider"></div>
+
+                        <!-- NOTE (collapsible) -->
+                        <div class="collapsible-section">
+                            <button class="section-toggle" onclick={toggleNoteSection}>
+                                <lightning-icon
+                                    icon-name={noteChevronIcon}
+                                    size="xx-small"
+                                    class="toggle-icon">
+                                </lightning-icon>
+                                <span class="section-toggle-label">NOTE (optional)</span>
+                            </button>
+                            <template lwc:if={showNoteSection}>
+                                <div class="section-content">
+                                    <lightning-combobox
+                                        label="Category"
+                                        value={noteCategory}
+                                        options={noteCategoryOptions}
+                                        onchange={handleNoteCategoryChange}
+                                        class="slds-m-bottom_x-small">
+                                    </lightning-combobox>
+                                    <lightning-input
+                                        label="Title"
+                                        value={noteTitle}
+                                        onchange={handleNoteTitleChange}
+                                        class="slds-m-bottom_x-small">
+                                    </lightning-input>
+                                    <lightning-textarea
+                                        label="Body"
+                                        value={noteBody}
+                                        onchange={handleNoteBodyChange}>
+                                    </lightning-textarea>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- FOLLOW-UP (collapsible) -->
+                        <div class="collapsible-section">
+                            <button class="section-toggle" onclick={toggleFollowUpSection}>
+                                <lightning-icon
+                                    icon-name={followUpChevronIcon}
+                                    size="xx-small"
+                                    class="toggle-icon">
+                                </lightning-icon>
+                                <span class="section-toggle-label">FOLLOW-UP (optional)</span>
+                            </button>
+                            <template lwc:if={showFollowUpSection}>
+                                <div class="section-content">
+                                    <lightning-input
+                                        type="checkbox"
+                                        label="Create follow-up task"
+                                        checked={createFollowUp}
+                                        onchange={handleFollowUpChange}
+                                        class="slds-m-bottom_x-small">
+                                    </lightning-input>
+                                    <template lwc:if={createFollowUp}>
+                                        <div class="follow-up-fields">
+                                            <lightning-input
+                                                type="number"
+                                                label="Days"
+                                                value={followUpDays}
+                                                min="1"
+                                                onchange={handleFollowUpDaysChange}
+                                                class="follow-up-days">
+                                            </lightning-input>
+                                            <lightning-input
+                                                label="Subject"
+                                                value={followUpSubject}
+                                                onchange={handleFollowUpSubjectChange}
+                                                class="follow-up-subject">
+                                            </lightning-input>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="slds-modal__footer composer-footer">
+                <lightning-button label="Cancel" onclick={handleClose} class="slds-m-right_small"></lightning-button>
+                <lightning-button
+                    variant="brand"
+                    label={sendButtonLabel}
+                    onclick={handleSend}
+                    disabled={isSendDisabled}
+                    icon-name="utility:send">
+                </lightning-button>
+            </div>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+
+    <!-- Spinner -->
+    <template lwc:if={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="large" class="slds-is-fixed"></lightning-spinner>
+    </template>
+</template>

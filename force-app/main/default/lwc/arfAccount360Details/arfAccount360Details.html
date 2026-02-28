@@ -1,0 +1,24 @@
+<template>
+    <div class="slds-p-around_medium">
+        <lightning-record-view-form record-id={recordId} object-api-name="Account">
+            <div class="slds-grid slds-wrap">
+                <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                    <lightning-output-field field-name="Name"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_DSO__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Avg_Days_To_Pay__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Assigned_Collector__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Last_Contact_Date__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Last_Payment_Date__c"></lightning-output-field>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-p-horizontal_small">
+                    <lightning-output-field field-name="ARF_Available_Credit__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Stop_Status__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Collection_Strategy__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Open_Invoice_Count__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Overdue_Invoice_Count__c"></lightning-output-field>
+                    <lightning-output-field field-name="ARF_Open_Dispute_Count__c"></lightning-output-field>
+                </div>
+            </div>
+        </lightning-record-view-form>
+    </div>
+</template>

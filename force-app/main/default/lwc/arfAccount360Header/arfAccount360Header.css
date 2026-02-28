@@ -1,0 +1,409 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+/* ═══ CONTAINER ═══ */
+.header-container {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* ═══ TITLE BAR ═══ */
+.title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    background: linear-gradient(135deg, #16325c 0%, #1a3e6f 100%);
+    color: #ffffff;
+}
+
+.title-left {
+    display: flex;
+    align-items: center;
+}
+
+.account-name {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.subtitle-row {
+    display: flex;
+    align-items: center;
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.subtitle-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.subtitle-icon {
+    --lwc-colorTextIconDefault: rgba(255,255,255,0.8);
+}
+
+.subtitle-sep {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 0 0.625rem;
+    display: inline-block;
+}
+
+.stop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    background: #c23934;
+    color: #fff;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.stop-icon {
+    --lwc-colorTextIconDefault: #fff;
+}
+
+.title-right {
+    display: flex;
+    align-items: center;
+}
+
+/* ═══ RISK BADGE ═══ */
+.risk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    font-size: 0.8125rem;
+}
+
+.risk-high {
+    background: #c23934;
+    color: #fff;
+}
+
+.risk-medium {
+    background: #f39c12;
+    color: #fff;
+}
+
+.risk-low {
+    background: #04844b;
+    color: #fff;
+}
+
+.risk-label {
+    letter-spacing: 0.05em;
+}
+
+.risk-score {
+    font-size: 0.875rem;
+}
+
+.risk-dots-row {
+    display: inline-flex;
+    gap: 3px;
+    margin-left: 2px;
+}
+
+.risk-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-red { background: #fff; }
+.dot-yellow { background: #fff; }
+.dot-green { background: #fff; }
+.dot-empty { background: rgba(255, 255, 255, 0.35); }
+
+/* ═══ STICKY NOTE ═══ */
+.sticky-note {
+    margin: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.875rem;
+}
+
+.sticky-note_filled {
+    background: linear-gradient(135deg, #fff8e1 0%, #fef3cd 100%);
+    border: 1.5px solid #f0d77b;
+    box-shadow: 0 1px 4px rgba(240, 215, 123, 0.3);
+}
+
+.sticky-note_empty {
+    background: #f9f9f9;
+    border: 1.5px dashed #d8d8d8;
+}
+
+.note-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #b8860b;
+    margin-right: 0.25rem;
+    white-space: nowrap;
+}
+
+.note-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    --lwc-colorTextIconDefault: #b8860b;
+}
+
+.note-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    font-size: 0.875rem;
+    color: #3e3e3c;
+    font-weight: 500;
+}
+
+.note-placeholder {
+    cursor: pointer;
+    font-style: italic;
+    color: #706e6b;
+    font-size: 0.8125rem;
+}
+
+.note-textarea {
+    width: 100%;
+}
+
+/* ═══ METRIC CARDS ═══ */
+.metrics-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+}
+
+.metric-card {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.5rem;
+    padding: 0.75rem 0.875rem;
+    border-left: 4px solid transparent;
+    transition: box-shadow 0.15s ease;
+    text-align: center;
+}
+
+.metric-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric-blue { border-left-color: #0176d3; }
+.metric-red { border-left-color: #c23934; }
+.metric-orange { border-left-color: #e87722; }
+.metric-teal { border-left-color: #06a59a; }
+.metric-risk { border-left-color: #706e6b; }
+
+.metric-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #706e6b;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #16325c;
+    line-height: 1.3;
+}
+
+.metric-value-red {
+    color: #c23934;
+}
+
+.metric-value-orange {
+    color: #e87722;
+}
+
+.metric-sub {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin-top: 0.125rem;
+}
+
+.risk-inline-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    margin-left: 0.25rem;
+    vertical-align: middle;
+}
+
+/* ═══ CREDIT BAR ═══ */
+.credit-section {
+    margin: 0 1.25rem;
+    padding: 0.625rem 0;
+    border-top: 1px solid #f0f0f0;
+}
+
+.credit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.375rem;
+}
+
+.credit-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.credit-pct {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #3e3e3c;
+}
+
+.credit-bar-track {
+    height: 10px;
+    background: #ecebea;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.credit-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.4s ease;
+}
+
+.credit-green { background: linear-gradient(90deg, #2e844a, #04844b); }
+.credit-yellow { background: linear-gradient(90deg, #e87722, #f39c12); }
+.credit-red { background: linear-gradient(90deg, #c23934, #ea001e); }
+
+.credit-detail {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #706e6b;
+    text-align: right;
+}
+
+/* ═══ AGING BAR ═══ */
+.aging-section {
+    margin: 0 1.25rem;
+    padding: 0.625rem 0 0.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.aging-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.375rem;
+}
+
+.aging-bar-track {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: #ecebea;
+}
+
+.aging-bar-track > div {
+    height: 100%;
+}
+
+.aging-current { background: #2e844a; }
+.aging-1-30 { background: #f39c12; }
+.aging-31-60 { background: #e87722; }
+.aging-61-90 { background: #c23934; }
+.aging-90-plus { background: #8b0000; }
+
+.aging-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.375rem;
+}
+
+.aging-label-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+}
+
+.aging-label-item > span:first-child {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.aging-label-text {
+    color: #706e6b;
+    font-weight: 500;
+}
+
+.aging-label-amount {
+    color: #3e3e3c;
+    font-weight: 600;
+}
+
+/* ═══ INFO STRIP ═══ */
+.info-strip {
+    display: flex;
+    align-items: center;
+    padding: 0.625rem 1.25rem;
+    background: #fafaf9;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+    gap: 0.25rem 0;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.info-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.info-value {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #16325c;
+}
+
+.info-sep {
+    width: 1px;
+    height: 16px;
+    background: #d8d8d8;
+    margin: 0 0.75rem;
+}

@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Is_Overdue__c</fullName>
-    <defaultValue>false</defaultValue>
-    <description>Whether invoice is past due date</description>
+    <description>True when invoice is past due and not in a terminal status (Paid, Cancelled, Written Off).</description>
     <externalId>false</externalId>
+    <formula>AND(
+    NOT(ISPICKVAL(Status__c, "Paid")),
+    NOT(ISPICKVAL(Status__c, "Cancelled")),
+    NOT(ISPICKVAL(Status__c, "Written Off")),
+    NOT(ISBLANK(Due_Date__c)),
+    Due_Date__c &lt; TODAY()
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
     <label>Is Overdue</label>
-    <trackHistory>true</trackHistory>
     <type>Checkbox</type>
 </CustomField>

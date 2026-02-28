@@ -1,0 +1,102 @@
+<template>
+    <lightning-card title={cardTitle} icon-name="standard:contract">
+        <div slot="actions">
+            <lightning-button label={createButtonLabel} icon-name="utility:add"
+                onclick={handleToggleCreateForm}></lightning-button>
+        </div>
+
+        <template lwc:if={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-p-around_medium slds-text-color_error">
+                Error loading promises. Please try again.
+            </div>
+        </template>
+
+        <!-- Create Form -->
+        <template lwc:if={showCreateForm}>
+            <div class="slds-p-around_medium slds-box slds-m-around_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">New Promise to Pay</h3>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                        <lightning-input label="Total Amount" type="number" formatter="currency"
+                            step="0.01" value={newAmount} data-field="amount"
+                            onchange={handleFieldChange} required></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                        <lightning-input label="Promise Date" type="date" value={newPromiseDate}
+                            data-field="promiseDate" onchange={handleFieldChange} required></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-p-bottom_small">
+                        <lightning-textarea label="Notes" value={newNotes}
+                            data-field="notes" onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-p-bottom_small">
+                        <lightning-input type="checkbox" label="Installment Plan"
+                            checked={isInstallment} onchange={handleInstallmentToggle}></lightning-input>
+                    </div>
+                    <template lwc:if={isInstallment}>
+                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                            <lightning-input label="Number of Installments" type="number"
+                                value={installmentCount} data-field="installmentCount"
+                                onchange={handleFieldChange} min="2"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-p-bottom_small">
+                            <lightning-input label="Days Between Payments" type="number"
+                                value={daysBetween} data-field="daysBetween"
+                                onchange={handleFieldChange} min="1"></lightning-input>
+                        </div>
+                    </template>
+                </div>
+                <div class="slds-m-top_small">
+                    <lightning-button label="Create" variant="brand" onclick={handleCreate}></lightning-button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Promise Table -->
+        <template lwc:if={hasPromises}>
+            <lightning-datatable
+                key-field="Id"
+                data={promises}
+                columns={columns}
+                hide-checkbox-column
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+        </template>
+
+        <template lwc:elseif={noError}>
+            <div class="slds-p-around_medium slds-text-align_center slds-text-color_weak">
+                No promises to pay. Click "New Promise" to create one.
+            </div>
+        </template>
+    </lightning-card>
+
+    <!-- Record Payment Modal -->
+    <template lwc:if={showPaymentModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleClosePaymentModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Record Payment</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input label="Payment Amount" type="number" formatter="currency"
+                        step="0.01" value={paymentAmount}
+                        onchange={handlePaymentAmountChange} required></lightning-input>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleClosePaymentModal}></lightning-button>
+                    <lightning-button label="Save" variant="brand" onclick={handleSavePayment}
+                        class="slds-m-left_x-small"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

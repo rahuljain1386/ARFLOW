@@ -1,0 +1,116 @@
+/* ===== Action Bar ===== */
+.action-bar {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafbfc;
+}
+
+/* Selection buttons */
+.sel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    margin-right: 4px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #444;
+    background: #fff;
+    border: 1px solid #d8dde6;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+}
+.sel-btn:hover:not(:disabled) {
+    background: #f3f3f3;
+    border-color: #c9c7c5;
+}
+.sel-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+.sel-btn-icon {
+    --slds-c-icon-color-foreground-default: #706e6b;
+}
+.sel-btn-clear {
+    color: #706e6b;
+}
+
+/* Selection summary pill */
+.selection-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    margin-left: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #0070d2;
+    background: #eaf5fe;
+    border: 1px solid #b0d5f5;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* ===== Action Buttons ===== */
+.action-buttons {
+    gap: 6px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    background: #fff;
+    border: 1px solid #d8dde6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1.2;
+}
+
+.action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Color accents */
+.action-btn-status {
+    border-left: 3px solid #9050e9;
+}
+.action-btn-close {
+    border-left: 3px solid #2e844a;
+}
+.action-btn-email {
+    border-left: 3px solid #0070d2;
+}
+
+/* Hover effects */
+.action-btn-status:hover:not(:disabled) {
+    background: #f3f0ff;
+    border-color: #9050e9;
+}
+.action-btn-close:hover:not(:disabled) {
+    background: #ecfdf5;
+    border-color: #2e844a;
+}
+.action-btn-email:hover:not(:disabled) {
+    background: #eaf5fe;
+    border-color: #0070d2;
+}
+
+/* Icon colors */
+.action-icon-status {
+    --slds-c-icon-color-foreground-default: #9050e9;
+}
+.action-icon-close {
+    --slds-c-icon-color-foreground-default: #2e844a;
+}
+.action-icon-email {
+    --slds-c-icon-color-foreground-default: #0070d2;
+}

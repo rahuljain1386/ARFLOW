@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ARF_Sticky_Note__c</fullName>
+    <description>Highlighted note visible to all users on the Account 360 page</description>
+    <externalId>false</externalId>
+    <label>Sticky Note</label>
+    <length>1000</length>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

@@ -1,0 +1,256 @@
+<template>
+    <template lwc:if={hasAccount}>
+        <div class="header-container">
+
+            <!-- ═══ TITLE BAR ═══ -->
+            <div class="title-bar">
+                <div class="title-left">
+                    <lightning-icon icon-name="standard:account" size="medium" class="slds-m-right_small"></lightning-icon>
+                    <div>
+                        <h1 class="account-name">{accountName}</h1>
+                        <div class="subtitle-row">
+                            <span class="subtitle-item">
+                                <lightning-icon icon-name="utility:user" size="xx-small" class="subtitle-icon"></lightning-icon>
+                                {collectorName}
+                            </span>
+                            <span class="subtitle-sep"></span>
+                            <span class="subtitle-item">
+                                <lightning-icon icon-name="utility:strategy" size="xx-small" class="subtitle-icon"></lightning-icon>
+                                {strategy}
+                            </span>
+                            <template lwc:if={hasStopStatus}>
+                                <span class="subtitle-sep"></span>
+                                <span class="stop-badge">
+                                    <lightning-icon icon-name="utility:ban" size="xx-small" class="stop-icon"></lightning-icon>
+                                    STOP
+                                </span>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="title-right">
+                    <lightning-button-group class="slds-m-right_medium">
+                        <lightning-button-icon icon-name="utility:email"
+                            alternative-text="Email" variant="border-filled"
+                            onclick={handleEmail}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:chat"
+                            alternative-text="SMS" variant="border-filled"
+                            onclick={handleSMS}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:call"
+                            alternative-text="Call" variant="border-filled"
+                            onclick={handleCall}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:note"
+                            alternative-text="Note" variant="border-filled"
+                            onclick={handleNote}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:warning"
+                            alternative-text="Dispute" variant="border-filled"
+                            onclick={handleDispute}></lightning-button-icon>
+                        <lightning-button-icon icon-name="utility:money"
+                            alternative-text="Promise to Pay" variant="border-filled"
+                            onclick={handlePromiseToPay}></lightning-button-icon>
+                    </lightning-button-group>
+                    <span class={riskBadgeClass}>
+                        <span class="risk-label">{riskLabel}</span>
+                        <span class="risk-score">{riskScore}</span>
+                        <span class="risk-dots-row">
+                            <template for:each={riskDots} for:item="dot">
+                                <span key={dot.key} class={dot.class}></span>
+                            </template>
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- ═══ STICKY NOTE ═══ -->
+            <div class={stickyNoteClass}>
+                <div class="slds-grid slds-grid_vertical-align-start slds-grid_align-spread">
+                    <div class="slds-grid slds-grid_vertical-align-start slds-grow">
+                        <lightning-icon icon-name="utility:pin" size="x-small"
+                            class="slds-m-right_small note-icon"></lightning-icon>
+                        <span class="note-label">STICKY NOTE</span>
+                        <template lwc:if={isEditingNote}>
+                            <div class="slds-grow slds-m-left_small">
+                                <lightning-textarea value={editNoteValue}
+                                    onchange={handleNoteInputChange}
+                                    variant="label-hidden"
+                                    placeholder="Add a note visible to all users..."
+                                    max-length="1000"
+                                    class="note-textarea">
+                                </lightning-textarea>
+                                <div class="slds-m-top_xx-small">
+                                    <lightning-button label="Save" variant="brand"
+                                        onclick={handleSaveNote} class="slds-m-right_xx-small"
+                                        size="small"></lightning-button>
+                                    <lightning-button label="Cancel" variant="neutral"
+                                        onclick={handleCancelNote} size="small"></lightning-button>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <template lwc:if={hasStickyNote}>
+                                <p class="note-text slds-m-left_small">{stickyNote}</p>
+                            </template>
+                            <template lwc:else>
+                                <p class="note-placeholder slds-m-left_small" onclick={handleEditNote}>Click to add a note...</p>
+                            </template>
+                        </template>
+                    </div>
+                    <template lwc:if={isNotEditing}>
+                        <lightning-button-icon icon-name="utility:edit"
+                            alternative-text="Edit Note" variant="bare"
+                            onclick={handleEditNote} class="slds-m-left_small">
+                        </lightning-button-icon>
+                    </template>
+                </div>
+            </div>
+
+            <!-- ═══ METRIC CARDS ═══ -->
+            <div class="metrics-row">
+                <!-- Total AR -->
+                <div class="metric-card metric-blue">
+                    <p class="metric-label">TOTAL AR</p>
+                    <p class="metric-value">
+                        <lightning-formatted-number value={totalAR} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="metric-sub">{openInvoiceCount} invoices</p>
+                </div>
+                <!-- Past Due -->
+                <div class="metric-card metric-red">
+                    <p class="metric-label">PAST DUE</p>
+                    <p class="metric-value metric-value-red">
+                        <lightning-formatted-number value={pastDue} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="metric-sub">{overdueInvoiceCount} overdue</p>
+                </div>
+                <!-- In Dispute -->
+                <div class="metric-card metric-orange">
+                    <p class="metric-label">IN DISPUTE</p>
+                    <p class="metric-value metric-value-orange">
+                        <lightning-formatted-number value={inDispute} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="metric-sub">{openDisputeCount} open</p>
+                </div>
+                <!-- Promised -->
+                <div class="metric-card metric-teal">
+                    <p class="metric-label">PROMISED</p>
+                    <p class="metric-value">
+                        <lightning-formatted-number value={promised} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="metric-sub">&nbsp;</p>
+                </div>
+                <!-- Risk Score -->
+                <div class="metric-card metric-risk">
+                    <p class="metric-label">RISK SCORE</p>
+                    <p class="metric-value">{riskScore}</p>
+                    <p class="metric-sub">
+                        <template for:each={riskDots} for:item="dot">
+                            <span key={dot.key} class={dot.class}></span>
+                        </template>
+                        <span class="risk-inline-label">{riskLabel}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- ═══ CREDIT UTILIZATION BAR ═══ -->
+            <div class="credit-section">
+                <div class="credit-header">
+                    <span class="credit-title">Credit Utilization</span>
+                    <span class="credit-pct">{creditUtilPct}%</span>
+                </div>
+                <div class="credit-bar-track">
+                    <div class={creditBarClass} style={creditBarStyle}></div>
+                </div>
+                <div class="credit-detail">
+                    <lightning-formatted-number value={creditUsedFormatted} format-style="currency"
+                        currency-code="USD" minimum-fraction-digits="0"
+                        maximum-fraction-digits="0"></lightning-formatted-number>
+                    <span> of </span>
+                    <lightning-formatted-number value={creditLimitFormatted} format-style="currency"
+                        currency-code="USD" minimum-fraction-digits="0"
+                        maximum-fraction-digits="0"></lightning-formatted-number>
+                </div>
+            </div>
+
+            <!-- ═══ AGING BREAKDOWN BAR ═══ -->
+            <template lwc:if={hasAging}>
+                <div class="aging-section">
+                    <p class="aging-title">Aging Breakdown</p>
+                    <div class="aging-bar-track">
+                        <template for:each={agingBuckets} for:item="bucket">
+                            <template lwc:if={bucket.hasAmount}>
+                                <div key={bucket.key} class={bucket.colorClass} style={bucket.style}></div>
+                            </template>
+                        </template>
+                    </div>
+                    <div class="aging-labels">
+                        <template for:each={agingBuckets} for:item="bucket">
+                            <div key={bucket.key} class="aging-label-item">
+                                <span class={bucket.colorClass}></span>
+                                <span class="aging-label-text">{bucket.label}</span>
+                                <span class="aging-label-amount">
+                                    <lightning-formatted-number value={bucket.amount}
+                                        format-style="currency" currency-code="USD"
+                                        minimum-fraction-digits="0"
+                                        maximum-fraction-digits="0"
+                                        notation="compact"></lightning-formatted-number>
+                                </span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- ═══ INFO STRIP ═══ -->
+            <div class="info-strip">
+                <div class="info-item">
+                    <span class="info-label">DSO</span>
+                    <span class="info-value">{dso} days</span>
+                </div>
+                <div class="info-sep"></div>
+                <div class="info-item">
+                    <span class="info-label">Avg Pay</span>
+                    <span class="info-value">{avgDaysToPay} days</span>
+                </div>
+                <div class="info-sep"></div>
+                <div class="info-item">
+                    <span class="info-label">Last Contact</span>
+                    <span class="info-value">
+                        <lightning-formatted-date-time value={lastContactDate}
+                            month="short" day="2-digit"></lightning-formatted-date-time>
+                    </span>
+                </div>
+                <div class="info-sep"></div>
+                <div class="info-item">
+                    <span class="info-label">Last Payment</span>
+                    <span class="info-value">
+                        <lightning-formatted-date-time value={lastPaymentDate}
+                            month="short" day="2-digit"></lightning-formatted-date-time>
+                    </span>
+                </div>
+                <div class="info-sep"></div>
+                <div class="info-item">
+                    <span class="info-label">Available Credit</span>
+                    <span class="info-value">
+                        <lightning-formatted-number value={availableCredit} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </template>
+    <template lwc:if={error}>
+        <lightning-card title="Error">
+            <p class="slds-p-around_medium slds-text-color_error">Unable to load account data.</p>
+        </lightning-card>
+    </template>
+</template>

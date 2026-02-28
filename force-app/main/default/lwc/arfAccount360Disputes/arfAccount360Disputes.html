@@ -1,0 +1,86 @@
+<template>
+    <div class="slds-p-around_small">
+        <template lwc:if={hasData}>
+            <p class="slds-m-bottom_small slds-text-body_small">{cardTitle}</p>
+
+            <!-- Action bar -->
+            <div class="action-bar slds-p-horizontal_small slds-m-bottom_x-small">
+                <div class="slds-grid slds-grid_vertical-center">
+                    <div class="slds-col">
+                        <button class="sel-btn" onclick={handleSelectAll}>
+                            <lightning-icon icon-name="utility:multi_select_checkbox" size="xx-small"
+                                            class="sel-btn-icon"></lightning-icon>
+                            Select All
+                        </button>
+                        <button class="sel-btn sel-btn-clear" onclick={handleClearSelection}
+                                disabled={hasNoSelection}>
+                            Clear
+                        </button>
+                        <template lwc:if={hasSelection}>
+                            <span class="selection-pill">{selectionSummary}</span>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-col_bump-left">
+                        <div class="slds-button-group action-buttons">
+                            <button class="action-btn action-btn-status" onclick={handleChangeStatus}
+                                    disabled={hasNoSelection}>
+                                <lightning-icon icon-name="utility:edit" size="xx-small"
+                                                class="action-icon-status"></lightning-icon>
+                                Change Status
+                            </button>
+                            <button class="action-btn action-btn-close" onclick={handleCloseDisputes}
+                                    disabled={hasNoSelection}>
+                                <lightning-icon icon-name="utility:check" size="xx-small"
+                                                class="action-icon-close"></lightning-icon>
+                                Close
+                            </button>
+                            <button class="action-btn action-btn-email" onclick={handleFollowUpEmail}
+                                    disabled={hasNoSelection}>
+                                <lightning-icon icon-name="utility:email" size="xx-small"
+                                                class="action-icon-email"></lightning-icon>
+                                Email Follow-up
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <lightning-datatable
+                key-field="Id"
+                data={disputes}
+                columns={columns}
+                selected-rows={selectedRows}
+                onrowselection={handleRowSelection}>
+            </lightning-datatable>
+        </template>
+
+        <template lwc:elseif={error}>
+            <p class="slds-text-color_error">Error loading disputes.</p>
+        </template>
+
+        <template lwc:else>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <p class="slds-text-body_regular">No disputes found.</p>
+            </div>
+        </template>
+    </div>
+
+    <!-- Status change modal -->
+    <template lwc:if={showStatusModal}>
+        <c-arf-dispute-status-modal
+            dispute-ids={selectedDisputeIds}
+            onclose={handleStatusModalClose}
+            onsave={handleStatusModalSave}>
+        </c-arf-dispute-status-modal>
+    </template>
+
+    <!-- Contact customer modal -->
+    <template lwc:if={showContactModal}>
+        <c-arf-contact-customer-modal
+            account-id={recordId}
+            selected-invoices={disputeInvoices}
+            onclose={handleContactModalClose}
+            onsave={handleContactModalSave}>
+        </c-arf-contact-customer-modal>
+    </template>
+</template>

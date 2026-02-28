@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Invoice__c</fullName>
+    <description>Related invoice</description>
+    <externalId>false</externalId>
+    <label>Invoice</label>
+    <referenceTo>ARF_Invoice__c</referenceTo>
+    <relationshipLabel>Communications</relationshipLabel>
+    <relationshipName>Communication_Invoices</relationshipName>
+    <relationshipOrder>1</relationshipOrder>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <trackHistory>false</trackHistory>
+    <type>MasterDetail</type>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>

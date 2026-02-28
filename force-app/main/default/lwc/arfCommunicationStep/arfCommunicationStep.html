@@ -1,0 +1,224 @@
+<template>
+    <!-- Channel Selection Bar -->
+    <div class="channel-bar">
+        <lightning-button-group>
+            <lightning-button label="Save Only" icon-name="utility:save"
+                variant={saveOnlyVariant} onclick={handleSaveOnly}></lightning-button>
+            <lightning-button label="Email" icon-name="utility:email"
+                variant={emailVariant} onclick={handleSelectEmail}></lightning-button>
+            <lightning-button label="Phone" icon-name="utility:call"
+                variant={phoneVariant} onclick={handleSelectPhone}></lightning-button>
+            <lightning-button label="SMS" icon-name="utility:sms"
+                variant={smsVariant} onclick={handleSelectSms}></lightning-button>
+        </lightning-button-group>
+    </div>
+
+    <!-- EMAIL CHANNEL -->
+    <template lwc:if={isEmail}>
+        <div class={commLayoutClass}>
+            <!-- Left Panel: Compose -->
+            <div class="comm-left">
+                <div class="comm-field">
+                    <label class="field-label">FROM</label>
+                    <lightning-combobox value={selectedFromAddress} options={fromAddressOptions}
+                        onchange={handleFromChange} variant="label-hidden" placeholder="Select sender...">
+                    </lightning-combobox>
+                </div>
+                <div class="comm-field">
+                    <label class="field-label">TO</label>
+                    <div class="pill-container">
+                        <template for:each={toRecipients} for:item="recip">
+                            <lightning-pill key={recip.email} label={recip.label}
+                                onremove={handleRemoveTo} data-email={recip.email}></lightning-pill>
+                        </template>
+                        <div class="add-recipient">
+                            <lightning-input type="email" variant="label-hidden" placeholder="Add recipient..."
+                                value={newToAddress} onchange={handleNewToChange} onkeyup={handleToKeyup}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="comm-field">
+                    <label class="field-label">CC</label>
+                    <div class="pill-container">
+                        <template for:each={ccRecipients} for:item="recip">
+                            <lightning-pill key={recip.email} label={recip.label}
+                                onremove={handleRemoveCc} data-email={recip.email}></lightning-pill>
+                        </template>
+                        <div class="add-recipient">
+                            <lightning-input type="email" variant="label-hidden" placeholder="Add CC..."
+                                value={newCcAddress} onchange={handleNewCcChange} onkeyup={handleCcKeyup}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+                <div class="comm-field">
+                    <label class="field-label">BCC</label>
+                    <div class="bcc-row">
+                        <lightning-input type="email" variant="label-hidden" placeholder="BCC address..."
+                            value={bccAddress} onchange={handleBccChange} class="bcc-input"></lightning-input>
+                        <lightning-input type="checkbox" label="Include me" checked={includeMeBcc}
+                            onchange={handleIncludeMeChange} class="include-me-check"></lightning-input>
+                    </div>
+                </div>
+                <div class="comm-divider"></div>
+                <div class="comm-field">
+                    <label class="field-label">TEMPLATE</label>
+                    <lightning-combobox value={selectedTemplateId} options={templateOptions}
+                        onchange={handleTemplateChange} variant="label-hidden" placeholder="Select a template...">
+                    </lightning-combobox>
+                </div>
+                <div class="comm-field">
+                    <label class="field-label">SUBJECT</label>
+                    <lightning-input value={emailSubject} onchange={handleSubjectChange}
+                        variant="label-hidden" placeholder="Email subject..."></lightning-input>
+                </div>
+                <div class="comm-field body-field">
+                    <label class="field-label">BODY</label>
+                    <lightning-input-rich-text
+                        value={emailBodyHtml}
+                        onchange={handleRichTextChange}
+                        formats={richTextFormats}
+                        placeholder="Compose your email..."
+                        class="rich-text-editor">
+                    </lightning-input-rich-text>
+                </div>
+            </div>
+
+            <!-- Right Panel: Options -->
+            <div class="comm-right">
+                <div class="options-section">
+                    <label class="field-label">ATTACHMENTS</label>
+                    <div class="attachment-row">
+                        <lightning-input type="checkbox" label="Attach invoice statement"
+                            checked={attachStatement} onchange={handleAttachChange}></lightning-input>
+                    </div>
+                    <template lwc:if={attachStatement}>
+                        <fieldset class="format-fieldset">
+                            <legend class="format-legend">Format:</legend>
+                            <lightning-radio-group name="attachFormat" options={formatOptions}
+                                value={attachmentFormat} onchange={handleFormatChange} type="button">
+                            </lightning-radio-group>
+                        </fieldset>
+                    </template>
+                    <template lwc:if={showFileUpload}>
+                        <div class="slds-m-top_small">
+                            <lightning-file-upload label="Upload additional files"
+                                name="commFiles" accept={acceptedFormats}
+                                record-id={accountId} onuploadfinished={handleUploadFinished}
+                                multiple></lightning-file-upload>
+                        </div>
+                    </template>
+                </div>
+                <div class="comm-divider"></div>
+                <div class="collapsible-section">
+                    <button class="section-toggle" onclick={toggleNoteSection}>
+                        <lightning-icon icon-name={noteChevronIcon} size="xx-small" class="toggle-icon"></lightning-icon>
+                        <span class="section-toggle-label">NOTE (optional)</span>
+                    </button>
+                    <template lwc:if={showNoteSection}>
+                        <div class="section-content">
+                            <lightning-combobox label="Category" value={noteCategory}
+                                options={noteCategoryOptions} onchange={handleNoteCategoryChange} class="slds-m-bottom_x-small">
+                            </lightning-combobox>
+                            <lightning-input label="Title" value={noteTitle}
+                                onchange={handleNoteTitleChange} class="slds-m-bottom_x-small"></lightning-input>
+                            <lightning-textarea label="Body" value={noteBody}
+                                onchange={handleNoteBodyChange}></lightning-textarea>
+                        </div>
+                    </template>
+                </div>
+                <div class="collapsible-section">
+                    <button class="section-toggle" onclick={toggleFollowUpSection}>
+                        <lightning-icon icon-name={followUpChevronIcon} size="xx-small" class="toggle-icon"></lightning-icon>
+                        <span class="section-toggle-label">FOLLOW-UP (optional)</span>
+                    </button>
+                    <template lwc:if={showFollowUpSection}>
+                        <div class="section-content">
+                            <lightning-input type="checkbox" label="Create follow-up task"
+                                checked={createFollowUp} onchange={handleFollowUpToggle} class="slds-m-bottom_x-small">
+                            </lightning-input>
+                            <template lwc:if={createFollowUp}>
+                                <div class="follow-up-fields">
+                                    <lightning-input type="number" label="Days" value={followUpDays}
+                                        min="1" onchange={handleFollowUpDaysChange} class="follow-up-days"></lightning-input>
+                                    <lightning-input label="Subject" value={followUpSubject}
+                                        onchange={handleFollowUpSubjectChange} class="follow-up-subject"></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- PHONE CHANNEL -->
+    <template lwc:if={isPhone}>
+        <div class="simple-channel-form">
+            <div class="slds-grid slds-gutters slds-m-bottom_small">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-combobox label="Contact" value={selectedContactId}
+                        options={contactOptions} onchange={handleContactChange}
+                        placeholder="Select contact..."></lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-input type="number" label="Duration (seconds)"
+                        value={callDuration} onchange={handleDurationChange}></lightning-input>
+                </div>
+            </div>
+            <lightning-input label="Subject" value={emailSubject}
+                onchange={handleSubjectChange} class="slds-m-bottom_small"
+                placeholder="Call subject..."></lightning-input>
+            <lightning-textarea label="Call Notes" value={noteBody}
+                onchange={handleNoteBodyChange} class="slds-m-bottom_small"
+                placeholder="What was discussed..."></lightning-textarea>
+            <lightning-input type="checkbox" label="Create follow-up task"
+                checked={createFollowUp} onchange={handleFollowUpToggle} class="slds-m-bottom_small">
+            </lightning-input>
+            <template lwc:if={createFollowUp}>
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-4">
+                        <lightning-input type="number" label="Follow up in (days)"
+                            value={followUpDays} min="1" onchange={handleFollowUpDaysChange}></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_3-of-4">
+                        <lightning-input label="Task Subject" value={followUpSubject}
+                            onchange={handleFollowUpSubjectChange}></lightning-input>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- SMS CHANNEL -->
+    <template lwc:if={isSms}>
+        <div class="simple-channel-form">
+            <lightning-combobox label="Contact" value={selectedContactId}
+                options={contactOptions} onchange={handleContactChange}
+                placeholder="Select contact..." class="slds-m-bottom_small"></lightning-combobox>
+            <lightning-textarea label="Message" value={smsMessage}
+                onchange={handleSmsMessageChange} max-length="160"
+                placeholder="Type your SMS message (160 chars max)..." class="slds-m-bottom_small">
+            </lightning-textarea>
+            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">{smsCharCount} / 160 characters</p>
+            <lightning-input type="checkbox" label="Create follow-up task"
+                checked={createFollowUp} onchange={handleFollowUpToggle} class="slds-m-bottom_small">
+            </lightning-input>
+            <template lwc:if={createFollowUp}>
+                <div class="slds-grid slds-gutters">
+                    <div class="slds-col slds-size_1-of-4">
+                        <lightning-input type="number" label="Follow up in (days)"
+                            value={followUpDays} min="1" onchange={handleFollowUpDaysChange}></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_3-of-4">
+                        <lightning-input label="Task Subject" value={followUpSubject}
+                            onchange={handleFollowUpSubjectChange}></lightning-input>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <template lwc:if={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+</template>

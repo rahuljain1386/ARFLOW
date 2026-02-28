@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-p-around_small">
+        <template lwc:if={hasData}>
+            <p class="slds-m-bottom_small slds-text-body_small">{cardTitle}</p>
+            <lightning-datatable
+                key-field="Id"
+                data={payments}
+                columns={columns}
+                hide-checkbox-column>
+            </lightning-datatable>
+        </template>
+        <template lwc:elseif={error}>
+            <p class="slds-text-color_error">Error loading payments.</p>
+        </template>
+        <template lwc:else>
+            <div class="slds-align_absolute-center slds-p-around_large">
+                <p class="slds-text-body_regular">No payments found.</p>
+            </div>
+        </template>
+    </div>
+</template>

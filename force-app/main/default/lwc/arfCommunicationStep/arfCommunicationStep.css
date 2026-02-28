@@ -1,0 +1,191 @@
+/* Host: fill parent flex container */
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Channel selection bar */
+.channel-bar {
+    padding: 0.75rem 1rem;
+    background: #f3f3f3;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Split layout for email */
+.comm-layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.comm-left {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+    border-right: 1px solid #e5e5e5;
+    background: #fafbfc;
+}
+
+.comm-right {
+    flex: 0 0 340px;
+    padding: 1.25rem;
+    overflow-y: auto;
+    background: #fff;
+}
+
+/* Field labels */
+.field-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.35rem;
+}
+
+.comm-field {
+    margin-bottom: 0.85rem;
+}
+
+/* Pill container for TO/CC */
+.pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 8px;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    background: #fff;
+    min-height: 36px;
+    align-items: center;
+}
+
+.add-recipient {
+    flex: 1;
+    min-width: 120px;
+}
+
+/* BCC row */
+.bcc-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.bcc-input {
+    flex: 1;
+}
+.include-me-check {
+    flex: 0 0 auto;
+    margin-top: 0.25rem;
+}
+
+/* Divider */
+.comm-divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 1rem 0;
+}
+
+/* Body rich text editor */
+.body-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.rich-text-editor {
+    min-height: 250px;
+}
+
+/* Attachments */
+.options-section {
+    margin-bottom: 1rem;
+}
+.attachment-row {
+    margin-bottom: 0.5rem;
+}
+.format-fieldset {
+    border: none;
+    padding: 0;
+    margin: 0.25rem 0 0 1.5rem;
+}
+.format-legend {
+    font-size: 0.75rem;
+    color: #706e6b;
+    margin-bottom: 0.25rem;
+}
+
+/* Collapsible sections */
+.collapsible-section {
+    margin-bottom: 0.5rem;
+}
+.section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    width: 100%;
+    text-align: left;
+}
+.section-toggle:hover {
+    background: #f3f3f3;
+    border-radius: 4px;
+}
+.section-toggle-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.toggle-icon {
+    --slds-c-icon-color-foreground-default: #706e6b;
+}
+.section-content {
+    padding: 0.5rem 0 0.5rem 1.25rem;
+}
+
+/* Follow-up fields */
+.follow-up-fields {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.follow-up-days {
+    flex: 0 0 80px;
+}
+.follow-up-subject {
+    flex: 1;
+}
+
+/* Phone/SMS simple forms */
+.simple-channel-form {
+    padding: 1.25rem;
+    background: #fafbfc;
+}
+
+/* ===== Stacked layout (single-column for embedded use) ===== */
+.comm-stacked {
+    flex-direction: column;
+    overflow-y: auto;
+}
+.comm-stacked .comm-left {
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 1rem;
+}
+.comm-stacked .comm-right {
+    flex: none;
+    padding: 1rem;
+}
+.comm-stacked .comm-field {
+    margin-bottom: 0.6rem;
+}
+.comm-stacked .rich-text-editor {
+    min-height: 100px;
+}
