@@ -35,7 +35,7 @@
 }
 
 .composer-left {
-    flex: 0 0 420px;
+    flex: 1;
     padding: 1.25rem;
     overflow-y: auto;
     border-right: 1px solid #e5e5e5;
@@ -43,7 +43,7 @@
 }
 
 .composer-right {
-    flex: 1;
+    flex: 0 0 340px;
     padding: 1.25rem;
     overflow-y: auto;
     background: #fff;
@@ -114,7 +114,7 @@
     flex-direction: column;
 }
 .rich-text-editor {
-    min-height: 180px;
+    min-height: 250px;
 }
 
 /* Attachments */
