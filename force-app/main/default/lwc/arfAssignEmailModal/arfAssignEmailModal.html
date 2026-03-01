@@ -1,0 +1,99 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+        <div class="slds-modal__container">
+            <!-- Header -->
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                </button>
+                <h2 class="slds-modal__title">{modalTitle}</h2>
+            </header>
+
+            <!-- Content -->
+            <div class="slds-modal__content slds-p-around_medium">
+                <!-- Account Search -->
+                <div class="slds-m-bottom_medium">
+                    <lightning-input
+                        type="search"
+                        label="Search Accounts"
+                        placeholder="Type account name to search..."
+                        value={searchTerm}
+                        onchange={handleSearchInput}>
+                    </lightning-input>
+                </div>
+
+                <!-- Search Results -->
+                <template if:true={isSearching}>
+                    <lightning-spinner alternative-text="Searching..." size="small"></lightning-spinner>
+                </template>
+
+                <template if:true={hasResults}>
+                    <div class="slds-scrollable_y result-list">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Account Name</th>
+                                    <th scope="col">Account #</th>
+                                    <th scope="col">Total AR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={accountResults} for:item="acct">
+                                    <tr key={acct.Id}
+                                        data-id={acct.Id}
+                                        class={acct.rowClass}
+                                        onclick={handleSelectAccount}>
+                                        <td>
+                                            <template if:true={acct.isSelected}>
+                                                <lightning-icon icon-name="utility:check" size="x-small"
+                                                    class="slds-m-right_x-small"></lightning-icon>
+                                            </template>
+                                            {acct.Name}
+                                        </td>
+                                        <td>{acct.AccountNumber}</td>
+                                        <td>{acct.displayAR}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+
+                <!-- Selected Account -->
+                <template if:true={hasSelectedAccount}>
+                    <div class="slds-box slds-m-top_medium slds-theme_shade">
+                        <p class="slds-text-body_small slds-text-color_weak">Selected Account:</p>
+                        <p class="slds-text-heading_small">{selectedAccount.Name}</p>
+                    </div>
+                </template>
+
+                <!-- Remember Sender Checkbox -->
+                <div class="slds-m-top_medium">
+                    <lightning-input
+                        type="checkbox"
+                        label="Remember this sender for future emails"
+                        checked={rememberSender}
+                        onchange={handleRememberChange}>
+                    </lightning-input>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                        When checked, future emails from this sender will auto-match to the selected account.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer">
+                <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                <lightning-button
+                    label={assignButtonLabel}
+                    variant="brand"
+                    onclick={handleAssign}
+                    disabled={isSaving}
+                    class="slds-m-left_x-small">
+                </lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

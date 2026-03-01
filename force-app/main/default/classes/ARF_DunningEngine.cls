@@ -107,13 +107,22 @@ public class ARF_DunningEngine implements Database.Batchable<SObject>, Schedulab
             // Create task if step config says so
             if (step.containsKey('createTask') && (Boolean) step.get('createTask') && action != 'Task') {
                 String taskSubject = step.containsKey('taskSubject') ? (String) step.get('taskSubject') : 'Follow up';
+                String taskType = action;
+                if (taskType == 'Letter') taskType = 'Reminder';
+                if (taskType == 'Escalate') taskType = 'Follow-Up';
+                String channel = step.containsKey('channel') ? (String) step.get('channel') : action;
+                String templateName = step.containsKey('templateName') ? (String) step.get('templateName') : '';
+
                 tasksToInsert.add(new Task(
                     Subject = taskSubject,
                     WhatId = exec.Account__c,
                     OwnerId = taskOwnerId,
                     ActivityDate = Date.today().addDays(1),
                     Status = 'Open',
-                    Priority = 'Normal'
+                    Priority = 'Normal',
+                    ARF_Task_Type__c = taskType,
+                    ARF_Channel__c = channel,
+                    ARF_Template_Name__c = templateName
                 ));
             }
 
@@ -211,6 +220,13 @@ public class ARF_DunningEngine implements Database.Batchable<SObject>, Schedulab
         Map<String, Object> step, Id accountId, Id ownerId
     ) {
         String subject = step.containsKey('subject') ? (String) step.get('subject') : 'Collection Task';
+        String action = step.containsKey('action') ? (String) step.get('action') : 'Reminder';
+        String taskType = action;
+        if (taskType == 'Letter') taskType = 'Reminder';
+        if (taskType == 'Escalate') taskType = 'Follow-Up';
+        String channel = step.containsKey('channel') ? (String) step.get('channel') : action;
+        String templateName = step.containsKey('templateName') ? (String) step.get('templateName') : '';
+
         return new Task(
             Subject = subject,
             WhatId = accountId,
@@ -218,7 +234,10 @@ public class ARF_DunningEngine implements Database.Batchable<SObject>, Schedulab
             ActivityDate = Date.today(),
             Status = 'Open',
             Priority = 'Normal',
-            Description = step.containsKey('body') ? (String) step.get('body') : ''
+            Description = step.containsKey('body') ? (String) step.get('body') : '',
+            ARF_Task_Type__c = taskType,
+            ARF_Channel__c = channel,
+            ARF_Template_Name__c = templateName
         );
     }
 }

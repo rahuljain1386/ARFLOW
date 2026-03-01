@@ -65,6 +65,7 @@ const STATUS_OPTIONS = [
 export default class ArfViewManager extends LightningElement {
     @api objectName = 'ARF_Invoice__c';
     @api availableFields = [];
+    @api builtinViews;
 
     // View state
     selectedViewValue = 'builtin_all';
@@ -92,8 +93,12 @@ export default class ArfViewManager extends LightningElement {
 
     // ===== GETTERS =====
 
+    get _builtinViewList() {
+        return this.builtinViews && this.builtinViews.length > 0 ? this.builtinViews : BUILTIN_VIEWS;
+    }
+
     get viewOptions() {
-        const opts = [...BUILTIN_VIEWS];
+        const opts = [...this._builtinViewList];
         if (this.savedViews.length > 0) {
             opts.push({ label: '--- Saved Views ---', value: 'divider', disabled: true });
             for (const sv of this.savedViews) {

@@ -1,0 +1,9 @@
+:host {
+    display: block;
+}
+
+.slds-button-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}

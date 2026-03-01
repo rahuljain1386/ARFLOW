@@ -7,6 +7,7 @@ const TAB_CONFIG = [
     { value: 'disputes', label: 'Disputes', iconName: 'utility:warning', showProp: null },
     { value: 'deductions', label: 'Deductions', iconName: 'utility:trending', showProp: 'showDeductions' },
     { value: 'emails', label: 'Communications', iconName: 'utility:email', showProp: null },
+    { value: 'attachments', label: 'Attachments', iconName: 'utility:attach', showProp: null },
     { value: 'payments', label: 'Payments', iconName: 'utility:currency', showProp: 'showPayments' },
     { value: 'promises', label: 'Promises', iconName: 'utility:date_input', showProp: 'showPromises' },
     { value: 'notes', label: 'Notes', iconName: 'utility:note', showProp: 'showNotes' },
@@ -50,14 +51,20 @@ export default class ArfAccount360 extends LightningElement {
                 if (!tab.showProp) return true;
                 return this[tab.showProp] !== false;
             })
-            .map(tab => ({
-                ...tab,
-                isActive: this.activeTab === tab.value,
-                tabClass: 'tab-button' + (this.activeTab === tab.value ? ' tab-button-active' : ''),
-                badgeCount: this.tabCounts[tab.value] || 0,
-                hasBadge: (this.tabCounts[tab.value] || 0) > 0,
-                badgeClass: 'tab-badge' + (this.activeTab === tab.value ? ' tab-badge-active' : '')
-            }));
+            .map(tab => {
+                const isActive = this.activeTab === tab.value;
+                const count = this.tabCounts[tab.value] || 0;
+                let badgeCls = 'tab-badge tab-badge-' + tab.value;
+                if (isActive) badgeCls += ' tab-badge-active';
+                return {
+                    ...tab,
+                    isActive,
+                    tabClass: 'tab-button' + (isActive ? ' tab-button-active' : ''),
+                    badgeCount: count,
+                    hasBadge: count > 0,
+                    badgeClass: badgeCls
+                };
+            });
     }
 
     // Tab content visibility
@@ -66,6 +73,7 @@ export default class ArfAccount360 extends LightningElement {
     get isDisputesTab() { return this.activeTab === 'disputes'; }
     get isDeductionsTab() { return this.activeTab === 'deductions'; }
     get isEmailsTab() { return this.activeTab === 'emails'; }
+    get isAttachmentsTab() { return this.activeTab === 'attachments'; }
     get isPaymentsTab() { return this.activeTab === 'payments'; }
     get isPromisesTab() { return this.activeTab === 'promises'; }
     get isNotesTab() { return this.activeTab === 'notes'; }

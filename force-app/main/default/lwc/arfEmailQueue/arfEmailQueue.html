@@ -1,0 +1,96 @@
+<template>
+    <lightning-card title="Email Queue" icon-name="standard:email">
+        <!-- View Manager -->
+        <div class="slds-p-horizontal_medium slds-p-top_small">
+            <c-arf-view-manager
+                object-name="ARF_Communication__c"
+                available-fields={availableFields}
+                builtin-views={builtinViews}
+                onviewchange={handleViewChange}>
+            </c-arf-view-manager>
+        </div>
+
+        <!-- Search + Action Bar -->
+        <div class="slds-p-horizontal_medium slds-p-vertical_x-small">
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                <!-- Search -->
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-input
+                        type="search"
+                        label="Search Emails"
+                        variant="label-hidden"
+                        placeholder="Search by subject, sender, or account..."
+                        value={searchText}
+                        onchange={handleSearchChange}
+                        onkeyup={handleSearchKeyup}>
+                    </lightning-input>
+                </div>
+
+                <!-- Actions -->
+                <div class="slds-col">
+                    <div class="slds-button-group">
+                        <template if:true={hasSelectedRows}>
+                            <lightning-button
+                                label="Assign Account"
+                                variant="brand"
+                                icon-name="utility:link"
+                                onclick={handleAssignSelected}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Mark Spam"
+                                variant="neutral"
+                                icon-name="utility:ban"
+                                onclick={handleMarkSpam}>
+                            </lightning-button>
+                        </template>
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            alternative-text="Refresh"
+                            onclick={handleRefresh}>
+                        </lightning-button-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="slds-p-horizontal_medium slds-p-bottom_x-small">
+            <span class="slds-text-body_small slds-text-color_weak">
+                {emailCount} emails
+                <template if:true={hasSelectedRows}>
+                    &nbsp;&bull;&nbsp;{selectedCount} selected
+                </template>
+            </span>
+        </div>
+
+        <!-- Data Table -->
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading emails..." size="medium"></lightning-spinner>
+        </template>
+        <template if:false={isLoading}>
+            <lightning-datatable
+                key-field="Id"
+                data={emails}
+                columns={columns}
+                sorted-by={currentSortField}
+                sorted-direction={currentSortDirection}
+                onsort={handleSort}
+                onrowselection={handleRowSelection}
+                onrowaction={handleRowAction}
+                show-row-number-column
+                max-row-selection="100"
+                class="slds-p-horizontal_medium">
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+
+    <!-- Assign Email Modal -->
+    <template if:true={showAssignModal}>
+        <c-arf-assign-email-modal
+            communication-ids={assignCommunicationIds}
+            is-bulk={assignIsBulk}
+            onclose={handleAssignModalClose}
+            onsave={handleAssignModalSave}>
+        </c-arf-assign-email-modal>
+    </template>
+</template>

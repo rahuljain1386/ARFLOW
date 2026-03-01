@@ -209,11 +209,39 @@ private class ARF_DunningEngineTest {
         Test.stopTest();
 
         List<Task> tasks = [
-            SELECT Subject FROM Task
+            SELECT Subject, ARF_Task_Type__c, ARF_Channel__c, ARF_Template_Name__c
+            FROM Task
             WHERE WhatId IN (SELECT Id FROM Account WHERE Name = 'Dunning Test Account')
               AND Subject = 'Task for step 1'
         ];
         System.assertEquals(1, tasks.size(), 'Should create task for step 1');
+        System.assertEquals('Email', tasks[0].ARF_Task_Type__c, 'Task type should match step action');
+        System.assertEquals('Email', tasks[0].ARF_Channel__c, 'Channel should match step config');
+    }
+
+    @isTest
+    static void testTaskCreation_TaskAction() {
+        // Set execution to step 2 (Task action)
+        ARF_Strategy_Execution__c exec = [
+            SELECT Id FROM ARF_Strategy_Execution__c
+            WHERE Account__r.Name = 'Dunning Test Account'
+        ];
+        exec.Current_Step__c = 2;
+        update exec;
+
+        Test.startTest();
+        Database.executeBatch(new ARF_DunningEngine(), 200);
+        Test.stopTest();
+
+        List<Task> tasks = [
+            SELECT Subject, ARF_Task_Type__c, ARF_Channel__c
+            FROM Task
+            WHERE WhatId IN (SELECT Id FROM Account WHERE Name = 'Dunning Test Account')
+              AND Subject = 'Step 2 Subject'
+        ];
+        System.assertEquals(1, tasks.size(), 'Should create task from Task step');
+        System.assertNotEquals(null, tasks[0].ARF_Task_Type__c, 'Task type should be populated');
+        System.assertEquals('Phone', tasks[0].ARF_Channel__c, 'Channel should match step config');
     }
 
     @isTest

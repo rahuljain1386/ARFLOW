@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import getCommunications from '@salesforce/apex/ARF_Account360Controller.getCommunications';
+import getAttachmentsForCommunication from '@salesforce/apex/ARF_Account360Controller.getAttachmentsForCommunication';
 
 const CHANNEL_OPTIONS = [
     { label: 'All Channels', value: 'All' },
@@ -19,6 +20,7 @@ export default class ArfAccount360Emails extends LightningElement {
     selectedChannel = 'All';
 
     expandedCommId = null;
+    @track expandedAttachments = [];
 
     // Reply / Forward / Compose modal
     showComposeModal = false;
@@ -93,14 +95,55 @@ export default class ArfAccount360Emails extends LightningElement {
         }
     }
 
-    handleRowClick(event) {
+    async handleRowClick(event) {
         const commId = event.currentTarget.dataset.id;
         this.expandedCommId = this.expandedCommId === commId ? null : commId;
+        this.expandedAttachments = [];
+
+        if (this.expandedCommId) {
+            const comm = this.allCommunications.find(c => c.Id === this.expandedCommId);
+            if (comm && comm.hasAttachment) {
+                try {
+                    const files = await getAttachmentsForCommunication({ communicationId: this.expandedCommId });
+                    this.expandedAttachments = (files || []).map(f => ({
+                        ...f,
+                        downloadUrl: '/sfc/servlet.shepherd/version/download/' + f.versionId,
+                        previewUrl: '/sfc/servlet.shepherd/document/download/' + f.documentId,
+                        sizeLabel: this.formatFileSize(f.size),
+                        iconName: this.getFileIcon(f.extension)
+                    }));
+                } catch (e) {
+                    // Non-critical
+                }
+            }
+        }
+
         this.allCommunications = this.allCommunications.map(c => ({
             ...c,
             isExpanded: c.Id === this.expandedCommId
         }));
         this.applyFilter();
+    }
+
+    formatFileSize(bytes) {
+        if (!bytes) return '0 B';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    getFileIcon(ext) {
+        if (!ext) return 'doctype:unknown';
+        const lower = ext.toLowerCase();
+        if (lower === 'pdf') return 'doctype:pdf';
+        if (['csv', 'xls', 'xlsx'].includes(lower)) return 'doctype:excel';
+        if (['doc', 'docx'].includes(lower)) return 'doctype:word';
+        if (['png', 'jpg', 'jpeg', 'gif'].includes(lower)) return 'doctype:image';
+        return 'doctype:unknown';
+    }
+
+    get hasExpandedAttachments() {
+        return this.expandedAttachments && this.expandedAttachments.length > 0;
     }
 
     handleReply(event) {

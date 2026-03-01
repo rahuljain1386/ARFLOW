@@ -240,7 +240,14 @@ export default class ArfCommunicationStep extends LightningElement {
 
     handleToKeyup(event) {
         if (event.key === 'Enter' && this.newToAddress) {
-            this.addToRecipient(this.newToAddress);
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+    }
+
+    handleToBlur() {
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
             this.newToAddress = '';
         }
     }
@@ -263,7 +270,14 @@ export default class ArfCommunicationStep extends LightningElement {
 
     handleCcKeyup(event) {
         if (event.key === 'Enter' && this.newCcAddress) {
-            this.addCcRecipient(this.newCcAddress);
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
+    }
+
+    handleCcBlur() {
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
             this.newCcAddress = '';
         }
     }
@@ -463,6 +477,16 @@ export default class ArfCommunicationStep extends LightningElement {
     @api
     validate() {
         if (this.isSaveOnly) return true;
+
+        // Auto-add any typed but uncommitted addresses
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
 
         if (this.isEmail) {
             if (this.toRecipients.length === 0) {

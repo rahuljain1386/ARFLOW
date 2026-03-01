@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Needs_Review__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Flagged for manual review when match confidence is below auto-link threshold</description>
+    <externalId>false</externalId>
+    <label>Needs Review</label>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

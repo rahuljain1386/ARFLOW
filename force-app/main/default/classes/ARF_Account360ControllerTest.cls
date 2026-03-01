@@ -601,4 +601,76 @@ private class ARF_Account360ControllerTest {
             Boolean hasAttachment = c.Has_Attachment__c;
         }
     }
+
+    // ===== ATTACHMENT TESTS =====
+
+    @isTest
+    static void testGetAttachmentsForCommunication() {
+        Id acctId = getTestAccountId();
+        ARF_Communication__c comm = [
+            SELECT Id FROM ARF_Communication__c WHERE Account__c = :acctId LIMIT 1
+        ];
+        // Create a ContentVersion linked to the communication
+        ContentVersion cv = new ContentVersion(
+            Title = 'Invoice_Statement',
+            PathOnClient = 'Invoice_Statement.pdf',
+            VersionData = Blob.valueOf('test pdf content'),
+            FirstPublishLocationId = comm.Id
+        );
+        insert cv;
+
+        Test.startTest();
+        List<Map<String, Object>> files = ARF_Account360Controller.getAttachmentsForCommunication(comm.Id);
+        Test.stopTest();
+        System.assertEquals(1, files.size(), 'Should return 1 attachment');
+        System.assertEquals('Invoice_Statement', files[0].get('title'));
+    }
+
+    @isTest
+    static void testGetAttachmentsForCommunicationNullId() {
+        Test.startTest();
+        try {
+            ARF_Account360Controller.getAttachmentsForCommunication(null);
+            System.assert(false, 'Should have thrown exception');
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testGetAccountAttachments() {
+        Id acctId = getTestAccountId();
+        // Set Has_Attachment__c on a comm and add a file
+        ARF_Communication__c comm = [
+            SELECT Id FROM ARF_Communication__c WHERE Account__c = :acctId LIMIT 1
+        ];
+        comm.Has_Attachment__c = true;
+        update comm;
+
+        ContentVersion cv = new ContentVersion(
+            Title = 'Statement_PDF',
+            PathOnClient = 'Statement.pdf',
+            VersionData = Blob.valueOf('test content'),
+            FirstPublishLocationId = comm.Id
+        );
+        insert cv;
+
+        Test.startTest();
+        List<Map<String, Object>> files = ARF_Account360Controller.getAccountAttachments(acctId);
+        Test.stopTest();
+        System.assert(files.size() >= 1, 'Should return at least 1 attachment');
+    }
+
+    @isTest
+    static void testGetAccountAttachmentsNullId() {
+        Test.startTest();
+        try {
+            ARF_Account360Controller.getAccountAttachments(null);
+            System.assert(false, 'Should have thrown exception');
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e.getMessage());
+        }
+        Test.stopTest();
+    }
 }

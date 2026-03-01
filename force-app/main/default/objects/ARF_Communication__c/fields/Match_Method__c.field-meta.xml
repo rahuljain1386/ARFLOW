@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Match_Method__c</fullName>
+    <description>How the inbound email was matched to an Account</description>
+    <externalId>false</externalId>
+    <label>Match Method</label>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Thread</fullName><default>false</default><label>Thread</label></value>
+            <value><fullName>Contact</fullName><default>false</default><label>Contact</label></value>
+            <value><fullName>Sender Map</fullName><default>false</default><label>Sender Map</label></value>
+            <value><fullName>Body Scan</fullName><default>false</default><label>Body Scan</label></value>
+            <value><fullName>Domain</fullName><default>false</default><label>Domain</label></value>
+            <value><fullName>AI Suggestion</fullName><default>false</default><label>AI Suggestion</label></value>
+            <value><fullName>Manual</fullName><default>false</default><label>Manual</label></value>
+            <value><fullName>Unmatched</fullName><default>false</default><label>Unmatched</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Maps confirmed email senders to Accounts. Learned from manual assignments and used for auto-matching future emails.</description>
+    <enableActivities>false</enableActivities>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <label>Email Sender Map</label>
+    <nameField>
+        <displayFormat>ESM-{0000}</displayFormat>
+        <label>Sender Map Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Email Sender Maps</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

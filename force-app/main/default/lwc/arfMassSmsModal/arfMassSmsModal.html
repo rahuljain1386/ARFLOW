@@ -1,0 +1,98 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_medium">
+        <div class="slds-modal__container">
+            <!-- Header -->
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                </button>
+                <h2 class="slds-modal__title">
+                    <lightning-icon icon-name="utility:sms" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    Mass SMS — {totalAccounts} Account(s)
+                </h2>
+                <p class="slds-m-top_xx-small slds-text-body_small slds-text-color_weak">
+                    {accountsWithPhone} with phone &bull; {accountsWithoutPhone} without phone (auto-skipped)
+                </p>
+            </header>
+
+            <!-- Body -->
+            <div class="slds-modal__content slds-p-around_medium">
+                <template if:true={isLoading}>
+                    <div class="slds-align_absolute-center slds-p-around_large">
+                        <lightning-spinner alternative-text="Loading preview..." size="medium"></lightning-spinner>
+                    </div>
+                </template>
+
+                <template if:false={isLoading}>
+                    <!-- SMS Message -->
+                    <div class="slds-m-bottom_medium">
+                        <lightning-textarea
+                            label="SMS Message"
+                            value={smsMessage}
+                            onchange={handleMessageChange}
+                            max-length="160"
+                            placeholder="Enter SMS message (160 character limit)...">
+                        </lightning-textarea>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                            {smsCharLabel}
+                        </p>
+                    </div>
+
+                    <!-- Account Table -->
+                    <div class="slds-scrollable_y table-container">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col"><div class="slds-truncate">Account</div></th>
+                                    <th scope="col"><div class="slds-truncate">Contact</div></th>
+                                    <th scope="col"><div class="slds-truncate">Phone</div></th>
+                                    <th scope="col"><div class="slds-truncate">Skip</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={accounts} for:item="acct">
+                                    <tr key={acct.accountId}>
+                                        <td>
+                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                <lightning-icon icon-name={acct.statusIcon}
+                                                                variant={acct.statusVariant}
+                                                                size="x-small"
+                                                                class="slds-m-right_x-small">
+                                                </lightning-icon>
+                                                {acct.accountName}
+                                            </div>
+                                        </td>
+                                        <td>{acct.contactName}</td>
+                                        <td>{acct.contactPhone}</td>
+                                        <td>
+                                            <lightning-input type="checkbox"
+                                                             checked={acct.skipChecked}
+                                                             data-index={acct.index}
+                                                             onchange={handleSkipChange}
+                                                             disabled={acct.disableSkip}
+                                                             variant="label-hidden"
+                                                             label="Skip">
+                                            </lightning-input>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer">
+                <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+                <lightning-button label={sendButtonLabel} variant="brand"
+                                 disabled={isSendDisabled}
+                                 onclick={handleSend}
+                                 class="slds-m-left_x-small">
+                </lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

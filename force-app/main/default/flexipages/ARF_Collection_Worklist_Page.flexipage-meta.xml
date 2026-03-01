@@ -3,8 +3,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>arfCollectionWorklist</componentName>
-                <identifier>arfCollectionWorklist</identifier>
+                <componentName>arfTaskWorklist</componentName>
+                <identifier>arfTaskWorklist</identifier>
             </componentInstance>
         </itemInstances>
         <name>main</name>

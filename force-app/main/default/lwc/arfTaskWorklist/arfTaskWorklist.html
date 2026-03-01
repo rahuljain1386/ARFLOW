@@ -1,0 +1,147 @@
+<template>
+    <lightning-card title="Collection Tasks" icon-name="standard:task">
+        <!-- View Manager -->
+        <div class="slds-p-horizontal_medium slds-p-top_small">
+            <c-arf-view-manager
+                object-name="Task"
+                available-fields={availableFields}
+                builtin-views={builtinViews}
+                onviewchange={handleViewChange}>
+            </c-arf-view-manager>
+        </div>
+
+        <!-- Search + Action Bar -->
+        <div class="slds-p-horizontal_medium slds-p-vertical_x-small">
+            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                <!-- Search -->
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-input
+                        type="search"
+                        label="Search Tasks"
+                        variant="label-hidden"
+                        placeholder="Search by subject, account, or template..."
+                        value={searchText}
+                        onchange={handleSearchChange}
+                        onkeyup={handleSearchKeyup}>
+                    </lightning-input>
+                </div>
+
+                <!-- Actions -->
+                <div class="slds-col">
+                    <div class="slds-button-group">
+                        <template if:true={hasEmailTasksSelected}>
+                            <lightning-button
+                                label="Send Email"
+                                variant="brand"
+                                icon-name="utility:email"
+                                onclick={handleSendEmail}>
+                            </lightning-button>
+                        </template>
+                        <template if:true={hasSmsTasksSelected}>
+                            <lightning-button
+                                label="Send SMS"
+                                variant="brand"
+                                icon-name="utility:sms"
+                                onclick={handleSendSms}>
+                            </lightning-button>
+                        </template>
+                        <template if:true={hasSelectedRows}>
+                            <lightning-button
+                                label="Close Tasks"
+                                variant="neutral"
+                                icon-name="utility:check"
+                                onclick={handleCloseTasks}>
+                            </lightning-button>
+                        </template>
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            alternative-text="Refresh"
+                            onclick={handleRefresh}>
+                        </lightning-button-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="slds-p-horizontal_medium slds-p-bottom_x-small">
+            <span class="slds-text-body_small slds-text-color_weak">
+                {taskCount} tasks
+                <template if:true={hasSelectedRows}>
+                    &nbsp;&bull;&nbsp;{selectedCount} selected
+                </template>
+            </span>
+        </div>
+
+        <!-- Data Table -->
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading tasks..." size="medium"></lightning-spinner>
+        </template>
+        <template if:false={isLoading}>
+            <lightning-datatable
+                key-field="Id"
+                data={tasks}
+                columns={columns}
+                sorted-by={currentSortField}
+                sorted-direction={currentSortDirection}
+                onsort={handleSort}
+                onrowselection={handleRowSelection}
+                onrowaction={handleRowAction}
+                show-row-number-column
+                max-row-selection="100"
+                class="slds-p-horizontal_medium">
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+
+    <!-- Phone Log Modal -->
+    <template if:true={showPhoneModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={handlePhoneCancel}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title">Log Call</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input label="Subject" value={phoneSubject}
+                                     onchange={handlePhoneSubjectChange}></lightning-input>
+                    <lightning-textarea label="Call Notes" value={phoneBody}
+                                        onchange={handlePhoneBodyChange}
+                                        class="slds-m-top_small"></lightning-textarea>
+                    <lightning-input label="Duration (seconds)" type="number"
+                                     value={phoneDuration}
+                                     onchange={handlePhoneDurationChange}
+                                     class="slds-m-top_small"></lightning-input>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handlePhoneCancel}></lightning-button>
+                    <lightning-button label="Log Call" variant="brand"
+                                     onclick={handlePhoneSave}
+                                     class="slds-m-left_x-small"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Mass Email Modal -->
+    <template if:true={showMassEmailModal}>
+        <c-arf-mass-email-modal
+            task-ids={selectedTaskIds}
+            onclose={handleMassEmailClose}
+            onsave={handleMassEmailSave}>
+        </c-arf-mass-email-modal>
+    </template>
+
+    <!-- Mass SMS Modal -->
+    <template if:true={showMassSmsModal}>
+        <c-arf-mass-sms-modal
+            task-ids={selectedTaskIds}
+            onclose={handleMassSmsClose}
+            onsave={handleMassSmsSave}>
+        </c-arf-mass-sms-modal>
+    </template>
+</template>

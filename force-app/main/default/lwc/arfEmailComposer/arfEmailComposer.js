@@ -97,7 +97,8 @@ export default class ArfEmailComposer extends LightningElement {
     }
 
     get isSendDisabled() {
-        return this.isSending || this.toRecipients.length === 0 || !this.emailSubject;
+        const hasTo = this.toRecipients.length > 0 || (this.newToAddress && this.newToAddress.trim());
+        return this.isSending || !hasTo || !this.emailSubject;
     }
 
     get sendButtonLabel() {
@@ -201,7 +202,14 @@ export default class ArfEmailComposer extends LightningElement {
 
     handleToKeyup(event) {
         if (event.key === 'Enter' && this.newToAddress) {
-            this.addToRecipient(this.newToAddress);
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+    }
+
+    handleToBlur() {
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
             this.newToAddress = '';
         }
     }
@@ -224,7 +232,14 @@ export default class ArfEmailComposer extends LightningElement {
 
     handleCcKeyup(event) {
         if (event.key === 'Enter' && this.newCcAddress) {
-            this.addCcRecipient(this.newCcAddress);
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
+    }
+
+    handleCcBlur() {
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
             this.newCcAddress = '';
         }
     }
@@ -333,6 +348,16 @@ export default class ArfEmailComposer extends LightningElement {
     // === SEND ===
 
     async handleSend() {
+        // Auto-add any typed but uncommitted addresses
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
+
         if (this.toRecipients.length === 0) {
             this.showError('Missing recipient', 'Please add at least one TO recipient.');
             return;
@@ -341,11 +366,6 @@ export default class ArfEmailComposer extends LightningElement {
             this.showError('Missing subject', 'Please enter an email subject.');
             return;
         }
-        if (this.invoiceIds.length === 0) {
-            this.showError('No invoices', 'This account has no open invoices to include.');
-            return;
-        }
-
         this.isSending = true;
         try {
             const toAddress = this.toRecipients.map(r => r.email).join(';');

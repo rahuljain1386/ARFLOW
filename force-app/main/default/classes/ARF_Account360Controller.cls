@@ -348,6 +348,18 @@ public with sharing class ARF_Account360Controller {
         counts.put('emails', [
             SELECT COUNT() FROM ARF_Communication__c WHERE Account__c = :accountId
         ]);
+        // Attachments count: communications with attachments + direct account files
+        Set<Id> attachEntityIds = new Set<Id>{ accountId };
+        for (ARF_Communication__c c : [
+            SELECT Id FROM ARF_Communication__c
+            WHERE Account__c = :accountId AND Has_Attachment__c = true
+        ]) {
+            attachEntityIds.add(c.Id);
+        }
+        counts.put('attachments', [
+            SELECT COUNT() FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :attachEntityIds
+        ]);
         counts.put('payments', [
             SELECT COUNT() FROM ARF_Payment__c WHERE Account__c = :accountId
         ]);
@@ -359,6 +371,87 @@ public with sharing class ARF_Account360Controller {
         ]);
 
         return counts;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> getAttachmentsForCommunication(Id communicationId) {
+        if (communicationId == null) {
+            throw new AuraHandledException('Communication ID is required');
+        }
+        List<ContentDocumentLink> links = [
+            SELECT ContentDocumentId, ContentDocument.Title,
+                ContentDocument.FileExtension, ContentDocument.ContentSize,
+                ContentDocument.LatestPublishedVersionId, ContentDocument.CreatedDate
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId = :communicationId
+            ORDER BY ContentDocument.CreatedDate DESC
+        ];
+        List<Map<String, Object>> files = new List<Map<String, Object>>();
+        for (ContentDocumentLink cdl : links) {
+            Map<String, Object> f = new Map<String, Object>();
+            f.put('documentId', cdl.ContentDocumentId);
+            f.put('title', cdl.ContentDocument.Title);
+            f.put('extension', cdl.ContentDocument.FileExtension);
+            f.put('size', cdl.ContentDocument.ContentSize);
+            f.put('versionId', cdl.ContentDocument.LatestPublishedVersionId);
+            f.put('createdDate', cdl.ContentDocument.CreatedDate);
+            files.add(f);
+        }
+        return files;
+    }
+
+    @AuraEnabled(cacheable=true)
+    public static List<Map<String, Object>> getAccountAttachments(Id accountId) {
+        if (accountId == null) {
+            throw new AuraHandledException('Account ID is required');
+        }
+        // Get all Communication IDs for this account
+        List<ARF_Communication__c> comms = [
+            SELECT Id FROM ARF_Communication__c
+            WHERE Account__c = :accountId AND Has_Attachment__c = true
+        ];
+        Set<Id> commIds = new Set<Id>();
+        for (ARF_Communication__c c : comms) {
+            commIds.add(c.Id);
+        }
+        // Also include files directly linked to the Account
+        commIds.add(accountId);
+
+        List<ContentDocumentLink> links = [
+            SELECT ContentDocumentId, ContentDocument.Title,
+                ContentDocument.FileExtension, ContentDocument.ContentSize,
+                ContentDocument.LatestPublishedVersionId, ContentDocument.CreatedDate,
+                LinkedEntityId
+            FROM ContentDocumentLink
+            WHERE LinkedEntityId IN :commIds
+            ORDER BY ContentDocument.CreatedDate DESC
+            LIMIT 200
+        ];
+
+        // Build a map of comm Id → subject for display
+        Map<Id, String> commSubjects = new Map<Id, String>();
+        if (!commIds.isEmpty()) {
+            for (ARF_Communication__c c : [
+                SELECT Id, Subject__c FROM ARF_Communication__c WHERE Id IN :commIds
+            ]) {
+                commSubjects.put(c.Id, c.Subject__c);
+            }
+        }
+
+        List<Map<String, Object>> files = new List<Map<String, Object>>();
+        for (ContentDocumentLink cdl : links) {
+            Map<String, Object> f = new Map<String, Object>();
+            f.put('documentId', cdl.ContentDocumentId);
+            f.put('title', cdl.ContentDocument.Title);
+            f.put('extension', cdl.ContentDocument.FileExtension);
+            f.put('size', cdl.ContentDocument.ContentSize);
+            f.put('versionId', cdl.ContentDocument.LatestPublishedVersionId);
+            f.put('createdDate', cdl.ContentDocument.CreatedDate);
+            f.put('linkedEntityId', cdl.LinkedEntityId);
+            f.put('commSubject', commSubjects.get(cdl.LinkedEntityId));
+            files.add(f);
+        }
+        return files;
     }
 
     @AuraEnabled

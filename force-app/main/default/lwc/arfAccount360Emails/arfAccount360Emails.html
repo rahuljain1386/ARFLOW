@@ -70,6 +70,22 @@
                                         <span><b>CC:</b> {comm.CC_Addresses__c}</span>
                                     </template>
                                 </div>
+                                <!-- Attachments -->
+                                <template lwc:if={hasExpandedAttachments}>
+                                    <div class="comm-attachments">
+                                        <span class="attach-label">Attachments:</span>
+                                        <div class="attach-list">
+                                            <template for:each={expandedAttachments} for:item="file">
+                                                <a key={file.documentId} href={file.downloadUrl}
+                                                    target="_blank" class="attach-chip" onclick={stopPropagation}>
+                                                    <lightning-icon icon-name={file.iconName} size="xx-small" class="attach-chip-icon"></lightning-icon>
+                                                    <span class="attach-chip-name">{file.title}</span>
+                                                    <span class="attach-chip-size">({file.sizeLabel})</span>
+                                                </a>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
                                 <div class="comm-expanded-body" data-body-id={comm.Id} lwc:dom="manual"></div>
                             </div>
                         </template>

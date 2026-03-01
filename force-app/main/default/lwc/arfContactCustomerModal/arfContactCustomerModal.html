@@ -51,7 +51,7 @@
                                     </template>
                                     <div class="add-recipient">
                                         <lightning-input type="email" variant="label-hidden" placeholder="Add recipient..."
-                                            value={newToAddress} onchange={handleNewToChange} onkeyup={handleToKeyup}></lightning-input>
+                                            value={newToAddress} onchange={handleNewToChange} onkeyup={handleToKeyup} onblur={handleToBlur}></lightning-input>
                                     </div>
                                 </div>
                             </div>
@@ -64,7 +64,7 @@
                                     </template>
                                     <div class="add-recipient">
                                         <lightning-input type="email" variant="label-hidden" placeholder="Add CC..."
-                                            value={newCcAddress} onchange={handleNewCcChange} onkeyup={handleCcKeyup}></lightning-input>
+                                            value={newCcAddress} onchange={handleNewCcChange} onkeyup={handleCcKeyup} onblur={handleCcBlur}></lightning-input>
                                     </div>
                                 </div>
                             </div>

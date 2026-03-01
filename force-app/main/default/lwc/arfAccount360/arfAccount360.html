@@ -47,6 +47,10 @@
                 </c-arf-account360-emails>
             </template>
 
+            <template lwc:if={isAttachmentsTab}>
+                <c-arf-account360-attachments record-id={recordId} refresh-key={refreshKey}></c-arf-account360-attachments>
+            </template>
+
             <template lwc:if={isPaymentsTab}>
                 <c-arf-account360-payments record-id={recordId} refresh-key={refreshKey}></c-arf-account360-payments>
             </template>

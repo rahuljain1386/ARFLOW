@@ -147,6 +147,52 @@
     margin-bottom: 0.75rem;
 }
 
+/* Attachments */
+.comm-attachments {
+    margin-bottom: 0.75rem;
+}
+.attach-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #706e6b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.attach-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+}
+.attach-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.75rem;
+    color: #0070d2;
+    text-decoration: none;
+    transition: background 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+}
+.attach-chip:hover {
+    background: #f0f7ff;
+    box-shadow: 0 1px 3px rgba(0, 112, 210, 0.15);
+}
+.attach-chip-icon {
+    flex-shrink: 0;
+}
+.attach-chip-name {
+    font-weight: 500;
+}
+.attach-chip-size {
+    color: #706e6b;
+    font-size: 0.7rem;
+}
+
 .comm-expanded-body {
     background: #fafbfc;
     border: 1px solid #e5e5e5;

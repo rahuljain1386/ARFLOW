@@ -7,6 +7,7 @@ import getOrgWideEmailAddresses from '@salesforce/apex/ARF_TransactionActionCont
 import getCurrentUserEmail from '@salesforce/apex/ARF_TransactionActionController.getCurrentUserEmail';
 import resolveTemplate from '@salesforce/apex/ARF_TransactionActionController.resolveTemplate';
 import executeContactCustomerWithFormat from '@salesforce/apex/ARF_TransactionActionController.executeContactCustomerWithFormat';
+import getOpenInvoicesForAccount from '@salesforce/apex/ARF_TransactionActionController.getOpenInvoicesForAccount';
 
 export default class ArfContactCustomerModal extends LightningElement {
     @api accountId;
@@ -141,10 +142,7 @@ export default class ArfContactCustomerModal extends LightningElement {
     // === GETTERS: Submit ===
 
     get isSubmitDisabled() {
-        if (this.isSubmitting) return true;
-        // In reply/forward mode, invoices are not required
-        if (this.replyMode) return false;
-        return this._modalInvoices.length === 0;
+        return this.isSubmitting;
     }
     get sendButtonLabel() {
         if (this.isSubmitting) return 'Sending...';
@@ -157,7 +155,8 @@ export default class ArfContactCustomerModal extends LightningElement {
     // === LIFECYCLE ===
 
     connectedCallback() {
-        this._modalInvoices = (this.selectedInvoices || []).map(inv => ({
+        const passedInvoices = this.selectedInvoices || [];
+        this._modalInvoices = passedInvoices.map(inv => ({
             ...inv,
             pillLabel: `${inv.Document_Number__c || inv.Name} — $${(inv.Balance__c || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
         }));
@@ -180,7 +179,24 @@ export default class ArfContactCustomerModal extends LightningElement {
             }
         }
 
+        // Auto-load all open invoices if none were passed in
+        if (passedInvoices.length === 0 && this.accountId) {
+            this.loadOpenInvoices();
+        }
+
         this.loadAllData();
+    }
+
+    async loadOpenInvoices() {
+        try {
+            const invoices = await getOpenInvoicesForAccount({ accountId: this.accountId });
+            this._modalInvoices = (invoices || []).map(inv => ({
+                ...inv,
+                pillLabel: `${inv.Document_Number__c || inv.Name} — $${(inv.Balance__c || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+            }));
+        } catch (error) {
+            // Non-critical — modal still works without invoices
+        }
     }
 
     async loadAllData() {
@@ -280,7 +296,14 @@ export default class ArfContactCustomerModal extends LightningElement {
 
     handleToKeyup(event) {
         if (event.key === 'Enter' && this.newToAddress) {
-            this.addToRecipient(this.newToAddress);
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+    }
+
+    handleToBlur() {
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
             this.newToAddress = '';
         }
     }
@@ -301,7 +324,14 @@ export default class ArfContactCustomerModal extends LightningElement {
 
     handleCcKeyup(event) {
         if (event.key === 'Enter' && this.newCcAddress) {
-            this.addCcRecipient(this.newCcAddress);
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
+    }
+
+    handleCcBlur() {
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
             this.newCcAddress = '';
         }
     }
@@ -404,6 +434,16 @@ export default class ArfContactCustomerModal extends LightningElement {
     // === EXECUTE ===
 
     async handleExecute() {
+        // Auto-add any typed but uncommitted addresses
+        if (this.newToAddress && this.newToAddress.trim()) {
+            this.addToRecipient(this.newToAddress.trim());
+            this.newToAddress = '';
+        }
+        if (this.newCcAddress && this.newCcAddress.trim()) {
+            this.addCcRecipient(this.newCcAddress.trim());
+            this.newCcAddress = '';
+        }
+
         // Validate email
         if (this.isEmail) {
             if (this.toRecipients.length === 0) {
