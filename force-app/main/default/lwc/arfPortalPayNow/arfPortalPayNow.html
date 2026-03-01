@@ -1,0 +1,103 @@
+<template>
+    <!-- Payment Complete Confirmation -->
+    <template if:true={paymentComplete}>
+        <div class="confirmation-container slds-text-align_center slds-p-around_large">
+            <div class="confirmation-icon">
+                <lightning-icon icon-name="action:approval" size="large"></lightning-icon>
+            </div>
+            <h2 class="slds-text-heading_medium slds-m-top_medium">Payment Successful!</h2>
+            <p class="slds-m-top_small slds-text-body_regular">
+                Your payment of <strong>{formattedTotal}</strong> has been processed.
+            </p>
+            <p class="slds-m-top_x-small slds-text-body_small slds-text-color_weak">
+                Confirmation #: {confirmationNumber}
+            </p>
+            <lightning-button
+                variant="brand"
+                label="Done"
+                onclick={handleDone}
+                class="slds-m-top_medium">
+            </lightning-button>
+        </div>
+    </template>
+
+    <!-- Payment Form -->
+    <template if:false={paymentComplete}>
+        <div class="pay-now-container">
+            <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                <h2 class="slds-text-heading_medium">Review & Pay</h2>
+                <lightning-button
+                    variant="neutral"
+                    label="Back to Invoices"
+                    icon-name="utility:back"
+                    onclick={handleBack}>
+                </lightning-button>
+            </div>
+
+            <!-- Selected Invoices -->
+            <div class="slds-box slds-m-bottom_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">Invoices to Pay ({invoiceCount})</h3>
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Due Date</th>
+                            <th class="slds-text-align_right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={invoiceList} for:item="inv">
+                            <tr key={inv.id}>
+                                <td>{inv.documentNumber}</td>
+                                <td>{inv.dueDate}</td>
+                                <td class="slds-text-align_right">{inv.formattedBalance}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="slds-text-align_right"><strong>Total</strong></td>
+                            <td class="slds-text-align_right"><strong class="total-amount">{formattedTotal}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div class="slds-box slds-m-bottom_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">Payment Method</h3>
+                <template if:true={hasMethods}>
+                    <lightning-combobox
+                        name="paymentMethod"
+                        label="Select Payment Method"
+                        value={selectedMethodId}
+                        options={paymentMethods}
+                        onchange={handleMethodChange}>
+                    </lightning-combobox>
+                </template>
+                <template if:false={hasMethods}>
+                    <p class="slds-text-body_regular slds-text-color_weak">
+                        No payment methods on file. Please add a payment method first.
+                    </p>
+                </template>
+            </div>
+
+            <!-- Error -->
+            <template if:true={error}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                    <p>{error}</p>
+                </div>
+            </template>
+
+            <!-- Submit -->
+            <div class="slds-text-align_right">
+                <lightning-button
+                    variant="brand"
+                    label={submitLabel}
+                    disabled={submitDisabled}
+                    onclick={handleSubmitPayment}>
+                </lightning-button>
+            </div>
+        </div>
+    </template>
+</template>

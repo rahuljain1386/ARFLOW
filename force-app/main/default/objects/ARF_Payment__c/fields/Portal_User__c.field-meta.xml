@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Portal_User__c</fullName>
+    <description>Portal user who initiated this payment</description>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Portal User</label>
+    <referenceTo>User</referenceTo>
+    <relationshipName>Portal_Payments</relationshipName>
+    <required>false</required>
+    <trackHistory>true</trackHistory>
+    <type>Lookup</type>
+</CustomField>

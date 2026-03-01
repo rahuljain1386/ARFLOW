@@ -1,0 +1,23 @@
+.badge-applied {
+    background-color: #2e844a;
+    color: #fff;
+}
+.badge-partial {
+    background-color: #fe9339;
+    color: #fff;
+}
+.badge-received {
+    background-color: #0070d2;
+    color: #fff;
+}
+.badge-reversed {
+    background-color: #c23934;
+    color: #fff;
+}
+.badge-void {
+    background-color: #706e6b;
+    color: #fff;
+}
+.application-detail {
+    background-color: #f7f9fb;
+}

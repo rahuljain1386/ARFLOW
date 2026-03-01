@@ -1,0 +1,114 @@
+<template>
+    <div class="portal-container">
+        <!-- Header -->
+        <div class="portal-header">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-1">
+                    <h1 class="portal-title">Payment Portal</h1>
+                    <template if:true={summary.accountName}>
+                        <p class="portal-subtitle">{summary.accountName}</p>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Summary Cards -->
+        <template if:true={hasAccount}>
+            <div class="summary-cards slds-grid slds-gutters slds-wrap slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-around_x-small">
+                    <div class="summary-card">
+                        <p class="summary-label">Total Outstanding</p>
+                        <p class="summary-value">{formattedOutstanding}</p>
+                        <p class="summary-detail">{summary.openInvoiceCount} open invoice(s)</p>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-around_x-small">
+                    <div class={pastDueCardClass}>
+                        <p class="summary-label">Past Due</p>
+                        <p class="summary-value past-due">{formattedPastDue}</p>
+                        <p class="summary-detail">{summary.pastDueInvoiceCount} past due invoice(s)</p>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-p-around_x-small">
+                    <div class="summary-card">
+                        <p class="summary-label">Next Due Date</p>
+                        <p class="summary-value summary-date">
+                            <template if:true={summary.nextDueDate}>{summary.nextDueDate}</template>
+                            <template if:false={summary.nextDueDate}>—</template>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pay Now View -->
+            <template if:true={showPayNow}>
+                <c-arf-portal-pay-now
+                    account-id={accountId}
+                    invoices={selectedInvoices}
+                    onpaymentcomplete={handlePaymentComplete}
+                    onback={handleBackToInvoices}>
+                </c-arf-portal-pay-now>
+            </template>
+
+            <!-- Tab Navigation -->
+            <template if:false={showPayNow}>
+                <div class="slds-tabs_default">
+                    <ul class="slds-tabs_default__nav" role="tablist">
+                        <li class={invoicesTabClass} role="presentation">
+                            <a class="slds-tabs_default__link" role="tab" data-tab="invoices" onclick={handleTabClick}>
+                                Invoices
+                            </a>
+                        </li>
+                        <li class={methodsTabClass} role="presentation">
+                            <a class="slds-tabs_default__link" role="tab" data-tab="methods" onclick={handleTabClick}>
+                                Payment Methods
+                            </a>
+                        </li>
+                        <li class={autopayTabClass} role="presentation">
+                            <a class="slds-tabs_default__link" role="tab" data-tab="autopay" onclick={handleTabClick}>
+                                Autopay
+                            </a>
+                        </li>
+                        <li class={historyTabClass} role="presentation">
+                            <a class="slds-tabs_default__link" role="tab" data-tab="history" onclick={handleTabClick}>
+                                Payment History
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="slds-tabs_default__content slds-show">
+                        <template if:true={isInvoicesTab}>
+                            <c-arf-portal-invoices
+                                account-id={accountId}
+                                onpaynow={handlePayNow}>
+                            </c-arf-portal-invoices>
+                        </template>
+                        <template if:true={isPaymentMethodsTab}>
+                            <c-arf-portal-payment-methods
+                                account-id={accountId}>
+                            </c-arf-portal-payment-methods>
+                        </template>
+                        <template if:true={isAutopayTab}>
+                            <c-arf-portal-autopay
+                                account-id={accountId}>
+                            </c-arf-portal-autopay>
+                        </template>
+                        <template if:true={isHistoryTab}>
+                            <c-arf-portal-payment-history
+                                account-id={accountId}>
+                            </c-arf-portal-payment-history>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <!-- Error -->
+        <template if:true={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <p>{error}</p>
+            </div>
+        </template>
+    </div>
+</template>

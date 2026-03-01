@@ -1,0 +1,146 @@
+<template>
+    <!-- Current Autopay Status -->
+    <template if:true={hasSchedule}>
+        <template if:false={showSetupForm}>
+            <div class="autopay-status slds-box slds-m-bottom_medium">
+                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                    <div>
+                        <h3 class="slds-text-heading_small">
+                            Autopay
+                            <span class={statusBadgeClass}>
+                                <template if:true={isActive}>Active</template>
+                                <template if:false={isActive}>{schedule.status}</template>
+                            </span>
+                        </h3>
+                        <template if:true={isActive}>
+                            <div class="slds-m-top_small">
+                                <p><strong>Rule:</strong> {schedule.ruleType}</p>
+                                <p><strong>Payment Method:</strong> {schedule.paymentMethodLabel}</p>
+                                <p><strong>Schedule Day:</strong> {schedule.scheduleDay} of each month</p>
+                                <template if:true={schedule.maxAmount}>
+                                    <p><strong>Max Amount:</strong> ${schedule.maxAmount}</p>
+                                </template>
+                                <template if:true={schedule.nextRunDate}>
+                                    <p><strong>Next Run:</strong> {schedule.nextRunDate}</p>
+                                </template>
+                                <template if:true={schedule.lastRunDate}>
+                                    <p class="slds-text-body_small slds-text-color_weak">Last ran: {schedule.lastRunDate}</p>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    <div>
+                        <template if:true={isActive}>
+                            <lightning-button variant="neutral" label="Edit" onclick={handleShowSetup} class="slds-m-right_x-small"></lightning-button>
+                            <lightning-button variant="destructive-text" label="Cancel Autopay" onclick={handleCancel}></lightning-button>
+                        </template>
+                        <template if:false={isActive}>
+                            <lightning-button variant="brand" label="Set Up Autopay" onclick={handleShowSetup}></lightning-button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </template>
+
+    <!-- No Schedule -->
+    <template if:false={hasSchedule}>
+        <template if:false={showSetupForm}>
+            <div class="slds-text-align_center slds-p-around_large">
+                <lightning-icon icon-name="utility:clock" size="large" class="slds-m-bottom_medium"></lightning-icon>
+                <h3 class="slds-text-heading_small">Autopay Not Set Up</h3>
+                <p class="slds-text-body_regular slds-text-color_weak slds-m-top_small">
+                    Set up automatic payments so you never miss a due date.
+                </p>
+                <lightning-button
+                    variant="brand"
+                    label="Set Up Autopay"
+                    onclick={handleShowSetup}
+                    class="slds-m-top_medium">
+                </lightning-button>
+            </div>
+        </template>
+    </template>
+
+    <!-- Setup Form -->
+    <template if:true={showSetupForm}>
+        <div class="setup-form slds-box">
+            <h3 class="slds-text-heading_small slds-m-bottom_medium">Configure Autopay</h3>
+
+            <template if:true={hasMethods}>
+                <div class="slds-grid slds-gutters slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                        <lightning-combobox
+                            label="Payment Method"
+                            value={selectedMethodId}
+                            options={paymentMethods}
+                            onchange={handleMethodChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                        <lightning-combobox
+                            label="Payment Rule"
+                            value={ruleType}
+                            options={ruleTypeOptions}
+                            onchange={handleRuleTypeChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                    <template if:true={isFixedAmount}>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input
+                                type="number"
+                                label="Fixed Amount ($)"
+                                value={fixedAmount}
+                                onchange={handleFixedAmountChange}
+                                formatter="currency"
+                                step="0.01"
+                                required>
+                            </lightning-input>
+                        </div>
+                    </template>
+                    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                        <lightning-input
+                            type="number"
+                            label="Max Amount Cap ($)"
+                            value={maxAmount}
+                            onchange={handleMaxAmountChange}
+                            formatter="currency"
+                            step="0.01"
+                            field-level-help="Maximum amount to pay per cycle. Leave blank for no limit.">
+                        </lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                        <lightning-combobox
+                            label="Day of Month"
+                            value={scheduleDay}
+                            options={dayOptions}
+                            onchange={handleDayChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                </div>
+            </template>
+
+            <template if:false={hasMethods}>
+                <p class="slds-text-body_regular slds-text-color_weak">
+                    You need to add a payment method before setting up autopay.
+                </p>
+            </template>
+
+            <template if:true={error}>
+                <div class="slds-notify slds-notify_alert slds-alert_error slds-m-vertical_small" role="alert">
+                    <p>{error}</p>
+                </div>
+            </template>
+
+            <div class="slds-text-align_right slds-m-top_medium">
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancelSetup} class="slds-m-right_small"></lightning-button>
+                <template if:true={hasMethods}>
+                    <lightning-button variant="brand" label={saveLabel} disabled={isSaving} onclick={handleSave}></lightning-button>
+                </template>
+            </div>
+        </div>
+    </template>
+</template>

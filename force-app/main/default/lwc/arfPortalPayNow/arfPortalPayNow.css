@@ -1,0 +1,13 @@
+.pay-now-container {
+    padding: 1rem 0;
+}
+.confirmation-container {
+    padding: 3rem 1rem;
+}
+.confirmation-icon {
+    display: inline-block;
+}
+.total-amount {
+    font-size: 1.1rem;
+    color: #032d60;
+}

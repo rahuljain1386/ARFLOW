@@ -1,0 +1,14 @@
+.method-card {
+    border-radius: 8px;
+    transition: box-shadow 0.2s;
+}
+.method-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.method-label {
+    font-size: 0.95rem;
+}
+.add-form {
+    border-radius: 8px;
+    background: #f7f9fb;
+}

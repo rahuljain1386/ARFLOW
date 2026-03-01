@@ -1,0 +1,90 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <template if:false={isLoading}>
+        <template if:true={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <p>{error}</p>
+            </div>
+        </template>
+
+        <template if:true={hasPayments}>
+            <h3 class="slds-text-heading_small slds-m-bottom_small">Payment History</h3>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                <thead>
+                    <tr>
+                        <th style="width:40px;"></th>
+                        <th>Payment #</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th class="slds-text-align_right">Amount</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={payments} for:item="payment">
+                        <tr key={payment.id}>
+                            <td>
+                                <template if:true={payment.hasApplications}>
+                                    <lightning-button-icon
+                                        icon-name={payment.expandIcon}
+                                        variant="bare"
+                                        size="small"
+                                        data-id={payment.id}
+                                        onclick={handleToggleExpand}
+                                        alternative-text="Expand">
+                                    </lightning-button-icon>
+                                </template>
+                            </td>
+                            <td><strong>{payment.name}</strong></td>
+                            <td>{payment.paymentDate}</td>
+                            <td>{payment.method}</td>
+                            <td class="slds-text-align_right"><strong>{payment.formattedAmount}</strong></td>
+                            <td><span class={payment.statusClass}>{payment.status}</span></td>
+                            <td class="slds-text-body_small">{payment.reference}</td>
+                        </tr>
+                        <template if:true={payment.isExpanded}>
+                            <tr key={payment.id}>
+                                <td colspan="7" class="application-detail">
+                                    <div class="slds-p-left_large">
+                                        <p class="slds-text-title_caps slds-m-bottom_xx-small">Applied To</p>
+                                        <table class="slds-table slds-table_cell-buffer slds-no-row-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Invoice</th>
+                                                    <th class="slds-text-align_right">Amount Applied</th>
+                                                    <th>Date Applied</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template for:each={payment.applications} for:item="app">
+                                                    <tr key={app.key}>
+                                                        <td>{app.invoiceNumber}</td>
+                                                        <td class="slds-text-align_right">{app.formattedAmount}</td>
+                                                        <td>{app.applicationDate}</td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </template>
+                </tbody>
+            </table>
+        </template>
+
+        <template if:false={hasPayments}>
+            <div class="slds-text-align_center slds-p-around_large">
+                <p class="slds-text-heading_medium">No Payment History</p>
+                <p class="slds-text-body_regular slds-text-color_weak slds-m-top_small">
+                    Payments you make will appear here.
+                </p>
+            </div>
+        </template>
+    </template>
+</template>

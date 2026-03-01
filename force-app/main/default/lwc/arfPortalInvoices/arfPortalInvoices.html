@@ -1,0 +1,90 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading invoices" size="medium"></lightning-spinner>
+    </template>
+
+    <template if:false={isLoading}>
+        <template if:true={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                <p>{error}</p>
+            </div>
+        </template>
+
+        <template if:true={hasInvoices}>
+            <!-- Action Bar -->
+            <div class="action-bar slds-grid slds-grid_align-spread slds-m-bottom_small">
+                <div class="slds-col">
+                    <template if:true={hasSelections}>
+                        <span class="slds-text-body_small">{selectedCount} selected — Total: {selectedTotal}</span>
+                    </template>
+                </div>
+                <div class="slds-col slds-text-align_right">
+                    <template if:true={hasSelections}>
+                        <lightning-button
+                            variant="brand"
+                            label="Pay Selected"
+                            icon-name="utility:money"
+                            onclick={handlePaySelected}
+                            class="slds-m-right_x-small">
+                        </lightning-button>
+                    </template>
+                    <lightning-button
+                        variant="neutral"
+                        label="Pay All"
+                        onclick={handlePayAll}>
+                    </lightning-button>
+                </div>
+            </div>
+
+            <!-- Invoice Table -->
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped invoice-table">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col" class="slds-cell-wrap" style="width:40px;">
+                            <lightning-input type="checkbox" checked={allSelected} onchange={handleSelectAll} label="" variant="label-hidden"></lightning-input>
+                        </th>
+                        <th scope="col">Invoice #</th>
+                        <th scope="col">Invoice Date</th>
+                        <th scope="col">Due Date</th>
+                        <th scope="col">PO Number</th>
+                        <th scope="col" class="slds-text-align_right">Original Amount</th>
+                        <th scope="col" class="slds-text-align_right">Balance Due</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={invoices} for:item="inv">
+                        <tr key={inv.id} class={inv.rowClass}>
+                            <td>
+                                <lightning-input type="checkbox" checked={inv.isSelected} data-id={inv.id} onchange={handleRowSelect} label="" variant="label-hidden"></lightning-input>
+                            </td>
+                            <td><strong>{inv.documentNumber}</strong></td>
+                            <td>{inv.invoiceDate}</td>
+                            <td>{inv.dueDate}</td>
+                            <td>{inv.poNumber}</td>
+                            <td class="slds-text-align_right">{inv.formattedAmount}</td>
+                            <td class="slds-text-align_right"><strong>{inv.formattedBalance}</strong></td>
+                            <td>
+                                <span class={inv.statusClass}>
+                                    <template if:true={inv.isOverdue}>
+                                        {inv.daysPastDue} days past due
+                                    </template>
+                                    <template if:false={inv.isOverdue}>
+                                        {inv.status}
+                                    </template>
+                                </span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </template>
+
+        <template if:false={hasInvoices}>
+            <div class="slds-illustration slds-illustration_small slds-p-around_large slds-text-align_center">
+                <p class="slds-text-heading_medium">No Outstanding Invoices</p>
+                <p class="slds-text-body_regular slds-m-top_small">All invoices are paid. You're up to date!</p>
+            </div>
+        </template>
+    </template>
+</template>

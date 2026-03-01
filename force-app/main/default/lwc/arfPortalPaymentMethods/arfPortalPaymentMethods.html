@@ -1,0 +1,148 @@
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+
+    <template if:false={isLoading}>
+        <!-- Existing Methods List -->
+        <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+            <h3 class="slds-text-heading_small">Saved Payment Methods</h3>
+            <template if:false={showAddForm}>
+                <lightning-button
+                    variant="brand"
+                    label="Add Payment Method"
+                    icon-name="utility:add"
+                    onclick={handleShowAddForm}>
+                </lightning-button>
+            </template>
+        </div>
+
+        <template if:true={hasMethods}>
+            <div class="methods-list">
+                <template for:each={methods} for:item="method">
+                    <div key={method.id} class="method-card slds-box slds-m-bottom_small">
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                            <div class="slds-col">
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon icon-name={method.typeIcon} size="small" class="slds-m-right_small"></lightning-icon>
+                                    <div>
+                                        <p class="method-label"><strong>{method.displayLabel}</strong></p>
+                                        <template if:true={method.expiryDisplay}>
+                                            <p class="slds-text-body_small slds-text-color_weak">Exp: {method.expiryDisplay}</p>
+                                        </template>
+                                        <template if:true={method.primaryBadge}>
+                                            <span class="slds-badge slds-badge_inverse slds-m-top_xx-small">Primary</span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-text-align_right">
+                                <template if:false={method.isPrimary}>
+                                    <lightning-button
+                                        variant="neutral"
+                                        label="Set Default"
+                                        data-junctionid={method.junctionId}
+                                        onclick={handleSetDefault}
+                                        class="slds-m-right_x-small">
+                                    </lightning-button>
+                                </template>
+                                <lightning-button
+                                    variant="destructive-text"
+                                    label="Remove"
+                                    data-junctionid={method.junctionId}
+                                    onclick={handleRemove}>
+                                </lightning-button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template if:false={hasMethods}>
+            <template if:false={showAddForm}>
+                <div class="slds-text-align_center slds-p-around_large">
+                    <p class="slds-text-body_regular slds-text-color_weak">No payment methods saved. Add one to get started.</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- Add Payment Method Form -->
+        <template if:true={showAddForm}>
+            <div class="add-form slds-box slds-m-top_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_medium">Add New Payment Method</h3>
+
+                <lightning-radio-group
+                    name="addType"
+                    label="Type"
+                    options={addTypeOptions}
+                    value={addType}
+                    type="button"
+                    onchange={handleTypeChange}
+                    class="slds-m-bottom_medium">
+                </lightning-radio-group>
+
+                <!-- Credit Card Form -->
+                <template if:true={isCardType}>
+                    <div class="slds-grid slds-gutters slds-wrap">
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input label="Card Number" value={cardNumber} onchange={handleCardNumberChange} required placeholder="4111 1111 1111 1111"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input label="Cardholder Name" value={cardholderName} onchange={handleCardholderChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+                            <lightning-combobox label="Month" value={expMonth} options={monthOptions} onchange={handleExpMonthChange} required></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+                            <lightning-combobox label="Year" value={expYear} options={yearOptions} onchange={handleExpYearChange} required></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+                            <lightning-input label="CVV" value={cvv} onchange={handleCvvChange} required type="password" max-length="4"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input label="Nickname (optional)" value={cardNickname} onchange={handleCardNicknameChange} placeholder="e.g. Business Card"></lightning-input>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ACH Form -->
+                <template if:true={isAchType}>
+                    <div class="slds-grid slds-gutters slds-wrap">
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input label="Routing Number" value={routingNumber} onchange={handleRoutingChange} required max-length="9"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input label="Account Number" value={accountNumber} onchange={handleAccountNumberChange} required type="password"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-combobox label="Account Type" value={achAccountType} options={achAccountTypeOptions} onchange={handleAchTypeChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+                            <lightning-input label="Bank Name" value={bankName} onchange={handleBankNameChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input label="Account Holder Name" value={accountHolderName} onchange={handleAccountHolderChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                            <lightning-input label="Nickname (optional)" value={achNickname} onchange={handleAchNicknameChange} placeholder="e.g. Business Checking"></lightning-input>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Error -->
+                <template if:true={error}>
+                    <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">
+                        <p>{error}</p>
+                    </div>
+                </template>
+
+                <!-- Actions -->
+                <div class="slds-text-align_right slds-m-top_medium">
+                    <lightning-button variant="neutral" label="Cancel" onclick={handleCancelAdd} class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="brand" label={saveLabel} disabled={isSaving} onclick={handleSaveMethod}></lightning-button>
+                </div>
+            </div>
+        </template>
+    </template>
+</template>
