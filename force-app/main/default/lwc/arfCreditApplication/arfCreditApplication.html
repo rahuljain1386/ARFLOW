@@ -1,1000 +1,641 @@
 <template>
-    <div class="credit-app-container">
 
-        <!-- ─── Header ─── -->
-        <div class="app-header">
-            <h1 class="header-title">Credit Application</h1>
-            <p class="header-subtitle">Please complete all required fields marked with an asterisk (*)</p>
-        </div>
-
-        <!-- ─── Progress Indicator ─── -->
-        <template lwc:if={isSubmitted}>
-            <!-- No progress bar on confirmation -->
-        </template>
-        <template lwc:else>
-            <div class="progress-bar">
-                <template for:each={progressSteps} for:item="step">
-                    <div key={step.value}
-                         class={step.class}
-                         data-step={step.value}
-                         onclick={handleStepClick}>
-                        <div class="step-circle">{step.value}</div>
-                        <span class="step-label">{step.label}</span>
-                        <div class="step-connector"></div>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- LOGIN / RESUME PAGE                     -->
+    <!-- ═══════════════════════════════════════ -->
+    <template lwc:if={showLoginPage}>
+        <div class="login-page">
+            <div class="login-bg-pattern"></div>
+            <div class="login-card">
+                <div class="login-brand">
+                    <div class="brand-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
                     </div>
-                </template>
-            </div>
-        </template>
-
-        <!-- ─── Card Body ─── -->
-        <div class="card-body">
-
-            <!-- Loading Spinner -->
-            <template lwc:if={isLoading}>
-                <div class="loading-overlay">
-                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    <h1 class="login-title">Credit Application Portal</h1>
+                    <p class="login-subtitle">Secure online credit application</p>
                 </div>
-            </template>
 
-            <!-- ─── Confirmation Screen ─── -->
-            <template lwc:if={isSubmitted}>
-                <div class="confirmation-screen">
-                    <div class="confirmation-icon">&#10003;</div>
-                    <h2 class="confirmation-title">Application Submitted Successfully</h2>
-                    <p class="confirmation-message">
-                        Thank you for submitting your credit application. Our team will review your
-                        information and contact you within 3-5 business days. You will receive an
-                        email confirmation shortly.
-                    </p>
-                </div>
-            </template>
-
-            <!-- ─── Step Content ─── -->
-            <template lwc:if={isLoading}>
-                <!-- hidden while loading -->
-            </template>
-            <template lwc:elseif={isSubmitted}>
-                <!-- handled above -->
-            </template>
-            <template lwc:else>
-                <div class="step-content">
-
-                    <!-- ════════════════════════════════════════════ -->
-                    <!-- STEP 1: Company Information                -->
-                    <!-- ════════════════════════════════════════════ -->
-                    <template lwc:if={isStep1}>
-
-                        <!-- Company Details -->
-                        <h3 class="section-header">Company Details</h3>
-                        <div class="form-grid">
-                            <lightning-input
-                                label="Legal Company Name"
-                                value={company.legalName}
-                                data-field="legalName"
-                                onchange={handleCompanyChange}
-                                required>
-                            </lightning-input>
-                            <lightning-input
-                                label="DBA (Doing Business As)"
-                                value={company.dba}
-                                data-field="dba"
-                                onchange={handleCompanyChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Phone"
-                                type="tel"
-                                value={company.phone}
-                                data-field="phone"
-                                onchange={handleCompanyChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Fax"
-                                type="tel"
-                                value={company.fax}
-                                data-field="fax"
-                                onchange={handleCompanyChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Email"
-                                type="email"
-                                value={company.email}
-                                data-field="email"
-                                onchange={handleCompanyChange}
-                                required>
-                            </lightning-input>
-                            <lightning-input
-                                label="Website"
-                                type="url"
-                                value={company.website}
-                                data-field="website"
-                                onchange={handleCompanyChange}>
-                            </lightning-input>
-                            <lightning-combobox
-                                label="Business Type"
-                                value={company.businessType}
-                                options={businessTypeOptions}
-                                data-field="businessType"
-                                onchange={handleCompanyChange}
-                                placeholder="Select...">
-                            </lightning-combobox>
-                            <lightning-input
-                                label="Years in Business"
-                                type="number"
-                                value={company.yearsInBusiness}
-                                data-field="yearsInBusiness"
-                                onchange={handleCompanyChange}
-                                min="0">
-                            </lightning-input>
-                            <lightning-input
-                                label="Date Established"
-                                type="date"
-                                value={company.dateEstablished}
-                                data-field="dateEstablished"
-                                onchange={handleCompanyChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Annual Revenue ($)"
-                                type="number"
-                                value={company.annualRevenue}
-                                data-field="annualRevenue"
-                                onchange={handleCompanyChange}
-                                formatter="currency"
-                                step="1000">
-                            </lightning-input>
-                            <lightning-input
-                                label="Number of Employees"
-                                type="number"
-                                value={company.numberOfEmployees}
-                                data-field="numberOfEmployees"
-                                onchange={handleCompanyChange}
-                                min="0">
-                            </lightning-input>
-                            <lightning-input
-                                label="Requested Credit Limit ($)"
-                                type="number"
-                                value={company.requestedCreditLimit}
-                                data-field="requestedCreditLimit"
-                                onchange={handleCompanyChange}
-                                formatter="currency"
-                                step="100">
-                            </lightning-input>
+                <div class="login-form">
+                    <div class="login-field-group">
+                        <label class="login-label">Access Token</label>
+                        <p class="login-help">Enter the access token from your email invitation to start or continue your application.</p>
+                        <div class="login-input-wrapper">
+                            <input
+                                type="text"
+                                class="login-input"
+                                placeholder="Paste your access token here"
+                                value={loginToken}
+                                oninput={handleLoginTokenChange}
+                                onkeypress={handleLoginKeyPress}
+                            />
                         </div>
+                    </div>
 
-                        <!-- Billing Address -->
-                        <h3 class="section-header">Billing Address</h3>
-                        <div class="form-grid">
-                            <div class="form-full-width">
-                                <lightning-input
-                                    label="Street Address"
-                                    value={billingAddress.street}
-                                    data-field="street"
-                                    onchange={handleBillingAddressChange}>
-                                </lightning-input>
-                            </div>
-                            <lightning-input
-                                label="City"
-                                value={billingAddress.city}
-                                data-field="city"
-                                onchange={handleBillingAddressChange}>
-                            </lightning-input>
-                            <lightning-combobox
-                                label="State"
-                                value={billingAddress.state}
-                                options={stateOptions}
-                                data-field="state"
-                                onchange={handleBillingAddressChange}
-                                placeholder="Select...">
-                            </lightning-combobox>
-                            <lightning-input
-                                label="Zip Code"
-                                value={billingAddress.zip}
-                                data-field="zip"
-                                onchange={handleBillingAddressChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Country"
-                                value={billingAddress.country}
-                                data-field="country"
-                                onchange={handleBillingAddressChange}>
-                            </lightning-input>
+                    <template lwc:if={loginError}>
+                        <div class="login-error">
+                            <span class="login-error-icon">!</span>
+                            {loginError}
                         </div>
+                    </template>
 
-                        <!-- Shipping Address -->
-                        <h3 class="section-header">Shipping Address</h3>
-                        <div class="checkbox-row">
-                            <lightning-input
-                                type="checkbox"
-                                label="Same as Billing Address"
-                                checked={shippingSameAsBilling}
-                                onchange={handleShippingSameToggle}>
-                            </lightning-input>
-                        </div>
-                        <template lwc:if={shippingSameAsBilling}>
-                            <!-- hidden when same as billing -->
+                    <button class="login-btn" onclick={handleLoginSubmit}>
+                        <template lwc:if={isLoading}>
+                            <span class="login-spinner"></span>
+                            Verifying...
                         </template>
                         <template lwc:else>
-                            <div class="form-grid">
-                                <div class="form-full-width">
-                                    <lightning-input
-                                        label="Street Address"
-                                        value={shippingAddress.street}
-                                        data-field="street"
-                                        onchange={handleShippingAddressChange}>
-                                    </lightning-input>
-                                </div>
-                                <lightning-input
-                                    label="City"
-                                    value={shippingAddress.city}
-                                    data-field="city"
-                                    onchange={handleShippingAddressChange}>
-                                </lightning-input>
-                                <lightning-combobox
-                                    label="State"
-                                    value={shippingAddress.state}
-                                    options={stateOptions}
-                                    data-field="state"
-                                    onchange={handleShippingAddressChange}
-                                    placeholder="Select...">
-                                </lightning-combobox>
-                                <lightning-input
-                                    label="Zip Code"
-                                    value={shippingAddress.zip}
-                                    data-field="zip"
-                                    onchange={handleShippingAddressChange}>
-                                </lightning-input>
-                                <lightning-input
-                                    label="Country"
-                                    value={shippingAddress.country}
-                                    data-field="country"
-                                    onchange={handleShippingAddressChange}>
-                                </lightning-input>
-                            </div>
+                            Access Application
+                            <svg class="login-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
                         </template>
+                    </button>
 
-                        <!-- Applicant Information -->
-                        <h3 class="section-header">Applicant Information</h3>
-                        <p class="section-description">Add all owners/officers associated with this application.</p>
-                        <template for:each={indexedApplicants} for:item="applicant">
-                            <div key={applicant.key} class="list-item">
-                                <div class="list-item-header">
-                                    <span class="list-item-title">{applicant.label}</span>
-                                    <template lwc:if={applicant.showRemove}>
-                                        <lightning-button
-                                            label="Remove"
-                                            variant="destructive-text"
-                                            data-index={applicant.index}
-                                            onclick={handleRemoveApplicant}
-                                            icon-name="utility:delete">
-                                        </lightning-button>
-                                    </template>
-                                </div>
-                                <div class="form-grid">
-                                    <lightning-input
-                                        label="First Name"
-                                        value={applicant.firstName}
-                                        data-index={applicant.index}
-                                        data-field="firstName"
-                                        onchange={handleApplicantChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Last Name"
-                                        value={applicant.lastName}
-                                        data-index={applicant.index}
-                                        data-field="lastName"
-                                        onchange={handleApplicantChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Title"
-                                        value={applicant.title}
-                                        data-index={applicant.index}
-                                        data-field="title"
-                                        onchange={handleApplicantChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Email"
-                                        type="email"
-                                        value={applicant.email}
-                                        data-index={applicant.index}
-                                        data-field="email"
-                                        onchange={handleApplicantChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Phone"
-                                        type="tel"
-                                        value={applicant.phone}
-                                        data-index={applicant.index}
-                                        data-field="phone"
-                                        onchange={handleApplicantChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Ownership %"
-                                        type="number"
-                                        value={applicant.ownershipPercent}
-                                        data-index={applicant.index}
-                                        data-field="ownershipPercent"
-                                        onchange={handleApplicantChange}
-                                        min="0"
-                                        max="100">
-                                    </lightning-input>
-                                    <div>
-                                        <lightning-input
-                                            type="checkbox"
-                                            label="Primary Contact"
-                                            checked={applicant.isPrimary}
-                                            data-index={applicant.index}
-                                            data-field="isPrimary"
-                                            onchange={handleApplicantChange}>
-                                        </lightning-input>
+                    <div class="login-footer">
+                        <div class="login-footer-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="login-footer-icon">
+                                <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>256-bit encryption</span>
+                        </div>
+                        <div class="login-footer-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="login-footer-icon">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Save &amp; resume anytime</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- CONFIRMATION / SUCCESS PAGE             -->
+    <!-- ═══════════════════════════════════════ -->
+    <template lwc:elseif={isSubmitted}>
+        <div class="success-page">
+            <div class="success-card">
+                <div class="success-icon-wrap">
+                    <div class="success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <path d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div class="success-pulse"></div>
+                </div>
+                <h1 class="success-title">Application Submitted!</h1>
+                <p class="success-message">
+                    Thank you for completing your credit application. Our credit team will
+                    review your information and reach out within <strong>3-5 business days</strong>.
+                </p>
+                <div class="success-details">
+                    <div class="success-detail-row">
+                        <span class="success-detail-label">Application ID</span>
+                        <span class="success-detail-value">{applicationId}</span>
+                    </div>
+                    <div class="success-detail-row">
+                        <span class="success-detail-label">Company</span>
+                        <span class="success-detail-value">{company.legalName}</span>
+                    </div>
+                    <div class="success-detail-row">
+                        <span class="success-detail-label">Status</span>
+                        <span class="success-status-badge">Under Review</span>
+                    </div>
+                </div>
+                <p class="success-note">A confirmation email has been sent to <strong>{company.email}</strong></p>
+            </div>
+        </div>
+    </template>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- MAIN APPLICATION FORM                   -->
+    <!-- ═══════════════════════════════════════ -->
+    <template lwc:elseif={showForm}>
+        <div class="app-shell">
+
+            <!-- Top Header Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="top-bar-brand">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="top-bar-icon">
+                            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span class="top-bar-title">Credit Application</span>
+                    </div>
+                    <template lwc:if={companyName}>
+                        <span class="top-bar-company">{companyName}</span>
+                    </template>
+                </div>
+                <div class="top-bar-right">
+                    <template lwc:if={isSaving}>
+                        <span class="save-indicator saving">Saving...</span>
+                    </template>
+                    <template lwc:elseif={lastSaved}>
+                        <span class="save-indicator saved">Saved {lastSaved}</span>
+                    </template>
+                    <button class="save-draft-btn" onclick={handleSaveDraft}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="save-icon">
+                            <path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                        </svg>
+                        Save &amp; Exit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar (thin) -->
+            <div class="progress-track">
+                <div class="progress-fill" style={progressBarStyle}></div>
+            </div>
+
+            <!-- Split Layout -->
+            <div class="split-layout">
+
+                <!-- LEFT SIDEBAR — Steps -->
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <span class="sidebar-progress">{completedStepCount} of {totalSteps} completed</span>
+                    </div>
+                    <div class="sidebar-steps">
+                        <template for:each={sidebarSteps} for:item="step">
+                            <div key={step.key}
+                                 class={step.stepClass}
+                                 data-step={step.num}
+                                 onclick={handleStepClick}>
+                                <div class="step-indicator-wrap">
+                                    <div class="step-num-circle">
+                                        <template lwc:if={step.isCompleted}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="step-check-icon">
+                                                <path d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </template>
+                                        <template lwc:else>
+                                            {step.num}
+                                        </template>
                                     </div>
+                                    <template lwc:if={step.isFuture}>
+                                        <!-- no connector after last or on future -->
+                                    </template>
+                                </div>
+                                <div class="step-text">
+                                    <span class="step-title">{step.label}</span>
+                                    <span class="step-desc">{step.desc}</span>
+                                    <template lwc:if={step.summary}>
+                                        <span class="step-summary">{step.summary}</span>
+                                    </template>
                                 </div>
                             </div>
                         </template>
-                        <div class="add-button-container">
-                            <lightning-button
-                                label="Add Applicant"
-                                variant="neutral"
-                                icon-name="utility:add"
-                                onclick={handleAddApplicant}>
-                            </lightning-button>
-                        </div>
+                    </div>
+                </div>
 
-                        <!-- Accounts Payable Contact -->
-                        <h3 class="section-header">Accounts Payable Contact</h3>
-                        <div class="form-grid">
-                            <lightning-input
-                                label="Contact Name"
-                                value={apContact.name}
-                                data-field="name"
-                                onchange={handleApContactChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Email"
-                                type="email"
-                                value={apContact.email}
-                                data-field="email"
-                                onchange={handleApContactChange}>
-                            </lightning-input>
-                            <lightning-input
-                                label="Phone"
-                                type="tel"
-                                value={apContact.phone}
-                                data-field="phone"
-                                onchange={handleApContactChange}>
-                            </lightning-input>
-                        </div>
+                <!-- RIGHT — Form Panel -->
+                <div class="form-panel">
 
+                    <!-- Loading Overlay -->
+                    <template lwc:if={isLoading}>
+                        <div class="loading-overlay">
+                            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                        </div>
                     </template>
 
-                    <!-- ════════════════════════════════════════════ -->
-                    <!-- STEP 2: References                         -->
-                    <!-- ════════════════════════════════════════════ -->
-                    <template lwc:if={isStep2}>
+                    <!-- ════════════════════════════════════ -->
+                    <!-- STEP 1: Company Information         -->
+                    <!-- ════════════════════════════════════ -->
+                    <template lwc:if={isStep1}>
+                        <div class="form-step fade-in">
+                            <div class="step-hero">
+                                <h2 class="step-hero-title">Company Information</h2>
+                                <p class="step-hero-desc">Tell us about your business. All fields marked with * are required.</p>
+                            </div>
 
-                        <!-- Trade References -->
-                        <h3 class="section-header">Trade References</h3>
-                        <p class="section-description">A minimum of 3 trade references is recommended for faster processing.</p>
-                        <template for:each={indexedTradeReferences} for:item="ref">
-                            <div key={ref.key} class="list-item">
-                                <div class="list-item-header">
-                                    <span class="list-item-title">{ref.label}</span>
-                                    <template lwc:if={ref.showRemove}>
-                                        <lightning-button
-                                            label="Remove"
-                                            variant="destructive-text"
-                                            data-index={ref.index}
-                                            onclick={handleRemoveTradeRef}
-                                            icon-name="utility:delete">
-                                        </lightning-button>
-                                    </template>
-                                </div>
+                            <!-- Company Details -->
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                    </span>
+                                    Company Details
+                                </h3>
                                 <div class="form-grid">
-                                    <lightning-input
-                                        label="Company Name"
-                                        value={ref.companyName}
-                                        data-index={ref.index}
-                                        data-field="companyName"
-                                        onchange={handleTradeRefChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Contact Name"
-                                        value={ref.contactName}
-                                        data-index={ref.index}
-                                        data-field="contactName"
-                                        onchange={handleTradeRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Phone"
-                                        type="tel"
-                                        value={ref.phone}
-                                        data-index={ref.index}
-                                        data-field="phone"
-                                        onchange={handleTradeRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Email"
-                                        type="email"
-                                        value={ref.email}
-                                        data-index={ref.index}
-                                        data-field="email"
-                                        onchange={handleTradeRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Account Number"
-                                        value={ref.accountNumber}
-                                        data-index={ref.index}
-                                        data-field="accountNumber"
-                                        onchange={handleTradeRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Credit Limit ($)"
-                                        type="number"
-                                        value={ref.creditLimit}
-                                        data-index={ref.index}
-                                        data-field="creditLimit"
-                                        onchange={handleTradeRefChange}
-                                        formatter="currency">
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Balance Owed ($)"
-                                        type="number"
-                                        value={ref.balanceOwed}
-                                        data-index={ref.index}
-                                        data-field="balanceOwed"
-                                        onchange={handleTradeRefChange}
-                                        formatter="currency">
-                                    </lightning-input>
+                                    <lightning-input label="Legal Company Name" value={company.legalName} data-field="legalName" onchange={handleCompanyChange} required></lightning-input>
+                                    <lightning-input label="DBA (Doing Business As)" value={company.dba} data-field="dba" onchange={handleCompanyChange}></lightning-input>
+                                    <lightning-input label="Phone" type="tel" value={company.phone} data-field="phone" onchange={handleCompanyChange}></lightning-input>
+                                    <lightning-input label="Fax" type="tel" value={company.fax} data-field="fax" onchange={handleCompanyChange}></lightning-input>
+                                    <lightning-input label="Email" type="email" value={company.email} data-field="email" onchange={handleCompanyChange} required></lightning-input>
+                                    <lightning-input label="Website" type="url" value={company.website} data-field="website" onchange={handleCompanyChange}></lightning-input>
+                                    <lightning-combobox label="Business Type" value={company.businessType} options={businessTypeOptions} data-field="businessType" onchange={handleCompanyChange} placeholder="Select..."></lightning-combobox>
+                                    <lightning-input label="Years in Business" type="number" value={company.yearsInBusiness} data-field="yearsInBusiness" onchange={handleCompanyChange} min="0"></lightning-input>
+                                    <lightning-input label="Date Established" type="date" value={company.dateEstablished} data-field="dateEstablished" onchange={handleCompanyChange}></lightning-input>
+                                    <lightning-input label="Annual Revenue ($)" type="number" value={company.annualRevenue} data-field="annualRevenue" onchange={handleCompanyChange} formatter="currency" step="1000"></lightning-input>
+                                    <lightning-input label="Number of Employees" type="number" value={company.numberOfEmployees} data-field="numberOfEmployees" onchange={handleCompanyChange} min="0"></lightning-input>
+                                    <lightning-input label="Requested Credit Limit ($)" type="number" value={company.requestedCreditLimit} data-field="requestedCreditLimit" onchange={handleCompanyChange} formatter="currency" step="100"></lightning-input>
                                 </div>
                             </div>
-                        </template>
-                        <div class="add-button-container">
-                            <lightning-button
-                                label="Add Trade Reference"
-                                variant="neutral"
-                                icon-name="utility:add"
-                                onclick={handleAddTradeRef}>
-                            </lightning-button>
-                        </div>
 
-                        <!-- Bank References -->
-                        <h3 class="section-header">Bank References</h3>
-                        <template for:each={indexedBankReferences} for:item="ref">
-                            <div key={ref.key} class="list-item">
-                                <div class="list-item-header">
-                                    <span class="list-item-title">{ref.label}</span>
-                                    <template lwc:if={ref.showRemove}>
-                                        <lightning-button
-                                            label="Remove"
-                                            variant="destructive-text"
-                                            data-index={ref.index}
-                                            onclick={handleRemoveBankRef}
-                                            icon-name="utility:delete">
-                                        </lightning-button>
-                                    </template>
-                                </div>
+                            <!-- Billing Address -->
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    </span>
+                                    Billing Address
+                                </h3>
                                 <div class="form-grid">
-                                    <lightning-input
-                                        label="Bank Name"
-                                        value={ref.bankName}
-                                        data-index={ref.index}
-                                        data-field="bankName"
-                                        onchange={handleBankRefChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Branch"
-                                        value={ref.branch}
-                                        data-index={ref.index}
-                                        data-field="branch"
-                                        onchange={handleBankRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Contact Name"
-                                        value={ref.contact}
-                                        data-index={ref.index}
-                                        data-field="contact"
-                                        onchange={handleBankRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Phone"
-                                        type="tel"
-                                        value={ref.phone}
-                                        data-index={ref.index}
-                                        data-field="phone"
-                                        onchange={handleBankRefChange}>
-                                    </lightning-input>
-                                    <lightning-combobox
-                                        label="Account Type"
-                                        value={ref.accountType}
-                                        options={accountTypeOptions}
-                                        data-index={ref.index}
-                                        data-field="accountType"
-                                        onchange={handleBankRefChange}
-                                        placeholder="Select...">
-                                    </lightning-combobox>
-                                    <lightning-input
-                                        label="Account Number"
-                                        value={ref.accountNumber}
-                                        data-index={ref.index}
-                                        data-field="accountNumber"
-                                        onchange={handleBankRefChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Routing Number"
-                                        value={ref.routingNumber}
-                                        data-index={ref.index}
-                                        data-field="routingNumber"
-                                        onchange={handleBankRefChange}>
-                                    </lightning-input>
-                                </div>
-                            </div>
-                        </template>
-                        <div class="add-button-container">
-                            <lightning-button
-                                label="Add Bank Reference"
-                                variant="neutral"
-                                icon-name="utility:add"
-                                onclick={handleAddBankRef}>
-                            </lightning-button>
-                        </div>
-
-                    </template>
-
-                    <!-- ════════════════════════════════════════════ -->
-                    <!-- STEP 3: Personal Guarantor                 -->
-                    <!-- ════════════════════════════════════════════ -->
-                    <template lwc:if={isStep3}>
-
-                        <h3 class="section-header">Personal Guarantor</h3>
-                        <div class="info-callout">
-                            A personal guarantor may be required for credit approval. By providing this information,
-                            the guarantor agrees to be personally responsible for the account in the event the
-                            business is unable to fulfill its payment obligations.
-                        </div>
-
-                        <template for:each={indexedGuarantors} for:item="guarantor">
-                            <div key={guarantor.key} class="list-item">
-                                <div class="list-item-header">
-                                    <span class="list-item-title">{guarantor.label}</span>
-                                    <template lwc:if={guarantor.showRemove}>
-                                        <lightning-button
-                                            label="Remove"
-                                            variant="destructive-text"
-                                            data-index={guarantor.index}
-                                            onclick={handleRemoveGuarantor}
-                                            icon-name="utility:delete">
-                                        </lightning-button>
-                                    </template>
-                                </div>
-                                <div class="form-grid">
-                                    <lightning-input
-                                        label="First Name"
-                                        value={guarantor.firstName}
-                                        data-index={guarantor.index}
-                                        data-field="firstName"
-                                        onchange={handleGuarantorChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Last Name"
-                                        value={guarantor.lastName}
-                                        data-index={guarantor.index}
-                                        data-field="lastName"
-                                        onchange={handleGuarantorChange}
-                                        required>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Social Security Number"
-                                        type="password"
-                                        value={guarantor.ssn}
-                                        data-index={guarantor.index}
-                                        data-field="ssn"
-                                        onchange={handleGuarantorChange}
-                                        pattern="[0-9]{3}-?[0-9]{2}-?[0-9]{4}"
-                                        message-when-pattern-mismatch="Enter a valid SSN (e.g., 123-45-6789)">
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Date of Birth"
-                                        type="date"
-                                        value={guarantor.dob}
-                                        data-index={guarantor.index}
-                                        data-field="dob"
-                                        onchange={handleGuarantorChange}>
-                                    </lightning-input>
                                     <div class="form-full-width">
-                                        <lightning-input
-                                            label="Street Address"
-                                            value={guarantor.street}
-                                            data-index={guarantor.index}
-                                            data-field="street"
-                                            onchange={handleGuarantorChange}>
-                                        </lightning-input>
+                                        <lightning-input label="Street Address" value={billingAddress.street} data-field="street" onchange={handleBillingAddressChange}></lightning-input>
                                     </div>
-                                    <lightning-input
-                                        label="City"
-                                        value={guarantor.city}
-                                        data-index={guarantor.index}
-                                        data-field="city"
-                                        onchange={handleGuarantorChange}>
-                                    </lightning-input>
-                                    <lightning-combobox
-                                        label="State"
-                                        value={guarantor.state}
-                                        options={stateOptions}
-                                        data-index={guarantor.index}
-                                        data-field="state"
-                                        onchange={handleGuarantorChange}
-                                        placeholder="Select...">
-                                    </lightning-combobox>
-                                    <lightning-input
-                                        label="Zip Code"
-                                        value={guarantor.zip}
-                                        data-index={guarantor.index}
-                                        data-field="zip"
-                                        onchange={handleGuarantorChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Ownership %"
-                                        type="number"
-                                        value={guarantor.ownershipPercent}
-                                        data-index={guarantor.index}
-                                        data-field="ownershipPercent"
-                                        onchange={handleGuarantorChange}
-                                        min="0"
-                                        max="100">
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Phone"
-                                        type="tel"
-                                        value={guarantor.phone}
-                                        data-index={guarantor.index}
-                                        data-field="phone"
-                                        onchange={handleGuarantorChange}>
-                                    </lightning-input>
-                                    <lightning-input
-                                        label="Email"
-                                        type="email"
-                                        value={guarantor.email}
-                                        data-index={guarantor.index}
-                                        data-field="email"
-                                        onchange={handleGuarantorChange}>
-                                    </lightning-input>
+                                    <lightning-input label="City" value={billingAddress.city} data-field="city" onchange={handleBillingAddressChange}></lightning-input>
+                                    <lightning-combobox label="State" value={billingAddress.state} options={stateOptions} data-field="state" onchange={handleBillingAddressChange} placeholder="Select..."></lightning-combobox>
+                                    <lightning-input label="Zip Code" value={billingAddress.zip} data-field="zip" onchange={handleBillingAddressChange}></lightning-input>
+                                    <lightning-input label="Country" value={billingAddress.country} data-field="country" onchange={handleBillingAddressChange}></lightning-input>
                                 </div>
                             </div>
-                        </template>
-                        <div class="add-button-container">
-                            <lightning-button
-                                label="Add Guarantor"
-                                variant="neutral"
-                                icon-name="utility:add"
-                                onclick={handleAddGuarantor}>
-                            </lightning-button>
-                        </div>
 
-                    </template>
-
-                    <!-- ════════════════════════════════════════════ -->
-                    <!-- STEP 4: Tax Information                    -->
-                    <!-- ════════════════════════════════════════════ -->
-                    <template lwc:if={isStep4}>
-
-                        <h3 class="section-header">Tax Information</h3>
-                        <div class="form-grid">
-                            <lightning-input
-                                label="Federal Tax ID (EIN)"
-                                value={taxInfo.ein}
-                                data-field="ein"
-                                onchange={handleTaxInfoChange}
-                                pattern="[0-9]{2}-?[0-9]{7}"
-                                message-when-pattern-mismatch="Enter a valid EIN (e.g., 12-3456789)">
-                            </lightning-input>
-                            <lightning-input
-                                label="DUNS Number"
-                                value={taxInfo.dunsNumber}
-                                data-field="dunsNumber"
-                                onchange={handleTaxInfoChange}>
-                            </lightning-input>
-                            <lightning-combobox
-                                label="State of Incorporation"
-                                value={taxInfo.stateOfIncorporation}
-                                options={stateOptions}
-                                data-field="stateOfIncorporation"
-                                onchange={handleTaxInfoChange}
-                                placeholder="Select...">
-                            </lightning-combobox>
-                        </div>
-
-                    </template>
-
-                    <!-- ════════════════════════════════════════════ -->
-                    <!-- STEP 5: Review & Submit                    -->
-                    <!-- ════════════════════════════════════════════ -->
-                    <template lwc:if={isStep5}>
-
-                        <h3 class="section-header">Review Your Application</h3>
-                        <p class="section-description">Please review all information below before submitting. Click on a previous step to make changes.</p>
-
-                        <!-- Company Details Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Company Details</div>
-                            <div class="review-grid">
-                                <div class="review-item">
-                                    <span class="review-label">Legal Name</span>
-                                    <span class="review-value">{company.legalName}</span>
+                            <!-- Shipping Address -->
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 17l4 4 4-4m-4-5v9"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29"/></svg>
+                                    </span>
+                                    Shipping Address
+                                </h3>
+                                <div class="checkbox-row">
+                                    <lightning-input type="checkbox" label="Same as Billing Address" checked={shippingSameAsBilling} onchange={handleShippingSameToggle}></lightning-input>
                                 </div>
-                                <div class="review-item">
-                                    <span class="review-label">DBA</span>
-                                    <span class="review-value">{company.dba}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Email</span>
-                                    <span class="review-value">{company.email}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Phone</span>
-                                    <span class="review-value">{company.phone}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Business Type</span>
-                                    <span class="review-value">{businessTypeLabel}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Years in Business</span>
-                                    <span class="review-value">{company.yearsInBusiness}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Requested Credit Limit</span>
-                                    <span class="review-value">{company.requestedCreditLimit}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Website</span>
-                                    <span class="review-value">{company.website}</span>
-                                </div>
+                                <template lwc:if={shippingSameAsBilling}>
+                                    <!-- hidden -->
+                                </template>
+                                <template lwc:else>
+                                    <div class="form-grid">
+                                        <div class="form-full-width">
+                                            <lightning-input label="Street Address" value={shippingAddress.street} data-field="street" onchange={handleShippingAddressChange}></lightning-input>
+                                        </div>
+                                        <lightning-input label="City" value={shippingAddress.city} data-field="city" onchange={handleShippingAddressChange}></lightning-input>
+                                        <lightning-combobox label="State" value={shippingAddress.state} options={stateOptions} data-field="state" onchange={handleShippingAddressChange} placeholder="Select..."></lightning-combobox>
+                                        <lightning-input label="Zip Code" value={shippingAddress.zip} data-field="zip" onchange={handleShippingAddressChange}></lightning-input>
+                                        <lightning-input label="Country" value={shippingAddress.country} data-field="country" onchange={handleShippingAddressChange}></lightning-input>
+                                    </div>
+                                </template>
                             </div>
-                        </div>
 
-                        <!-- Address Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Addresses</div>
-                            <div class="review-grid">
-                                <div class="review-item">
-                                    <span class="review-label">Billing Address</span>
-                                    <span class="review-value">{formattedBillingAddress}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Shipping Address</span>
-                                    <span class="review-value">{formattedShippingAddress}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Applicants Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Applicants</div>
-                            <template for:each={indexedApplicants} for:item="applicant">
-                                <div key={applicant.key} class="review-list-item">
-                                    <div class="review-list-title">
-                                        {applicant.firstName} {applicant.lastName}
-                                        <template lwc:if={applicant.isPrimary}> (Primary)</template>
-                                    </div>
-                                    <div class="review-list-detail">
-                                        {applicant.title} &bull; {applicant.email} &bull; {applicant.phone}
-                                        <template lwc:if={applicant.ownershipPercent}> &bull; {applicant.ownershipPercent}% ownership</template>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- AP Contact Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Accounts Payable Contact</div>
-                            <div class="review-grid">
-                                <div class="review-item">
-                                    <span class="review-label">Name</span>
-                                    <span class="review-value">{apContact.name}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Email</span>
-                                    <span class="review-value">{apContact.email}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">Phone</span>
-                                    <span class="review-value">{apContact.phone}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Trade References Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Trade References</div>
-                            <template for:each={indexedTradeReferences} for:item="ref">
-                                <div key={ref.key} class="review-list-item">
-                                    <div class="review-list-title">{ref.companyName}</div>
-                                    <div class="review-list-detail">
-                                        {ref.contactName} &bull; {ref.phone} &bull; {ref.email}
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- Bank References Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Bank References</div>
-                            <template for:each={indexedBankReferences} for:item="ref">
-                                <div key={ref.key} class="review-list-item">
-                                    <div class="review-list-title">{ref.bankName}</div>
-                                    <div class="review-list-detail">
-                                        {ref.branch} &bull; {ref.accountType} &bull; {ref.contact}
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
-                        <!-- Guarantors Review -->
-                        <template lwc:if={hasGuarantors}>
-                            <div class="review-section">
-                                <div class="review-section-title">Personal Guarantors</div>
-                                <template for:each={indexedGuarantors} for:item="guarantor">
-                                    <div key={guarantor.key} class="review-list-item">
-                                        <div class="review-list-title">{guarantor.firstName} {guarantor.lastName}</div>
-                                        <div class="review-list-detail">
-                                            {guarantor.phone} &bull; {guarantor.email}
-                                            <template lwc:if={guarantor.ownershipPercent}> &bull; {guarantor.ownershipPercent}% ownership</template>
+                            <!-- Applicant Information -->
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    </span>
+                                    Applicant Information
+                                </h3>
+                                <p class="section-help">Add all owners/officers associated with this application.</p>
+                                <template for:each={indexedApplicants} for:item="applicant">
+                                    <div key={applicant.key} class="list-card">
+                                        <div class="list-card-header">
+                                            <span class="list-card-title">{applicant.label}</span>
+                                            <template lwc:if={applicant.showRemove}>
+                                                <button class="remove-btn" data-index={applicant.index} onclick={handleRemoveApplicant}>Remove</button>
+                                            </template>
+                                        </div>
+                                        <div class="form-grid">
+                                            <lightning-input label="First Name" value={applicant.firstName} data-index={applicant.index} data-field="firstName" onchange={handleApplicantChange} required></lightning-input>
+                                            <lightning-input label="Last Name" value={applicant.lastName} data-index={applicant.index} data-field="lastName" onchange={handleApplicantChange} required></lightning-input>
+                                            <lightning-input label="Title" value={applicant.title} data-index={applicant.index} data-field="title" onchange={handleApplicantChange}></lightning-input>
+                                            <lightning-input label="Email" type="email" value={applicant.email} data-index={applicant.index} data-field="email" onchange={handleApplicantChange}></lightning-input>
+                                            <lightning-input label="Phone" type="tel" value={applicant.phone} data-index={applicant.index} data-field="phone" onchange={handleApplicantChange}></lightning-input>
+                                            <lightning-input label="Ownership %" type="number" value={applicant.ownershipPercent} data-index={applicant.index} data-field="ownershipPercent" onchange={handleApplicantChange} min="0" max="100"></lightning-input>
+                                            <div><lightning-input type="checkbox" label="Primary Contact" checked={applicant.isPrimary} data-index={applicant.index} data-field="isPrimary" onchange={handleApplicantChange}></lightning-input></div>
                                         </div>
                                     </div>
                                 </template>
+                                <button class="add-btn" onclick={handleAddApplicant}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="add-icon"><path d="M12 6v12m6-6H6"/></svg>
+                                    Add Applicant
+                                </button>
                             </div>
-                        </template>
 
-                        <!-- Tax Info Review -->
-                        <div class="review-section">
-                            <div class="review-section-title">Tax Information</div>
-                            <div class="review-grid">
-                                <div class="review-item">
-                                    <span class="review-label">Federal Tax ID (EIN)</span>
-                                    <span class="review-value">{taxInfo.ein}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">DUNS Number</span>
-                                    <span class="review-value">{taxInfo.dunsNumber}</span>
-                                </div>
-                                <div class="review-item">
-                                    <span class="review-label">State of Incorporation</span>
-                                    <span class="review-value">{stateOfIncorporationLabel}</span>
+                            <!-- AP Contact -->
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                    </span>
+                                    Accounts Payable Contact
+                                </h3>
+                                <div class="form-grid">
+                                    <lightning-input label="Contact Name" value={apContact.name} data-field="name" onchange={handleApContactChange}></lightning-input>
+                                    <lightning-input label="Email" type="email" value={apContact.email} data-field="email" onchange={handleApContactChange}></lightning-input>
+                                    <lightning-input label="Phone" type="tel" value={apContact.phone} data-field="phone" onchange={handleApContactChange}></lightning-input>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Terms & Conditions -->
-                        <div class="agreement-section">
-                            <div class="agreement-title">Terms &amp; Conditions</div>
-                            <div class="terms-box">
-                                <p><strong>CREDIT TERMS AND CONDITIONS</strong></p>
-                                <p>1. <strong>Payment Terms.</strong> Unless otherwise agreed in writing, all invoices are due and payable within the terms specified on the invoice. Past due balances are subject to a finance charge of 1.5% per month (18% per annum) or the maximum rate permitted by law, whichever is less.</p>
-                                <p>2. <strong>Credit Approval.</strong> Credit privileges are granted at the sole discretion of the Creditor and may be modified, suspended, or revoked at any time without prior notice. The Creditor reserves the right to require prepayment, a letter of credit, or other security as a condition of extending or continuing credit.</p>
-                                <p>3. <strong>Personal Guarantee.</strong> If a personal guarantee is provided, the guarantor(s) personally and unconditionally guarantee the full and prompt payment of all amounts owed, including principal, interest, fees, and collection costs.</p>
-                                <p>4. <strong>Collection Costs.</strong> In the event of default, the Applicant agrees to pay all costs of collection, including reasonable attorney fees, court costs, and collection agency fees.</p>
-                                <p>5. <strong>Authorization.</strong> The Applicant authorizes the Creditor to investigate the credit history of the Applicant and its principals, to contact trade and bank references, and to obtain credit reports from consumer and commercial credit reporting agencies. The Applicant further authorizes any person or entity contacted to provide information to the Creditor.</p>
-                                <p>6. <strong>Accuracy of Information.</strong> The Applicant certifies that all information provided in this application is true, correct, and complete. Any misrepresentation of information may result in the immediate revocation of credit privileges.</p>
-                                <p>7. <strong>Governing Law.</strong> This agreement shall be governed by and construed in accordance with the laws of the state in which the Creditor is domiciled.</p>
-                            </div>
-                            <div class="checkbox-row">
-                                <lightning-input
-                                    type="checkbox"
-                                    label="I have read and agree to the Terms & Conditions"
-                                    checked={termsAccepted}
-                                    onchange={handleTermsAccepted}>
-                                </lightning-input>
-                            </div>
-                        </div>
-
-                        <!-- Electronic Credit Authorization -->
-                        <div class="agreement-section">
-                            <div class="agreement-title">Electronic Credit Authorization</div>
-                            <p style="font-size: 0.875rem; line-height: 1.6; color: #4b5563; margin: 0 0 1rem;">
-                                By checking the box below, I authorize the investigation of my/our credit and financial
-                                responsibility. I/we authorize all trade references, banks, and credit reporting agencies
-                                to disclose to the Creditor any and all information concerning my/our financial condition
-                                and credit history. I/we further authorize the Creditor to share our credit and payment
-                                experience with credit reporting agencies and other creditors who may inquire.
-                            </p>
-                            <div class="checkbox-row">
-                                <lightning-input
-                                    type="checkbox"
-                                    label="I authorize the credit investigation as described above"
-                                    checked={creditAuthAccepted}
-                                    onchange={handleCreditAuthAccepted}>
-                                </lightning-input>
-                            </div>
-                        </div>
-
-                        <!-- Signature Section -->
-                        <div class="signature-section">
-                            <h3 class="section-header" style="margin-top: 0;">Electronic Signature</h3>
-                            <div class="form-grid">
-                                <lightning-input
-                                    label="Full Legal Name"
-                                    value={signatureName}
-                                    onchange={handleSignatureNameChange}
-                                    required>
-                                </lightning-input>
-                                <lightning-input
-                                    label="Title"
-                                    value={signatureTitle}
-                                    onchange={handleSignatureTitleChange}>
-                                </lightning-input>
-                            </div>
-
-                            <div style="margin-top: 1rem;">
-                                <lightning-button
-                                    label={signatureToggleLabel}
-                                    variant="neutral"
-                                    onclick={handleToggleSignatureMode}
-                                    icon-name="utility:edit">
-                                </lightning-button>
-                            </div>
-
-                            <template lwc:if={isDrawingSignature}>
-                                <div class="signature-canvas-wrapper">
-                                    <canvas class="signature-canvas" width="500" height="120"></canvas>
-                                    <span class="signature-hint">Draw your signature above</span>
-                                </div>
-                                <lightning-button
-                                    label="Clear Signature"
-                                    variant="neutral"
-                                    onclick={handleClearSignature}
-                                    icon-name="utility:undo">
-                                </lightning-button>
-                            </template>
-                            <template lwc:else>
-                                <template lwc:if={signatureName}>
-                                    <div class="typed-signature">{signatureName}</div>
-                                </template>
-                            </template>
-                        </div>
-
                     </template>
 
-                </div>
+                    <!-- ════════════════════════════════════ -->
+                    <!-- STEP 2: References                  -->
+                    <!-- ════════════════════════════════════ -->
+                    <template lwc:if={isStep2}>
+                        <div class="form-step fade-in">
+                            <div class="step-hero">
+                                <h2 class="step-hero-title">References</h2>
+                                <p class="step-hero-desc">Provide trade and bank references to support your application.</p>
+                            </div>
 
-                <!-- ─── Navigation Buttons ─── -->
-                <div class="nav-buttons">
-                    <div>
-                        <template lwc:if={isFirstStep}>
-                            <!-- no back button -->
-                        </template>
-                        <template lwc:else>
-                            <lightning-button
-                                label="Back"
-                                variant="neutral"
-                                onclick={handleBack}
-                                icon-name="utility:chevronleft">
-                            </lightning-button>
-                        </template>
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    </span>
+                                    Trade References
+                                </h3>
+                                <p class="section-help">A minimum of 3 trade references is recommended for faster processing.</p>
+                                <template for:each={indexedTradeReferences} for:item="ref">
+                                    <div key={ref.key} class="list-card">
+                                        <div class="list-card-header">
+                                            <span class="list-card-title">{ref.label}</span>
+                                            <template lwc:if={ref.showRemove}>
+                                                <button class="remove-btn" data-index={ref.index} onclick={handleRemoveTradeRef}>Remove</button>
+                                            </template>
+                                        </div>
+                                        <div class="form-grid">
+                                            <lightning-input label="Company Name" value={ref.companyName} data-index={ref.index} data-field="companyName" onchange={handleTradeRefChange} required></lightning-input>
+                                            <lightning-input label="Contact Name" value={ref.contactName} data-index={ref.index} data-field="contactName" onchange={handleTradeRefChange}></lightning-input>
+                                            <lightning-input label="Phone" type="tel" value={ref.phone} data-index={ref.index} data-field="phone" onchange={handleTradeRefChange}></lightning-input>
+                                            <lightning-input label="Email" type="email" value={ref.email} data-index={ref.index} data-field="email" onchange={handleTradeRefChange}></lightning-input>
+                                            <lightning-input label="Account Number" value={ref.accountNumber} data-index={ref.index} data-field="accountNumber" onchange={handleTradeRefChange}></lightning-input>
+                                            <lightning-input label="Credit Limit ($)" type="number" value={ref.creditLimit} data-index={ref.index} data-field="creditLimit" onchange={handleTradeRefChange} formatter="currency"></lightning-input>
+                                            <lightning-input label="Balance Owed ($)" type="number" value={ref.balanceOwed} data-index={ref.index} data-field="balanceOwed" onchange={handleTradeRefChange} formatter="currency"></lightning-input>
+                                        </div>
+                                    </div>
+                                </template>
+                                <button class="add-btn" onclick={handleAddTradeRef}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="add-icon"><path d="M12 6v12m6-6H6"/></svg>
+                                    Add Trade Reference
+                                </button>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 class="section-label">
+                                    <span class="section-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                    </span>
+                                    Bank References
+                                </h3>
+                                <template for:each={indexedBankReferences} for:item="ref">
+                                    <div key={ref.key} class="list-card">
+                                        <div class="list-card-header">
+                                            <span class="list-card-title">{ref.label}</span>
+                                            <template lwc:if={ref.showRemove}>
+                                                <button class="remove-btn" data-index={ref.index} onclick={handleRemoveBankRef}>Remove</button>
+                                            </template>
+                                        </div>
+                                        <div class="form-grid">
+                                            <lightning-input label="Bank Name" value={ref.bankName} data-index={ref.index} data-field="bankName" onchange={handleBankRefChange} required></lightning-input>
+                                            <lightning-input label="Branch" value={ref.branch} data-index={ref.index} data-field="branch" onchange={handleBankRefChange}></lightning-input>
+                                            <lightning-input label="Contact Name" value={ref.contact} data-index={ref.index} data-field="contact" onchange={handleBankRefChange}></lightning-input>
+                                            <lightning-input label="Phone" type="tel" value={ref.phone} data-index={ref.index} data-field="phone" onchange={handleBankRefChange}></lightning-input>
+                                            <lightning-combobox label="Account Type" value={ref.accountType} options={accountTypeOptions} data-index={ref.index} data-field="accountType" onchange={handleBankRefChange} placeholder="Select..."></lightning-combobox>
+                                            <lightning-input label="Account Number" value={ref.accountNumber} data-index={ref.index} data-field="accountNumber" onchange={handleBankRefChange}></lightning-input>
+                                            <lightning-input label="Routing Number" value={ref.routingNumber} data-index={ref.index} data-field="routingNumber" onchange={handleBankRefChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </template>
+                                <button class="add-btn" onclick={handleAddBankRef}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="add-icon"><path d="M12 6v12m6-6H6"/></svg>
+                                    Add Bank Reference
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- ════════════════════════════════════ -->
+                    <!-- STEP 3: Personal Guarantor          -->
+                    <!-- ════════════════════════════════════ -->
+                    <template lwc:if={isStep3}>
+                        <div class="form-step fade-in">
+                            <div class="step-hero">
+                                <h2 class="step-hero-title">Personal Guarantor</h2>
+                                <p class="step-hero-desc">A personal guarantor may be required for credit approval.</p>
+                            </div>
+
+                            <div class="info-banner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="info-banner-icon"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <p>By providing this information, the guarantor agrees to be personally responsible for the account in the event the business cannot fulfill its payment obligations.</p>
+                            </div>
+
+                            <div class="form-section">
+                                <template for:each={indexedGuarantors} for:item="guarantor">
+                                    <div key={guarantor.key} class="list-card">
+                                        <div class="list-card-header">
+                                            <span class="list-card-title">{guarantor.label}</span>
+                                            <template lwc:if={guarantor.showRemove}>
+                                                <button class="remove-btn" data-index={guarantor.index} onclick={handleRemoveGuarantor}>Remove</button>
+                                            </template>
+                                        </div>
+                                        <div class="form-grid">
+                                            <lightning-input label="First Name" value={guarantor.firstName} data-index={guarantor.index} data-field="firstName" onchange={handleGuarantorChange} required></lightning-input>
+                                            <lightning-input label="Last Name" value={guarantor.lastName} data-index={guarantor.index} data-field="lastName" onchange={handleGuarantorChange} required></lightning-input>
+                                            <lightning-input label="Social Security Number" type="password" value={guarantor.ssn} data-index={guarantor.index} data-field="ssn" onchange={handleGuarantorChange} pattern="[0-9]{3}-?[0-9]{2}-?[0-9]{4}" message-when-pattern-mismatch="Enter a valid SSN (e.g., 123-45-6789)"></lightning-input>
+                                            <lightning-input label="Date of Birth" type="date" value={guarantor.dob} data-index={guarantor.index} data-field="dob" onchange={handleGuarantorChange}></lightning-input>
+                                            <div class="form-full-width">
+                                                <lightning-input label="Street Address" value={guarantor.street} data-index={guarantor.index} data-field="street" onchange={handleGuarantorChange}></lightning-input>
+                                            </div>
+                                            <lightning-input label="City" value={guarantor.city} data-index={guarantor.index} data-field="city" onchange={handleGuarantorChange}></lightning-input>
+                                            <lightning-combobox label="State" value={guarantor.state} options={stateOptions} data-index={guarantor.index} data-field="state" onchange={handleGuarantorChange} placeholder="Select..."></lightning-combobox>
+                                            <lightning-input label="Zip Code" value={guarantor.zip} data-index={guarantor.index} data-field="zip" onchange={handleGuarantorChange}></lightning-input>
+                                            <lightning-input label="Ownership %" type="number" value={guarantor.ownershipPercent} data-index={guarantor.index} data-field="ownershipPercent" onchange={handleGuarantorChange} min="0" max="100"></lightning-input>
+                                            <lightning-input label="Phone" type="tel" value={guarantor.phone} data-index={guarantor.index} data-field="phone" onchange={handleGuarantorChange}></lightning-input>
+                                            <lightning-input label="Email" type="email" value={guarantor.email} data-index={guarantor.index} data-field="email" onchange={handleGuarantorChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </template>
+                                <button class="add-btn" onclick={handleAddGuarantor}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="add-icon"><path d="M12 6v12m6-6H6"/></svg>
+                                    Add Guarantor
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- ════════════════════════════════════ -->
+                    <!-- STEP 4: Tax Information             -->
+                    <!-- ════════════════════════════════════ -->
+                    <template lwc:if={isStep4}>
+                        <div class="form-step fade-in">
+                            <div class="step-hero">
+                                <h2 class="step-hero-title">Tax Information</h2>
+                                <p class="step-hero-desc">Provide your company's tax identification details.</p>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="form-grid">
+                                    <lightning-input label="Federal Tax ID (EIN)" value={taxInfo.ein} data-field="ein" onchange={handleTaxInfoChange} pattern="[0-9]{2}-?[0-9]{7}" message-when-pattern-mismatch="Enter a valid EIN (e.g., 12-3456789)"></lightning-input>
+                                    <lightning-input label="DUNS Number" value={taxInfo.dunsNumber} data-field="dunsNumber" onchange={handleTaxInfoChange}></lightning-input>
+                                    <lightning-combobox label="State of Incorporation" value={taxInfo.stateOfIncorporation} options={stateOptions} data-field="stateOfIncorporation" onchange={handleTaxInfoChange} placeholder="Select..."></lightning-combobox>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- ════════════════════════════════════ -->
+                    <!-- STEP 5: Review & Submit             -->
+                    <!-- ════════════════════════════════════ -->
+                    <template lwc:if={isStep5}>
+                        <div class="form-step fade-in">
+                            <div class="step-hero">
+                                <h2 class="step-hero-title">Review &amp; Submit</h2>
+                                <p class="step-hero-desc">Please review all information below. Click any step on the left to make changes.</p>
+                            </div>
+
+                            <!-- Company Review -->
+                            <div class="review-card">
+                                <div class="review-card-header">Company Details</div>
+                                <div class="review-grid">
+                                    <div class="review-item"><span class="review-label">Legal Name</span><span class="review-value">{company.legalName}</span></div>
+                                    <div class="review-item"><span class="review-label">DBA</span><span class="review-value">{company.dba}</span></div>
+                                    <div class="review-item"><span class="review-label">Email</span><span class="review-value">{company.email}</span></div>
+                                    <div class="review-item"><span class="review-label">Phone</span><span class="review-value">{company.phone}</span></div>
+                                    <div class="review-item"><span class="review-label">Business Type</span><span class="review-value">{businessTypeLabel}</span></div>
+                                    <div class="review-item"><span class="review-label">Years in Business</span><span class="review-value">{company.yearsInBusiness}</span></div>
+                                    <div class="review-item"><span class="review-label">Requested Limit</span><span class="review-value">{company.requestedCreditLimit}</span></div>
+                                    <div class="review-item"><span class="review-label">Website</span><span class="review-value">{company.website}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-card-header">Addresses</div>
+                                <div class="review-grid">
+                                    <div class="review-item"><span class="review-label">Billing</span><span class="review-value">{formattedBillingAddress}</span></div>
+                                    <div class="review-item"><span class="review-label">Shipping</span><span class="review-value">{formattedShippingAddress}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-card-header">Applicants</div>
+                                <template for:each={indexedApplicants} for:item="applicant">
+                                    <div key={applicant.key} class="review-list-row">
+                                        <strong>{applicant.firstName} {applicant.lastName}</strong>
+                                        <template lwc:if={applicant.isPrimary}><span class="primary-badge">Primary</span></template>
+                                        <br/><span class="review-detail">{applicant.title} | {applicant.email} | {applicant.phone}</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-card-header">Trade References</div>
+                                <template for:each={indexedTradeReferences} for:item="ref">
+                                    <div key={ref.key} class="review-list-row">
+                                        <strong>{ref.companyName}</strong>
+                                        <br/><span class="review-detail">{ref.contactName} | {ref.phone} | {ref.email}</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-card-header">Bank References</div>
+                                <template for:each={indexedBankReferences} for:item="ref">
+                                    <div key={ref.key} class="review-list-row">
+                                        <strong>{ref.bankName}</strong>
+                                        <br/><span class="review-detail">{ref.branch} | {ref.accountType} | {ref.contact}</span>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <template lwc:if={hasGuarantors}>
+                                <div class="review-card">
+                                    <div class="review-card-header">Personal Guarantors</div>
+                                    <template for:each={indexedGuarantors} for:item="g">
+                                        <div key={g.key} class="review-list-row">
+                                            <strong>{g.firstName} {g.lastName}</strong>
+                                            <br/><span class="review-detail">{g.phone} | {g.email}</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <div class="review-card">
+                                <div class="review-card-header">Tax Information</div>
+                                <div class="review-grid">
+                                    <div class="review-item"><span class="review-label">EIN</span><span class="review-value">{taxInfo.ein}</span></div>
+                                    <div class="review-item"><span class="review-label">DUNS</span><span class="review-value">{taxInfo.dunsNumber}</span></div>
+                                    <div class="review-item"><span class="review-label">State of Inc.</span><span class="review-value">{stateOfIncorporationLabel}</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Terms & Conditions -->
+                            <div class="agreement-card">
+                                <h3 class="agreement-title">Terms &amp; Conditions</h3>
+                                <div class="terms-scroll">
+                                    <p><strong>CREDIT TERMS AND CONDITIONS</strong></p>
+                                    <p>1. <strong>Payment Terms.</strong> Unless otherwise agreed in writing, all invoices are due and payable within the terms specified on the invoice. Past due balances are subject to a finance charge of 1.5% per month (18% per annum) or the maximum rate permitted by law, whichever is less.</p>
+                                    <p>2. <strong>Credit Approval.</strong> Credit privileges are granted at the sole discretion of the Creditor and may be modified, suspended, or revoked at any time without prior notice.</p>
+                                    <p>3. <strong>Personal Guarantee.</strong> If a personal guarantee is provided, the guarantor(s) personally and unconditionally guarantee the full and prompt payment of all amounts owed.</p>
+                                    <p>4. <strong>Collection Costs.</strong> In the event of default, the Applicant agrees to pay all costs of collection, including reasonable attorney fees.</p>
+                                    <p>5. <strong>Authorization.</strong> The Applicant authorizes the Creditor to investigate the credit history of the Applicant and its principals.</p>
+                                    <p>6. <strong>Accuracy of Information.</strong> The Applicant certifies that all information provided is true, correct, and complete.</p>
+                                    <p>7. <strong>Governing Law.</strong> This agreement shall be governed by the laws of the state in which the Creditor is domiciled.</p>
+                                </div>
+                                <div class="checkbox-row"><lightning-input type="checkbox" label="I have read and agree to the Terms & Conditions" checked={termsAccepted} onchange={handleTermsAccepted}></lightning-input></div>
+                            </div>
+
+                            <div class="agreement-card">
+                                <h3 class="agreement-title">Credit Authorization</h3>
+                                <p class="agreement-text">By checking the box below, I authorize the investigation of my/our credit and financial responsibility. I/we authorize all trade references, banks, and credit reporting agencies to disclose any information concerning my/our financial condition and credit history.</p>
+                                <div class="checkbox-row"><lightning-input type="checkbox" label="I authorize the credit investigation as described above" checked={creditAuthAccepted} onchange={handleCreditAuthAccepted}></lightning-input></div>
+                            </div>
+
+                            <!-- Signature -->
+                            <div class="signature-card">
+                                <h3 class="agreement-title">Electronic Signature</h3>
+                                <div class="form-grid">
+                                    <lightning-input label="Full Legal Name" value={signatureName} onchange={handleSignatureNameChange} required></lightning-input>
+                                    <lightning-input label="Title" value={signatureTitle} onchange={handleSignatureTitleChange}></lightning-input>
+                                </div>
+                                <div class="sig-toggle-row">
+                                    <button class="sig-toggle-btn" onclick={handleToggleSignatureMode}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sig-toggle-icon"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        {signatureToggleLabel}
+                                    </button>
+                                </div>
+                                <template lwc:if={isDrawingSignature}>
+                                    <div class="sig-canvas-wrap">
+                                        <canvas class="signature-canvas" width="500" height="120"></canvas>
+                                        <span class="sig-hint">Draw your signature above</span>
+                                    </div>
+                                    <button class="clear-sig-btn" onclick={handleClearSignature}>Clear</button>
+                                </template>
+                                <template lwc:else>
+                                    <template lwc:if={signatureName}>
+                                        <div class="typed-signature">{signatureName}</div>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Navigation -->
+                    <div class="nav-bar">
+                        <div class="nav-left">
+                            <template lwc:if={isFirstStep}><!-- no back --></template>
+                            <template lwc:else>
+                                <button class="nav-btn nav-btn-back" onclick={handleBack}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                                    Back
+                                </button>
+                            </template>
+                        </div>
+                        <div class="nav-right">
+                            <button class="nav-btn nav-btn-next" onclick={handleNext} disabled={submitDisabled}>
+                                {nextButtonLabel}
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="nav-buttons-right">
-                        <lightning-button
-                            label="Save Draft"
-                            variant="neutral"
-                            onclick={handleSaveDraft}
-                            icon-name="utility:save">
-                        </lightning-button>
-                        <lightning-button
-                            label={nextButtonLabel}
-                            variant={nextButtonVariant}
-                            onclick={handleNext}
-                            icon-name={nextButtonIcon}
-                            icon-position="right"
-                            disabled={submitDisabled}>
-                        </lightning-button>
-                    </div>
+
                 </div>
-
-            </template>
-
+            </div>
         </div>
+    </template>
 
-    </div>
 </template>
