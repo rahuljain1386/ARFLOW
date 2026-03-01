@@ -4,8 +4,19 @@ public with sharing class ARF_SavedViewController {
     private static final Set<String> ALLOWED_FIELDS = new Set<String>{
         'Id', 'Name', 'Document_Number__c', 'Invoice_Date__c', 'Due_Date__c',
         'Amount__c', 'Balance__c', 'Status__c', 'Days_Past_Due__c',
-        'Is_Overdue__c', 'Has_Dispute__c', 'Has_Promise__c', 'PO_Number__c', 'Reference__c',
+        'Is_Overdue__c', 'Has_Dispute__c', 'Has_Promise__c', 'Promise_Status__c',
+        'PO_Number__c', 'Reference__c',
         'Bill_To__c', 'Ship_To__c', 'ERP_ID__c', 'ERP_Source__c'
+    };
+
+    // Virtual columns used by the LWC that are not real fields
+    private static final Set<String> VIRTUAL_COLUMNS = new Set<String>{
+        'Flags'
+    };
+
+    // Fields required when flag-related virtual columns are requested
+    private static final Set<String> FLAG_FIELDS = new Set<String>{
+        'Has_Dispute__c', 'Has_Promise__c', 'Promise_Status__c'
     };
 
     // Field type mapping for filter building
@@ -176,12 +187,21 @@ public with sharing class ARF_SavedViewController {
 
         // Validate and build SELECT fields
         Set<String> selectFields = new Set<String>{ 'Id' };
+        boolean needsFlags = false;
         if (fields != null) {
             for (String f : fields) {
+                if (VIRTUAL_COLUMNS.contains(f)) {
+                    needsFlags = true;
+                    continue; // Skip virtual columns — not real SOQL fields
+                }
                 if (!ALLOWED_FIELDS.contains(f)) {
                     throw new AuraHandledException('Invalid field: ' + f);
                 }
                 selectFields.add(f);
+            }
+            // When Flags virtual column is requested, ensure flag fields are included
+            if (needsFlags) {
+                selectFields.addAll(FLAG_FIELDS);
             }
         }
 
