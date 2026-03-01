@@ -126,6 +126,69 @@
         <object>ARF_Saved_View__c</object>
         <viewAllRecords>false</viewAllRecords>
     </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Email_Sender_Map__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Credit_Application__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Credit_Applicant__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Trade_Reference__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Bank_Reference__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Personal_Guarantor__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>ARF_Credit_Check__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
 
     <!-- ===== Account Fields ===== -->
     <fieldPermissions>
@@ -903,6 +966,50 @@
         <readable>true</readable>
     </fieldPermissions>
 
+    <!-- ===== ARF_Communication__c Match Fields ===== -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Match_Method__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Match_Confidence__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Needs_Review__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ===== ARF_Email_Sender_Map__c Fields ===== -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Email_Sender_Map__c.Sender_Domain__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Email_Sender_Map__c.Account__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Email_Sender_Map__c.Confidence__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Email_Sender_Map__c.Match_Count__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Email_Sender_Map__c.Last_Match_Date__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
     <!-- ===== ARF_Saved_View__c Fields ===== -->
     <fieldPermissions>
         <editable>true</editable>
@@ -937,6 +1044,23 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ARF_Saved_View__c.Is_Default__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ===== Task Fields ===== -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Task.ARF_Task_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Task.ARF_Channel__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Task.ARF_Template_Name__c</field>
         <readable>true</readable>
     </fieldPermissions>
 
@@ -979,6 +1103,14 @@
     </tabSettings>
     <tabSettings>
         <tab>ARF_Email_Template__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ARF_Email_Queue</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>ARF_Credit_Applications</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

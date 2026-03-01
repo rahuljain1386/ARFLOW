@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account_Type__c</fullName>
+    <label>Account Type</label>
+    <type>Picklist</type>
+    <required>false</required>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Checking</fullName><default>false</default></value>
+            <value><fullName>Savings</fullName><default>false</default></value>
+            <value><fullName>Line_of_Credit</fullName><default>false</default></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

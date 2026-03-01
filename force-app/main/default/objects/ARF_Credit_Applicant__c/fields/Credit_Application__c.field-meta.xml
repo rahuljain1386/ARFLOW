@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Credit_Application__c</fullName>
+    <label>Credit Application</label>
+    <type>MasterDetail</type>
+    <referenceTo>ARF_Credit_Application__c</referenceTo>
+    <relationshipName>Applicants</relationshipName>
+    <relationshipLabel>Applicants</relationshipLabel>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    <reparentableMasterDetail>false</reparentableMasterDetail>
+    <relationshipOrder>0</relationshipOrder>
+</CustomField>

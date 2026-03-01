@@ -1,0 +1,697 @@
+<template>
+    <!-- ===== LIST VIEW ===== -->
+    <template lwc:if={isListView}>
+        <div class="credit-manager-container">
+            <!-- Header -->
+            <div class="list-header">
+                <div class="header-left">
+                    <lightning-icon icon-name="standard:contract" size="medium" class="header-icon"></lightning-icon>
+                    <div class="header-text">
+                        <h1 class="header-title">Credit Applications</h1>
+                        <span class="header-count">{applicationCount} applications</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <lightning-button-icon
+                        icon-name="utility:refresh"
+                        alternative-text="Refresh"
+                        onclick={handleRefresh}
+                        class="refresh-btn">
+                    </lightning-button-icon>
+                </div>
+            </div>
+
+            <!-- Status Filter Tabs -->
+            <div class="status-tab-bar">
+                <template for:each={computedStatusTabs} for:item="tab">
+                    <button key={tab.value}
+                            class={tab.cssClass}
+                            data-status={tab.value}
+                            onclick={handleStatusTabClick}>
+                        {tab.label}
+                    </button>
+                </template>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-container">
+                <template lwc:if={isLoading}>
+                    <div class="spinner-container">
+                        <lightning-spinner alternative-text="Loading applications..." size="medium"></lightning-spinner>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <lightning-datatable
+                        key-field="Id"
+                        data={applications}
+                        columns={columns}
+                        sorted-by={sortField}
+                        sorted-direction={sortDirection}
+                        onsort={handleSort}
+                        onrowaction={handleRowAction}
+                        show-row-number-column
+                        hide-checkbox-column>
+                    </lightning-datatable>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <!-- ===== DETAIL VIEW ===== -->
+    <template lwc:if={isDetailView}>
+        <div class="credit-manager-container">
+            <!-- Detail Header -->
+            <div class="detail-header">
+                <div class="detail-header-left">
+                    <button class="back-button" onclick={handleBackToList}>
+                        <lightning-icon icon-name="utility:back" size="x-small"></lightning-icon>
+                        <span>Back to List</span>
+                    </button>
+                    <div class="detail-title-section">
+                        <h1 class="detail-title">{companyName}</h1>
+                        <span class={statusBadgeClass}>{applicationStatus}</span>
+                    </div>
+                    <div class="detail-subtitle">
+                        <span class="app-number">{application.Name}</span>
+                        <template lwc:if={application.Submitted_Date__c}>
+                            <span class="subtitle-separator">|</span>
+                            <span>Submitted: {formattedSubmittedDate}</span>
+                        </template>
+                        <template lwc:if={application.Decision_Date__c}>
+                            <span class="subtitle-separator">|</span>
+                            <span>Decision: {formattedDecisionDate}</span>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar -->
+                <div class="detail-header-right">
+                    <div class="action-toolbar">
+                        <template lwc:if={canRunCreditCheck}>
+                            <lightning-button
+                                label="Run Credit Check"
+                                variant="neutral"
+                                icon-name="utility:search"
+                                onclick={handleRunCreditCheck}
+                                disabled={isProcessing}>
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={canEvaluate}>
+                            <lightning-button
+                                label="Evaluate Risk"
+                                variant="neutral"
+                                icon-name="utility:analytics"
+                                onclick={handleEvaluate}
+                                disabled={isProcessing}>
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={canApprove}>
+                            <lightning-button
+                                label="Approve"
+                                variant="success"
+                                icon-name="utility:check"
+                                onclick={handleOpenApproveModal}
+                                disabled={isProcessing}>
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={canDecline}>
+                            <lightning-button
+                                label="Decline"
+                                variant="destructive"
+                                icon-name="utility:close"
+                                onclick={handleOpenDeclineModal}
+                                disabled={isProcessing}>
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={canCreateAccount}>
+                            <lightning-button
+                                label="Create Account"
+                                variant="brand"
+                                icon-name="utility:new"
+                                onclick={handleCreateAccount}
+                                disabled={isProcessing}>
+                            </lightning-button>
+                        </template>
+                        <template lwc:if={hasAccountLinked}>
+                            <lightning-badge label="Account Linked" class="account-linked-badge"></lightning-badge>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <template lwc:if={isDetailLoading}>
+                <div class="spinner-container">
+                    <lightning-spinner alternative-text="Loading details..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <template lwc:else>
+                <!-- Credit Score Section -->
+                <div class="score-section">
+                    <div class="score-card">
+                        <div class="score-header">
+                            <lightning-icon icon-name="utility:trending" size="small" class="score-icon"></lightning-icon>
+                            <h2>Credit Score</h2>
+                        </div>
+                        <template lwc:if={hasCreditScore}>
+                            <div class="score-display">
+                                <div class="score-gauge-wrapper">
+                                    <div class="score-gauge-track">
+                                        <div class={creditScoreClass} style={scoreGaugeStyle}></div>
+                                    </div>
+                                    <div class="score-value-row">
+                                        <span class="score-number">{creditScore}</span>
+                                        <span class="score-label">{creditScoreLabel}</span>
+                                    </div>
+                                </div>
+                                <div class="risk-display">
+                                    <span class="risk-label">Risk Rating</span>
+                                    <span class={riskBadgeClass}>{riskRating}</span>
+                                </div>
+                            </div>
+                        </template>
+                        <template lwc:else>
+                            <div class="no-score">
+                                <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
+                                <span>No credit score available. Run a credit check to generate a score.</span>
+                            </div>
+                        </template>
+
+                        <!-- Scoring Result (after evaluation) -->
+                        <template lwc:if={hasScoringResult}>
+                            <div class="scoring-result">
+                                <div class="scoring-recommendation">
+                                    <lightning-icon icon-name="utility:light_bulb" size="x-small" class="rec-icon"></lightning-icon>
+                                    <span><strong>Recommendation:</strong> {scoringRecommendation}</span>
+                                </div>
+                                <template lwc:if={hasScoringRiskFactors}>
+                                    <div class="risk-factors">
+                                        <h3>Risk Factors</h3>
+                                        <ul class="risk-factor-list">
+                                            <template for:each={scoringRiskFactors} for:item="factor">
+                                                <li key={factor.key}>{factor.text}</li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Key Metrics -->
+                    <div class="metrics-card">
+                        <div class="metric-item">
+                            <span class="metric-label">Requested Limit</span>
+                            <span class="metric-value">{formattedRequestedLimit}</span>
+                        </div>
+                        <template lwc:if={application.Approved_Credit_Limit__c}>
+                            <div class="metric-item">
+                                <span class="metric-label">Approved Limit</span>
+                                <span class="metric-value metric-approved">{formattedApprovedLimit}</span>
+                            </div>
+                        </template>
+                        <div class="metric-item">
+                            <span class="metric-label">Annual Revenue</span>
+                            <span class="metric-value">{formattedAnnualRevenue}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Years in Business</span>
+                            <span class="metric-value">{application.Years_In_Business__c}</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Employees</span>
+                            <span class="metric-value">{application.Number_Of_Employees__c}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Tabs -->
+                <div class="detail-tab-bar">
+                    <button class={companyTabClass} data-tab="company" onclick={handleDetailTabClick}>
+                        <lightning-icon icon-name="utility:company" size="xx-small"></lightning-icon>
+                        <span>Company Info</span>
+                    </button>
+                    <button class={referencesTabClass} data-tab="references" onclick={handleDetailTabClick}>
+                        <lightning-icon icon-name="utility:people" size="xx-small"></lightning-icon>
+                        <span>References</span>
+                    </button>
+                    <button class={guarantorsTabClass} data-tab="guarantors" onclick={handleDetailTabClick}>
+                        <lightning-icon icon-name="utility:shield" size="xx-small"></lightning-icon>
+                        <span>Guarantors</span>
+                    </button>
+                    <button class={taxTabClass} data-tab="tax" onclick={handleDetailTabClick}>
+                        <lightning-icon icon-name="utility:page" size="xx-small"></lightning-icon>
+                        <span>Tax</span>
+                    </button>
+                    <button class={creditChecksTabClass} data-tab="creditChecks" onclick={handleDetailTabClick}>
+                        <lightning-icon icon-name="utility:chart" size="xx-small"></lightning-icon>
+                        <span>Credit Checks</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="detail-tab-content">
+                    <!-- Company Info Tab -->
+                    <template lwc:if={isCompanyTab}>
+                        <div class="info-grid">
+                            <!-- Business Details -->
+                            <div class="info-card">
+                                <h3 class="info-card-title">Business Details</h3>
+                                <div class="info-rows">
+                                    <div class="info-row">
+                                        <span class="info-label">Legal Name</span>
+                                        <span class="info-value">{application.Legal_Name__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">DBA Name</span>
+                                        <span class="info-value">{application.DBA_Name__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Business Type</span>
+                                        <span class="info-value">{application.Business_Type__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Date Established</span>
+                                        <span class="info-value">{formattedDateEstablished}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Website</span>
+                                        <span class="info-value">{application.Website__c}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Details -->
+                            <div class="info-card">
+                                <h3 class="info-card-title">Contact Information</h3>
+                                <div class="info-rows">
+                                    <div class="info-row">
+                                        <span class="info-label">Phone</span>
+                                        <span class="info-value">{application.Phone__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Fax</span>
+                                        <span class="info-value">{application.Fax__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Email</span>
+                                        <span class="info-value">{application.Email__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">AP Contact</span>
+                                        <span class="info-value">{application.AP_Contact_Name__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">AP Email</span>
+                                        <span class="info-value">{application.AP_Contact_Email__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">AP Phone</span>
+                                        <span class="info-value">{application.AP_Contact_Phone__c}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Addresses -->
+                            <div class="info-card">
+                                <h3 class="info-card-title">Addresses</h3>
+                                <div class="info-rows">
+                                    <template lwc:if={hasBillingAddress}>
+                                        <div class="info-row">
+                                            <span class="info-label">Billing Address</span>
+                                            <span class="info-value">{billingAddress}</span>
+                                        </div>
+                                    </template>
+                                    <template lwc:if={hasShippingAddress}>
+                                        <div class="info-row">
+                                            <span class="info-label">Shipping Address</span>
+                                            <span class="info-value">{shippingAddress}</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Applicants / Principals -->
+                            <template lwc:if={hasApplicants}>
+                                <div class="info-card">
+                                    <h3 class="info-card-title">Principals / Applicants</h3>
+                                    <div class="applicant-list">
+                                        <template for:each={applicants} for:item="person">
+                                            <div key={person.Id} class="applicant-card">
+                                                <div class="applicant-name">
+                                                    {person.First_Name__c} {person.Last_Name__c}
+                                                    <template lwc:if={person.Is_Primary__c}>
+                                                        <lightning-badge label="Primary" class="primary-badge"></lightning-badge>
+                                                    </template>
+                                                </div>
+                                                <div class="applicant-details">
+                                                    <template lwc:if={person.Title__c}>
+                                                        <span>{person.Title__c}</span>
+                                                    </template>
+                                                    <template lwc:if={person.Email__c}>
+                                                        <span>{person.Email__c}</span>
+                                                    </template>
+                                                    <template lwc:if={person.Phone__c}>
+                                                        <span>{person.Phone__c}</span>
+                                                    </template>
+                                                    <template lwc:if={person.Ownership_Percentage__c}>
+                                                        <span>Ownership: {person.Ownership_Percentage__c}%</span>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Decision Notes -->
+                            <template lwc:if={application.Decision_Notes__c}>
+                                <div class="info-card">
+                                    <h3 class="info-card-title">Decision Notes</h3>
+                                    <div class="decision-notes">{application.Decision_Notes__c}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- References Tab -->
+                    <template lwc:if={isReferencesTab}>
+                        <div class="references-grid">
+                            <!-- Trade References -->
+                            <div class="info-card full-width">
+                                <h3 class="info-card-title">Trade References</h3>
+                                <template lwc:if={hasTradeReferences}>
+                                    <div class="reference-table">
+                                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                            <thead>
+                                                <tr>
+                                                    <th>Company</th>
+                                                    <th>Contact</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>Account #</th>
+                                                    <th>Credit Limit</th>
+                                                    <th>Balance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template for:each={tradeReferences} for:item="ref">
+                                                    <tr key={ref.Id}>
+                                                        <td>{ref.Company_Name__c}</td>
+                                                        <td>{ref.Contact_Name__c}</td>
+                                                        <td>{ref.Phone__c}</td>
+                                                        <td>{ref.Email__c}</td>
+                                                        <td>{ref.Account_Number__c}</td>
+                                                        <td><lightning-formatted-number value={ref.Credit_Limit__c} format-style="currency" currency-code="USD" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                                        <td><lightning-formatted-number value={ref.Balance_Owed__c} format-style="currency" currency-code="USD" minimum-fraction-digits="0" maximum-fraction-digits="0"></lightning-formatted-number></td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </template>
+                                <template lwc:else>
+                                    <div class="empty-state">No trade references provided.</div>
+                                </template>
+                            </div>
+
+                            <!-- Bank References -->
+                            <div class="info-card full-width">
+                                <h3 class="info-card-title">Bank References</h3>
+                                <template lwc:if={hasBankReferences}>
+                                    <div class="reference-table">
+                                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bank</th>
+                                                    <th>Branch</th>
+                                                    <th>Contact</th>
+                                                    <th>Phone</th>
+                                                    <th>Account Type</th>
+                                                    <th>Account #</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template for:each={bankReferences} for:item="bank">
+                                                    <tr key={bank.Id}>
+                                                        <td>{bank.Bank_Name__c}</td>
+                                                        <td>{bank.Branch__c}</td>
+                                                        <td>{bank.Contact_Name__c}</td>
+                                                        <td>{bank.Phone__c}</td>
+                                                        <td>{bank.Account_Type__c}</td>
+                                                        <td>{bank.Account_Number__c}</td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </template>
+                                <template lwc:else>
+                                    <div class="empty-state">No bank references provided.</div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Guarantors Tab -->
+                    <template lwc:if={isGuarantorsTab}>
+                        <div class="info-card full-width">
+                            <h3 class="info-card-title">Personal Guarantors</h3>
+                            <template lwc:if={hasGuarantors}>
+                                <div class="guarantor-grid">
+                                    <template for:each={guarantors} for:item="g">
+                                        <div key={g.Id} class="guarantor-card">
+                                            <div class="guarantor-name">
+                                                {g.First_Name__c} {g.Last_Name__c}
+                                            </div>
+                                            <div class="guarantor-details">
+                                                <div class="info-row">
+                                                    <span class="info-label">Phone</span>
+                                                    <span class="info-value">{g.Phone__c}</span>
+                                                </div>
+                                                <div class="info-row">
+                                                    <span class="info-label">Email</span>
+                                                    <span class="info-value">{g.Email__c}</span>
+                                                </div>
+                                                <template lwc:if={g.Date_Of_Birth__c}>
+                                                    <div class="info-row">
+                                                        <span class="info-label">Date of Birth</span>
+                                                        <span class="info-value">
+                                                            <lightning-formatted-date-time value={g.Date_Of_Birth__c} year="numeric" month="short" day="2-digit"></lightning-formatted-date-time>
+                                                        </span>
+                                                    </div>
+                                                </template>
+                                                <div class="info-row">
+                                                    <span class="info-label">Address</span>
+                                                    <span class="info-value">{g.Street__c}, {g.City__c}, {g.State__c} {g.Zip__c}</span>
+                                                </div>
+                                                <template lwc:if={g.Ownership_Percentage__c}>
+                                                    <div class="info-row">
+                                                        <span class="info-label">Ownership</span>
+                                                        <span class="info-value">{g.Ownership_Percentage__c}%</span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <div class="empty-state">No personal guarantors provided.</div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Tax Tab -->
+                    <template lwc:if={isTaxTab}>
+                        <div class="info-card">
+                            <h3 class="info-card-title">Tax &amp; Identification</h3>
+                            <div class="info-rows">
+                                <div class="info-row">
+                                    <span class="info-label">Federal Tax ID (EIN)</span>
+                                    <span class="info-value">{application.Federal_Tax_ID__c}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">DUNS Number</span>
+                                    <span class="info-value">{application.DUNS_Number__c}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">State of Incorporation</span>
+                                    <span class="info-value">{application.State_Of_Incorporation__c}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Signature Info -->
+                        <template lwc:if={application.Signature_Name__c}>
+                            <div class="info-card slds-m-top_medium">
+                                <h3 class="info-card-title">Signature</h3>
+                                <div class="info-rows">
+                                    <div class="info-row">
+                                        <span class="info-label">Signed By</span>
+                                        <span class="info-value">{application.Signature_Name__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Title</span>
+                                        <span class="info-value">{application.Signature_Title__c}</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Terms Accepted</span>
+                                        <span class="info-value">
+                                            <template lwc:if={application.Terms_Accepted__c}>Yes</template>
+                                            <template lwc:else>No</template>
+                                        </span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Credit Auth Accepted</span>
+                                        <span class="info-value">
+                                            <template lwc:if={application.Credit_Auth_Accepted__c}>Yes</template>
+                                            <template lwc:else>No</template>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+
+                    <!-- Credit Checks Tab -->
+                    <template lwc:if={isCreditChecksTab}>
+                        <div class="info-card full-width">
+                            <h3 class="info-card-title">Credit Check History</h3>
+                            <template lwc:if={hasCreditChecks}>
+                                <div class="reference-table">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                        <thead>
+                                            <tr>
+                                                <th>Agency</th>
+                                                <th>Score</th>
+                                                <th>Rating</th>
+                                                <th>Paydex</th>
+                                                <th>Financial Stress</th>
+                                                <th>Status</th>
+                                                <th>Report Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={creditChecks} for:item="check">
+                                                <tr key={check.Id}>
+                                                    <td>{check.Agency__c}</td>
+                                                    <td><strong>{check.Score__c}</strong></td>
+                                                    <td>{check.Rating__c}</td>
+                                                    <td>{check.Paydex_Score__c}</td>
+                                                    <td>{check.Financial_Stress_Score__c}</td>
+                                                    <td>{check.Status__c}</td>
+                                                    <td>
+                                                        <lightning-formatted-date-time value={check.Report_Date__c} year="numeric" month="short" day="2-digit"></lightning-formatted-date-time>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                            <template lwc:else>
+                                <div class="empty-state">No credit checks have been run yet.</div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    <!-- ===== APPROVE MODAL ===== -->
+    <template lwc:if={showApproveModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header modal-header-approve">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={handleApproveCancel}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title">Approve Application</h2>
+                    <p class="slds-m-top_x-small modal-subtitle">Set the approved credit limit for {companyName}</p>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input
+                        label="Approved Credit Limit"
+                        type="number"
+                        value={approvedLimit}
+                        formatter="currency"
+                        step="100"
+                        min="0"
+                        required
+                        onchange={handleApprovedLimitChange}
+                        class="slds-m-bottom_medium">
+                    </lightning-input>
+                    <lightning-textarea
+                        label="Notes"
+                        value={approveNotes}
+                        placeholder="Add any notes about the approval decision..."
+                        max-length="5000"
+                        onchange={handleApproveNotesChange}>
+                    </lightning-textarea>
+                    <template lwc:if={hasScoringResult}>
+                        <div class="modal-recommendation slds-m-top_medium">
+                            <lightning-icon icon-name="utility:light_bulb" size="x-small"></lightning-icon>
+                            <span>Recommended: {scoringRecommendation}</span>
+                        </div>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleApproveCancel}></lightning-button>
+                    <lightning-button
+                        label="Approve Application"
+                        variant="success"
+                        onclick={handleApproveConfirm}
+                        disabled={isProcessing}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- ===== DECLINE MODAL ===== -->
+    <template lwc:if={showDeclineModal}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header modal-header-decline">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={handleDeclineCancel}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                    </button>
+                    <h2 class="slds-modal__title">Decline Application</h2>
+                    <p class="slds-m-top_x-small modal-subtitle">Decline the credit application for {companyName}</p>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-textarea
+                        label="Decline Reason / Notes"
+                        value={declineNotes}
+                        placeholder="Provide the reason for declining this application..."
+                        max-length="5000"
+                        onchange={handleDeclineNotesChange}
+                        required>
+                    </lightning-textarea>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleDeclineCancel}></lightning-button>
+                    <lightning-button
+                        label="Decline Application"
+                        variant="destructive"
+                        onclick={handleDeclineConfirm}
+                        disabled={isProcessing}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Processing Spinner Overlay -->
+    <template lwc:if={isProcessing}>
+        <lightning-spinner alternative-text="Processing..." size="large" class="processing-spinner"></lightning-spinner>
+    </template>
+</template>
