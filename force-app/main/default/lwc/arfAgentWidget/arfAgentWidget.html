@@ -1,0 +1,119 @@
+<template>
+    <!-- Floating Action Button -->
+    <div class="agent-fab" onclick={handleToggle} title="AI Assistant">
+        <lightning-icon icon-name="standard:bot" size="medium" class="fab-icon"></lightning-icon>
+    </div>
+
+    <!-- Chat Panel -->
+    <template lwc:if={isOpen}>
+        <div class="agent-panel">
+            <!-- Header -->
+            <div class="panel-header">
+                <div class="header-left">
+                    <lightning-icon icon-name="standard:bot" size="x-small" class="header-icon"></lightning-icon>
+                    <span class="header-title">{panelTitle}</span>
+                </div>
+                <button class="close-btn" onclick={handleClose} title="Close">
+                    <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Close"></lightning-icon>
+                </button>
+            </div>
+
+            <!-- Messages Area -->
+            <div class="chat-messages">
+                <template for:each={messages} for:item="msg">
+                    <div key={msg.id} class={msg.bubbleWrapperClass}>
+                        <!-- Error Message -->
+                        <template lwc:if={msg.isError}>
+                            <div class="msg-bubble msg-bubble-error">
+                                <p class="msg-text">{msg.text}</p>
+                                <span class="msg-time">{msg.timestamp}</span>
+                            </div>
+                        </template>
+
+                        <!-- User Message -->
+                        <template lwc:if={msg.isUser}>
+                            <div class="msg-bubble msg-bubble-user">
+                                <p class="msg-text">{msg.text}</p>
+                                <span class="msg-time">{msg.timestamp}</span>
+                            </div>
+                        </template>
+
+                        <!-- Agent Message -->
+                        <template lwc:if={msg.isAgent}>
+                            <div class="msg-bubble msg-bubble-agent">
+                                <p class="msg-text">{msg.text}</p>
+                                <span class="msg-time">{msg.timestamp}</span>
+                            </div>
+
+                            <!-- Action Cards -->
+                            <template for:each={msg.actions} for:item="action">
+                                <div key={action.id} class="action-card-wrapper">
+                                    <!-- Success Action -->
+                                    <template lwc:if={action.isAction}>
+                                        <div class="action-card action-card-success">
+                                            <lightning-icon icon-name="utility:check" size="xx-small" class="action-icon-success"></lightning-icon>
+                                            <span class="action-title">{action.title}</span>
+                                        </div>
+                                    </template>
+
+                                    <!-- Draft Email -->
+                                    <template lwc:if={action.isDraftEmail}>
+                                        <div class="action-card action-card-draft">
+                                            <div class="draft-header">
+                                                <lightning-icon icon-name="utility:email" size="xx-small" class="action-icon-draft"></lightning-icon>
+                                                <span class="action-title">{action.title}</span>
+                                            </div>
+                                            <template lwc:if={action.parsedData}>
+                                                <div class="draft-preview">
+                                                    <p class="draft-field"><strong>To:</strong> {action.parsedData.to}</p>
+                                                    <p class="draft-field"><strong>Subject:</strong> {action.parsedData.subject}</p>
+                                                </div>
+                                                <div class="draft-actions">
+                                                    <button class="slds-button slds-button_brand slds-button_small" data-msg-id={action.id} onclick={handleSendDraft}>Send</button>
+                                                    <button class="slds-button slds-button_neutral slds-button_small" data-msg-id={action.id} onclick={handleEditDraft}>Edit</button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Escalation -->
+                                    <template lwc:if={action.isEscalation}>
+                                        <div class="action-card action-card-escalation">
+                                            <lightning-icon icon-name="utility:forward" size="xx-small" class="action-icon-escalation"></lightning-icon>
+                                            <span class="action-title">{action.title}</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Typing Indicator -->
+                <template lwc:if={isTyping}>
+                    <div class="agent">
+                        <div class="msg-bubble msg-bubble-agent typing-indicator">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Input Area -->
+            <div class="chat-input-area">
+                <textarea
+                    class="chat-input"
+                    placeholder="Type a message..."
+                    onchange={handleInputChange}
+                    onkeydown={handleKeyPress}
+                    disabled={sendDisabled}
+                    rows="1"></textarea>
+                <button class="send-btn" onclick={handleSend} disabled={sendDisabled} title="Send">
+                    <lightning-icon icon-name="utility:send" size="xx-small" alternative-text="Send"></lightning-icon>
+                </button>
+            </div>
+        </div>
+    </template>
+</template>

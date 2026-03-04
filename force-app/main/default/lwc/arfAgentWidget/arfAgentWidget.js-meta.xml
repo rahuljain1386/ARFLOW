@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>AR Flow AI Agent Widget</masterLabel>
+    <description>Conversational AI assistant for collectors and customers</description>
+    <targets>
+        <target>lightning__RecordPage</target>
+        <target>lightning__AppPage</target>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Account</object>
+            </objects>
+            <property name="userType" type="String" label="User Type" default="collector" description="collector or customer" />
+        </targetConfig>
+        <targetConfig targets="lightning__AppPage">
+            <property name="userType" type="String" label="User Type" default="customer" description="collector or customer" />
+            <property name="accountId" type="String" label="Account ID" description="Salesforce Account ID (for portal pages)" />
+        </targetConfig>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="userType" type="String" label="User Type" default="customer" description="collector or customer" />
+            <property name="accountId" type="String" label="Account ID" description="Salesforce Account ID (for portal pages)" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

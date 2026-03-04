@@ -16,6 +16,7 @@
                 <value><fullName>Phone</fullName><default>false</default><label>Phone</label></value>
                 <value><fullName>Note</fullName><default>false</default><label>Note</label></value>
                 <value><fullName>Letter</fullName><default>false</default><label>Letter</label></value>
+                <value><fullName>Chat</fullName><default>false</default><label>Chat</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -14,6 +14,7 @@
             <value><fullName>Reminder</fullName><default>false</default><label>Reminder</label></value>
             <value><fullName>Dispute</fullName><default>false</default><label>Dispute</label></value>
             <value><fullName>Follow-Up</fullName><default>false</default><label>Follow-Up</label></value>
+            <value><fullName>Chat Escalation</fullName><default>false</default><label>Chat Escalation</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
