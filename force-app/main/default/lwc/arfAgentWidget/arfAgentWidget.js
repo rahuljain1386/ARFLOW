@@ -10,10 +10,18 @@ export default class ArfAgentWidget extends LightningElement {
     @track isOpen = false;
     @track messages = [];
     @track isTyping = false;
+    @track isExpanded = false;
 
     inputText = '';
     chatSessionId = null;
     hasGreeted = false;
+
+    // Drag state
+    _isDragging = false;
+    _dragOffsetX = 0;
+    _dragOffsetY = 0;
+    @track panelX = null;
+    @track panelY = null;
 
     get effectiveAccountId() {
         return this.recordId || this.accountId;
@@ -39,6 +47,54 @@ export default class ArfAgentWidget extends LightningElement {
 
     get sendDisabled() {
         return this.isTyping;
+    }
+
+    get panelClass() {
+        return 'agent-panel' + (this.isExpanded ? ' agent-panel-expanded' : '');
+    }
+
+    get panelStyle() {
+        if (this.panelX !== null && this.panelY !== null) {
+            return `left:${this.panelX}px;top:${this.panelY}px;right:auto;bottom:auto;`;
+        }
+        return '';
+    }
+
+    get expandIcon() {
+        return this.isExpanded ? 'utility:contract_alt' : 'utility:expand_alt';
+    }
+
+    get expandTooltip() {
+        return this.isExpanded ? 'Collapse' : 'Expand';
+    }
+
+    get quickActions() {
+        if (this.isCollector) {
+            return [
+                { label: 'Account Summary', message: 'Show me the account summary' },
+                { label: 'Open Invoices', message: 'List all open invoices with balances' },
+                { label: 'Aging Summary', message: 'Show the aging summary' },
+                { label: 'Draft Email', message: 'Draft a statement email for all open invoices' },
+                { label: 'Log Dispute', message: 'I need to log a dispute' },
+                { label: 'Log Promise', message: 'I need to log a promise to pay' },
+                { label: 'Latest Notes', message: 'Show me the latest notes' },
+                { label: 'Log Call', message: 'Log a call on this account' },
+                { label: 'Contact Info', message: 'Show me the contact information' },
+                { label: 'Escalate', message: 'Connect me to a human agent' }
+            ];
+        }
+        return [
+            { label: 'My Invoices', message: 'Show my open invoices' },
+            { label: 'Payment History', message: 'Show my payment history' },
+            { label: 'File Dispute', message: 'I need to file a dispute' },
+            { label: 'Promise to Pay', message: 'I want to set up a payment promise' },
+            { label: 'Talk to Agent', message: 'Connect me to a human agent' }
+        ];
+    }
+
+    handleQuickAction(event) {
+        this.inputText = event.currentTarget.dataset.message;
+        this.handleSend();
     }
 
     // ─── Toggle & Lifecycle ─────────────────────────────────────────────
@@ -67,6 +123,58 @@ export default class ArfAgentWidget extends LightningElement {
             }).catch(err => console.error('Save transcript error:', err));
         }
         this.isOpen = false;
+    }
+
+    handleExpand(event) {
+        event.stopPropagation();
+        this.isExpanded = !this.isExpanded;
+        // Reset position when toggling expand so it uses CSS defaults
+        this.panelX = null;
+        this.panelY = null;
+        this.scrollToBottomDelayed();
+    }
+
+    // ─── Drag to Move ─────────────────────────────────────────────────
+
+    handleDragStart(event) {
+        // Don't drag if clicking a button
+        if (event.target.closest('button') || event.target.closest('.header-actions')) return;
+
+        this._isDragging = true;
+        const panel = this.template.querySelector('.agent-panel');
+        if (!panel) return;
+
+        const rect = panel.getBoundingClientRect();
+        this._dragOffsetX = event.clientX - rect.left;
+        this._dragOffsetY = event.clientY - rect.top;
+
+        // Bind move/up to window
+        this._boundDragMove = this.handleDragMove.bind(this);
+        this._boundDragEnd = this.handleDragEnd.bind(this);
+        window.addEventListener('mousemove', this._boundDragMove);
+        window.addEventListener('mouseup', this._boundDragEnd);
+
+        event.preventDefault();
+    }
+
+    handleDragMove(event) {
+        if (!this._isDragging) return;
+        const x = event.clientX - this._dragOffsetX;
+        const y = event.clientY - this._dragOffsetY;
+
+        // Clamp within viewport
+        const panel = this.template.querySelector('.agent-panel');
+        if (!panel) return;
+        const maxX = window.innerWidth - panel.offsetWidth;
+        const maxY = window.innerHeight - panel.offsetHeight;
+        this.panelX = Math.max(0, Math.min(x, maxX));
+        this.panelY = Math.max(0, Math.min(y, maxY));
+    }
+
+    handleDragEnd() {
+        this._isDragging = false;
+        window.removeEventListener('mousemove', this._boundDragMove);
+        window.removeEventListener('mouseup', this._boundDragEnd);
     }
 
     // ─── Message Handling ───────────────────────────────────────────────
@@ -177,16 +285,23 @@ export default class ArfAgentWidget extends LightningElement {
     // ─── Helpers ────────────────────────────────────────────────────────
 
     buildConversationHistory() {
-        // Convert UI messages to Claude API format (skip the welcome message)
+        // Convert UI messages to Claude API format (skip the welcome greeting)
         const history = [];
+        let isFirst = true;
         for (const msg of this.messages) {
+            if (msg.role === 'agent' && isFirst) {
+                isFirst = false;
+                continue; // skip welcome message
+            }
+            isFirst = false;
             if (msg.role === 'user') {
                 history.push({ role: 'user', content: msg.text });
+            } else if (msg.role === 'agent') {
+                history.push({ role: 'assistant', content: msg.text });
             }
-            // We don't send agent messages back — the backend manages full conversation state
         }
-        // Remove the last user message since it's sent separately
-        if (history.length > 0) {
+        // Remove the last user message since it's sent separately as userMessage param
+        if (history.length > 0 && history[history.length - 1].role === 'user') {
             history.pop();
         }
         return history;

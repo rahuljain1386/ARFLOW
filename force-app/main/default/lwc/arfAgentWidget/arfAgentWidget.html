@@ -6,16 +6,21 @@
 
     <!-- Chat Panel -->
     <template lwc:if={isOpen}>
-        <div class="agent-panel">
-            <!-- Header -->
-            <div class="panel-header">
+        <div class={panelClass} style={panelStyle}>
+            <!-- Header (draggable) -->
+            <div class="panel-header" onmousedown={handleDragStart}>
                 <div class="header-left">
                     <lightning-icon icon-name="standard:bot" size="x-small" class="header-icon"></lightning-icon>
                     <span class="header-title">{panelTitle}</span>
                 </div>
-                <button class="close-btn" onclick={handleClose} title="Close">
-                    <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Close"></lightning-icon>
-                </button>
+                <div class="header-actions">
+                    <button class="header-btn" onclick={handleExpand} title={expandTooltip}>
+                        <lightning-icon icon-name={expandIcon} size="xx-small" alternative-text="Expand"></lightning-icon>
+                    </button>
+                    <button class="header-btn" onclick={handleClose} title="Close">
+                        <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Close"></lightning-icon>
+                    </button>
+                </div>
             </div>
 
             <!-- Messages Area -->
@@ -68,6 +73,9 @@
                                                     <p class="draft-field"><strong>To:</strong> {action.parsedData.to}</p>
                                                     <p class="draft-field"><strong>Subject:</strong> {action.parsedData.subject}</p>
                                                 </div>
+                                                <div class="draft-body-container">
+                                                    <lightning-formatted-rich-text value={action.parsedData.body} class="draft-body"></lightning-formatted-rich-text>
+                                                </div>
                                                 <div class="draft-actions">
                                                     <button class="slds-button slds-button_brand slds-button_small" data-msg-id={action.id} onclick={handleSendDraft}>Send</button>
                                                     <button class="slds-button slds-button_neutral slds-button_small" data-msg-id={action.id} onclick={handleEditDraft}>Edit</button>
@@ -101,12 +109,21 @@
                 </template>
             </div>
 
+            <!-- Quick Action Chips -->
+            <div class="quick-actions">
+                <template for:each={quickActions} for:item="qa">
+                    <button key={qa.label} class="quick-chip" data-message={qa.message} onclick={handleQuickAction}>
+                        {qa.label}
+                    </button>
+                </template>
+            </div>
+
             <!-- Input Area -->
             <div class="chat-input-area">
                 <textarea
                     class="chat-input"
                     placeholder="Type a message..."
-                    onchange={handleInputChange}
+                    oninput={handleInputChange}
                     onkeydown={handleKeyPress}
                     disabled={sendDisabled}
                     rows="1"></textarea>
