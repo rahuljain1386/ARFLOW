@@ -6,9 +6,9 @@
 /* ═══ CONTAINER ═══ */
 .header-container {
     background: #ffffff;
-    border: 1px solid #d8dde6;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
     overflow: hidden;
 }
 
@@ -17,8 +17,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.875rem 1.25rem;
-    background: linear-gradient(135deg, #16325c 0%, #1a3e6f 100%);
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #0f1b2d 0%, #1a365d 50%, #1e4976 100%);
     color: #ffffff;
 }
 
@@ -28,10 +28,11 @@
 }
 
 .account-name {
-    font-size: 1.375rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: #ffffff;
     line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 .subtitle-row {
@@ -65,7 +66,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
-    background: #c23934;
+    background: #ef4444;
     color: #fff;
     padding: 0.125rem 0.5rem;
     border-radius: 0.25rem;
@@ -95,17 +96,17 @@
 }
 
 .risk-high {
-    background: #c23934;
+    background: #ef4444;
     color: #fff;
 }
 
 .risk-medium {
-    background: #f39c12;
+    background: #f59e0b;
     color: #fff;
 }
 
 .risk-low {
-    background: #04844b;
+    background: #22c55e;
     color: #fff;
 }
 
@@ -137,20 +138,20 @@
 
 /* ═══ STICKY NOTE ═══ */
 .sticky-note {
-    margin: 0.75rem 1.25rem;
-    border-radius: 0.375rem;
-    padding: 0.625rem 0.875rem;
+    margin: 0.875rem 1.25rem;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .sticky-note_filled {
-    background: linear-gradient(135deg, #fff8e1 0%, #fef3cd 100%);
-    border: 1.5px solid #f0d77b;
-    box-shadow: 0 1px 4px rgba(240, 215, 123, 0.3);
+    background: linear-gradient(135deg, #fffbeb 0%, #fef9c3 100%);
+    border: 1px solid #fde68a;
+    box-shadow: 0 1px 4px rgba(253, 230, 138, 0.3);
 }
 
 .sticky-note_empty {
-    background: #f9f9f9;
-    border: 1.5px dashed #d8d8d8;
+    background: #f9fafb;
+    border: 1.5px dashed #d1d5db;
 }
 
 .note-label {
@@ -173,14 +174,14 @@
     word-break: break-word;
     line-height: 1.5;
     font-size: 0.875rem;
-    color: #3e3e3c;
+    color: #334155;
     font-weight: 500;
 }
 
 .note-placeholder {
     cursor: pointer;
     font-style: italic;
-    color: #706e6b;
+    color: #94a3b8;
     font-size: 0.8125rem;
 }
 
@@ -191,59 +192,62 @@
 /* ═══ METRIC CARDS ═══ */
 .metrics-row {
     display: flex;
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
 }
 
 .metric-card {
     flex: 1;
     background: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 0.5rem;
-    padding: 0.75rem 0.875rem;
-    border-left: 4px solid transparent;
-    transition: box-shadow 0.15s ease;
-    text-align: center;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-top: 3px solid transparent;
+    transition: all 0.2s ease;
+    text-align: left;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .metric-card:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
 }
 
-.metric-blue { border-left-color: #0176d3; }
-.metric-red { border-left-color: #c23934; }
-.metric-orange { border-left-color: #e87722; }
-.metric-teal { border-left-color: #06a59a; }
-.metric-risk { border-left-color: #706e6b; }
+.metric-blue { border-top-color: #3b82f6; }
+.metric-red { border-top-color: #ef4444; }
+.metric-orange { border-top-color: #f59e0b; }
+.metric-teal { border-top-color: #06b6d4; }
+.metric-risk { border-top-color: #8b5cf6; }
 
 .metric-label {
     font-size: 0.6875rem;
     font-weight: 600;
     letter-spacing: 0.08em;
-    color: #706e6b;
-    margin-bottom: 0.25rem;
+    color: #64748b;
+    margin-bottom: 0.375rem;
     text-transform: uppercase;
 }
 
 .metric-value {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: #16325c;
+    color: #0f172a;
     line-height: 1.3;
+    letter-spacing: -0.02em;
 }
 
 .metric-value-red {
-    color: #c23934;
+    color: #ef4444;
 }
 
 .metric-value-orange {
-    color: #e87722;
+    color: #f59e0b;
 }
 
 .metric-sub {
     font-size: 0.75rem;
-    color: #706e6b;
-    margin-top: 0.125rem;
+    color: #64748b;
+    margin-top: 0.25rem;
 }
 
 .risk-inline-label {
@@ -256,21 +260,21 @@
 /* ═══ CREDIT BAR ═══ */
 .credit-section {
     margin: 0 1.25rem;
-    padding: 0.625rem 0;
-    border-top: 1px solid #f0f0f0;
+    padding: 0.75rem 0;
+    border-top: 1px solid #f1f5f9;
 }
 
 .credit-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
 }
 
 .credit-title {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #3e3e3c;
+    color: #334155;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -278,71 +282,73 @@
 .credit-pct {
     font-size: 0.8125rem;
     font-weight: 700;
-    color: #3e3e3c;
+    color: #334155;
 }
 
 .credit-bar-track {
-    height: 10px;
-    background: #ecebea;
-    border-radius: 5px;
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 6px;
     overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .credit-fill {
     height: 100%;
-    border-radius: 5px;
-    transition: width 0.4s ease;
+    border-radius: 6px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.credit-green { background: linear-gradient(90deg, #2e844a, #04844b); }
-.credit-yellow { background: linear-gradient(90deg, #e87722, #f39c12); }
-.credit-red { background: linear-gradient(90deg, #c23934, #ea001e); }
+.credit-green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.credit-yellow { background: linear-gradient(90deg, #f59e0b, #eab308); }
+.credit-red { background: linear-gradient(90deg, #ef4444, #dc2626); }
 
 .credit-detail {
-    margin-top: 0.25rem;
+    margin-top: 0.375rem;
     font-size: 0.75rem;
-    color: #706e6b;
+    color: #64748b;
     text-align: right;
 }
 
 /* ═══ AGING BAR ═══ */
 .aging-section {
     margin: 0 1.25rem;
-    padding: 0.625rem 0 0.5rem;
-    border-top: 1px solid #f0f0f0;
+    padding: 0.75rem 0 0.625rem;
+    border-top: 1px solid #f1f5f9;
 }
 
 .aging-title {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #3e3e3c;
+    color: #334155;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
 }
 
 .aging-bar-track {
     display: flex;
-    height: 14px;
-    border-radius: 7px;
+    height: 16px;
+    border-radius: 8px;
     overflow: hidden;
-    background: #ecebea;
+    background: #e2e8f0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .aging-bar-track > div {
     height: 100%;
 }
 
-.aging-current { background: #2e844a; }
-.aging-1-30 { background: #f39c12; }
-.aging-31-60 { background: #e87722; }
-.aging-61-90 { background: #c23934; }
-.aging-90-plus { background: #8b0000; }
+.aging-current { background: #22c55e; }
+.aging-1-30 { background: #f59e0b; }
+.aging-31-60 { background: #f97316; }
+.aging-61-90 { background: #ef4444; }
+.aging-90-plus { background: #b91c1c; }
 
 .aging-labels {
     display: flex;
     justify-content: space-between;
-    margin-top: 0.375rem;
+    margin-top: 0.5rem;
 }
 
 .aging-label-item {
@@ -361,12 +367,12 @@
 }
 
 .aging-label-text {
-    color: #706e6b;
+    color: #64748b;
     font-weight: 500;
 }
 
 .aging-label-amount {
-    color: #3e3e3c;
+    color: #334155;
     font-weight: 600;
 }
 
@@ -374,9 +380,9 @@
 .info-strip {
     display: flex;
     align-items: center;
-    padding: 0.625rem 1.25rem;
-    background: #fafaf9;
-    border-top: 1px solid #f0f0f0;
+    padding: 0.75rem 1.25rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
     flex-wrap: wrap;
     gap: 0.25rem 0;
 }
@@ -390,20 +396,20 @@
 .info-label {
     font-size: 0.6875rem;
     font-weight: 600;
-    color: #706e6b;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
 
 .info-value {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     font-weight: 600;
-    color: #16325c;
+    color: #0f172a;
 }
 
 .info-sep {
     width: 1px;
-    height: 16px;
-    background: #d8d8d8;
-    margin: 0 0.75rem;
+    height: 20px;
+    background: #cbd5e1;
+    margin: 0 0.875rem;
 }

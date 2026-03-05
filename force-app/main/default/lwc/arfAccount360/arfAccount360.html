@@ -4,7 +4,7 @@
         onquickaction={handleQuickAction}>
     </c-arf-account360-header>
 
-    <lightning-card>
+    <div class="content-container">
         <!-- Custom Tab Bar -->
         <div class="tab-bar">
             <template for:each={visibleTabs} for:item="tab">
@@ -43,6 +43,7 @@
                 <c-arf-account360-emails
                     record-id={recordId}
                     refresh-key={refreshKey}
+                    agent-draft={agentDraft}
                     onrecordcreated={handleChildRecordCreated}>
                 </c-arf-account360-emails>
             </template>
@@ -67,7 +68,7 @@
                 <c-arf-account360-history record-id={recordId}></c-arf-account360-history>
             </template>
         </div>
-    </lightning-card>
+    </div>
 
     <template lwc:if={isEmailAction}>
         <c-arf-email-composer
@@ -86,5 +87,5 @@
         </c-arf-account360-quick-action-modal>
     </template>
 
-    <c-arf-agent-widget record-id={recordId} user-type="collector"></c-arf-agent-widget>
+    <c-arf-agent-widget record-id={recordId} user-type="collector" oneditemail={handleAgentDraftEmail} onsendemail={handleAgentDraftEmail}></c-arf-agent-widget>
 </template>
