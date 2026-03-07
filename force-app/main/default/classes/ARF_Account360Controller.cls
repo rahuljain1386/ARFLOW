@@ -156,12 +156,117 @@ public with sharing class ARF_Account360Controller {
                 From_Address__c, To_Address__c, Related_Invoice__c,
                 Related_Invoice__r.Document_Number__c, Related_Dispute__c,
                 HTML_Body__c, Body__c, CC_Addresses__c, BCC_Addresses__c,
-                Has_Attachment__c, Thread_ID__c
+                Has_Attachment__c, Thread_ID__c,
+                Detected_Language__c, Detected_Language_Name__c,
+                Translated_Body__c, Translated_Subject__c
             FROM ARF_Communication__c
             WHERE Account__c = :accountId
             ORDER BY Sent_Date__c DESC
             LIMIT 200
         ];
+    }
+
+    @AuraEnabled
+    public static ARF_Communication__c translateCommunication(Id communicationId) {
+        if (communicationId == null) {
+            throw new AuraHandledException('Communication ID is required');
+        }
+
+        ARF_Communication__c comm = [
+            SELECT Id, Subject__c, Body__c, Detected_Language__c,
+                   Detected_Language_Name__c, Translated_Body__c,
+                   Translated_Subject__c
+            FROM ARF_Communication__c
+            WHERE Id = :communicationId
+            LIMIT 1
+        ];
+
+        // Return cached translation if already translated
+        if (String.isNotBlank(comm.Translated_Body__c)) {
+            return comm;
+        }
+
+        // Skip if already English or no language detected
+        if (comm.Detected_Language__c == 'en' || String.isBlank(comm.Detected_Language__c)) {
+            throw new AuraHandledException('Communication is in English or language not detected');
+        }
+
+        String apiKey = getTranslationAPIKey();
+        if (String.isBlank(apiKey)) {
+            throw new AuraHandledException('AI API key not configured');
+        }
+
+        // Build translation prompt
+        String languageName = String.isNotBlank(comm.Detected_Language_Name__c)
+            ? comm.Detected_Language_Name__c : comm.Detected_Language__c;
+
+        String prompt = 'Translate the following ' + languageName +
+            ' text to English. Return JSON only:\n' +
+            '{"translated_subject": "...", "translated_body": "..."}\n\n' +
+            'Subject: ' + (comm.Subject__c != null ? comm.Subject__c : '') + '\n' +
+            'Body:\n' + (comm.Body__c != null ? comm.Body__c.left(8000) : '');
+
+        // Call Claude API
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://api.anthropic.com/v1/messages');
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setHeader('anthropic-version', '2023-06-01');
+        req.setHeader('x-api-key', apiKey);
+
+        Map<String, Object> body = new Map<String, Object>{
+            'model' => 'claude-sonnet-4-20250514',
+            'max_tokens' => 4096,
+            'messages' => new List<Object>{
+                new Map<String, String>{ 'role' => 'user', 'content' => prompt }
+            }
+        };
+        req.setBody(JSON.serialize(body));
+        req.setTimeout(60000);
+
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+
+        if (res.getStatusCode() != 200) {
+            throw new AuraHandledException('Translation API error: ' + res.getStatusCode());
+        }
+
+        // Parse response
+        Map<String, Object> responseBody = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+        List<Object> content = (List<Object>) responseBody.get('content');
+        if (content == null || content.isEmpty()) {
+            throw new AuraHandledException('Empty translation response');
+        }
+
+        Map<String, Object> firstBlock = (Map<String, Object>) content[0];
+        String text = (String) firstBlock.get('text');
+        String jsonText = extractTranslationJson(text);
+
+        Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(jsonText);
+        String translatedSubject = (String) parsed.get('translated_subject');
+        String translatedBody = (String) parsed.get('translated_body');
+
+        // Cache the translation
+        comm.Translated_Subject__c = translatedSubject != null ? translatedSubject.left(255) : null;
+        comm.Translated_Body__c = translatedBody != null ? translatedBody.left(32000) : null;
+        update comm;
+
+        return comm;
+    }
+
+    private static String extractTranslationJson(String text) {
+        if (String.isBlank(text)) return '{}';
+        Integer startIdx = text.indexOf('{');
+        Integer endIdx = text.lastIndexOf('}');
+        if (startIdx >= 0 && endIdx > startIdx) {
+            return text.substring(startIdx, endIdx + 1);
+        }
+        return text;
+    }
+
+    private static String getTranslationAPIKey() {
+        ARF_AI_Config__c config = ARF_AI_Config__c.getInstance();
+        return config != null ? config.API_Key__c : null;
     }
 
     @AuraEnabled(cacheable=true)

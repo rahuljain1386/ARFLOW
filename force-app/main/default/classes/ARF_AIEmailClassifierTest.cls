@@ -12,7 +12,26 @@ private class ARF_AIEmailClassifierTest {
                 '\\"po_numbers\\":[],\\"amounts\\":[5000],\\"dates\\":[],' +
                 '\\"account_names\\":[],\\"reference_numbers\\":[]},' +
                 '\\"suggested_action\\":\\"Create dispute record\\",' +
-                '\\"summary\\":\\"Customer disputes invoice INV-001 amount\\"}' +
+                '\\"summary\\":\\"Customer disputes invoice INV-001 amount\\",' +
+                '\\"language_code\\":\\"en\\",\\"language_name\\":\\"English\\"}' +
+                '"}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}');
+            return res;
+        }
+    }
+
+    private class MockClaudeNonEnglish implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setStatusCode(200);
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{"id":"msg_test","type":"message","content":[{"type":"text","text":"' +
+                '{\\"intent\\":\\"dispute\\",\\"confidence\\":0.90,' +
+                '\\"entities\\":{\\"invoice_numbers\\":[\\"INV-001\\"],' +
+                '\\"po_numbers\\":[],\\"amounts\\":[5000],\\"dates\\":[],' +
+                '\\"account_names\\":[],\\"reference_numbers\\":[]},' +
+                '\\"suggested_action\\":\\"Create dispute record\\",' +
+                '\\"summary\\":\\"Customer disputes invoice INV-001\\",' +
+                '\\"language_code\\":\\"es\\",\\"language_name\\":\\"Spanish\\"}' +
                 '"}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}');
             return res;
         }
@@ -234,6 +253,27 @@ private class ARF_AIEmailClassifierTest {
         System.assert(prompt.contains('po_numbers'), 'Prompt should request PO numbers');
         System.assert(prompt.contains('account_names'), 'Prompt should request account names');
         System.assert(prompt.contains('reference_numbers'), 'Prompt should request reference numbers');
+        // Verify language detection fields in prompt
+        System.assert(prompt.contains('language_code'), 'Prompt should request language code');
+        System.assert(prompt.contains('language_name'), 'Prompt should request language name');
+    }
+
+    @isTest
+    static void testLanguageDetection() {
+        ARF_Communication__c comm = [SELECT Id FROM ARF_Communication__c WHERE Account__c != null LIMIT 1];
+
+        Test.setMock(HttpCalloutMock.class, new MockClaudeNonEnglish());
+        Test.startTest();
+        System.enqueueJob(new ARF_AIEmailClassifier(comm.Id));
+        Test.stopTest();
+
+        ARF_Communication__c updated = [
+            SELECT AI_Intent__c, Detected_Language__c, Detected_Language_Name__c
+            FROM ARF_Communication__c WHERE Id = :comm.Id
+        ];
+        System.assertEquals('Dispute', updated.AI_Intent__c);
+        System.assertEquals('es', updated.Detected_Language__c);
+        System.assertEquals('Spanish', updated.Detected_Language_Name__c);
     }
 
     @isTest

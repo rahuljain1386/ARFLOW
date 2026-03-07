@@ -1,7 +1,7 @@
-# AR Flow — Project Instructions
+# Inqulo — Project Instructions
 
 ## Overview
-AR Flow is a Salesforce-native ITC (Invoice-to-Cash) suite.
+Inqulo is a Salesforce-native ITC (Invoice-to-Cash) suite.
 All Salesforce code lives in force-app/main/default/.
 
 ## Naming Conventions

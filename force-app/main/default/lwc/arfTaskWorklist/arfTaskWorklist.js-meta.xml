@@ -6,5 +6,5 @@
         <target>lightning__AppPage</target>
     </targets>
     <masterLabel>AR Task Worklist</masterLabel>
-    <description>Task-based collection worklist for AR Flow</description>
+    <description>Task-based collection worklist for Inqulo</description>
 </LightningComponentBundle>

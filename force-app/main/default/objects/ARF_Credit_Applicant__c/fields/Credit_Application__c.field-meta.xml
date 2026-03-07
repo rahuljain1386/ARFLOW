@@ -4,7 +4,7 @@
     <label>Credit Application</label>
     <type>MasterDetail</type>
     <referenceTo>ARF_Credit_Application__c</referenceTo>
-    <relationshipName>Applicants</relationshipName>
+    <relationshipName>Credit_Applicants</relationshipName>
     <relationshipLabel>Applicants</relationshipLabel>
     <writeRequiresMasterRead>false</writeRequiresMasterRead>
     <reparentableMasterDetail>false</reparentableMasterDetail>

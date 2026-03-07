@@ -100,11 +100,13 @@ public with sharing class ARF_AgentService {
                 'account_id' => reqStr('Salesforce Account ID'),
                 'invoice_document_numbers' => optArr('List of invoice document numbers to include')
             }));
-            tools.add(buildTool('draft_email', 'Draft an email for the collector to review before sending. Returns a preview — does NOT auto-send.', new Map<String, Object>{
+            tools.add(buildTool('draft_email', 'Draft an email for the collector to review before sending. If template_id is provided, the template is auto-resolved with merge fields and used as subject/body (subject and body params are ignored). Returns a preview — does NOT auto-send.', new Map<String, Object>{
                 'account_id' => reqStr('Salesforce Account ID'),
                 'to_address' => reqStr('Recipient email address'),
-                'subject' => reqStr('Email subject'),
-                'body' => reqStr('Email body (HTML supported)')
+                'template_id' => optStr('Email Template ID from get_email_templates. If provided, template is resolved and used as subject/body.'),
+                'invoice_document_numbers' => optArr('Invoice document numbers to include in template merge fields'),
+                'subject' => optStr('Email subject (ignored if template_id provided)'),
+                'body' => optStr('Email body HTML (ignored if template_id provided)')
             }));
             tools.add(buildTool('snooze_account', 'Snooze an account to remove it from the worklist for a specified number of days.', new Map<String, Object>{
                 'account_id' => reqStr('Salesforce Account ID'),
@@ -309,10 +311,26 @@ public with sharing class ARF_AgentService {
                     return new ToolResult(true, JSON.serialize(resolved), null, 'data');
                 }
                 when 'draft_email' {
+                    String emailSubject = (String) arguments.get('subject');
+                    String emailBody = (String) arguments.get('body');
+
+                    // If template_id provided, resolve template and use its subject/body
+                    if (arguments.containsKey('template_id') && arguments.get('template_id') != null) {
+                        Id templateId = (Id) arguments.get('template_id');
+                        List<Id> invoiceIds = new List<Id>();
+                        if (arguments.containsKey('invoice_document_numbers') && arguments.get('invoice_document_numbers') != null) {
+                            List<Object> docNums = (List<Object>) arguments.get('invoice_document_numbers');
+                            invoiceIds = resolveInvoiceIds(docNums, accountId);
+                        }
+                        Map<String, String> resolved = ARF_TransactionActionController.resolveTemplate(templateId, accountId, invoiceIds);
+                        emailSubject = resolved.get('subject');
+                        emailBody = resolved.get('body');
+                    }
+
                     Map<String, Object> draft = new Map<String, Object>{
                         'to' => (String) arguments.get('to_address'),
-                        'subject' => (String) arguments.get('subject'),
-                        'body' => (String) arguments.get('body'),
+                        'subject' => emailSubject,
+                        'body' => emailBody,
                         'accountId' => accountId
                     };
                     return new ToolResult(true, JSON.serialize(draft), 'Email draft ready for review.', 'draft_email');

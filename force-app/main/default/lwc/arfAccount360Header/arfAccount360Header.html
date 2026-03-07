@@ -104,109 +104,100 @@
                 </div>
             </div>
 
-            <!-- ═══ METRIC CARDS ═══ -->
-            <div class="metrics-row">
-                <!-- Total AR -->
-                <div class="metric-card metric-blue">
-                    <p class="metric-label">TOTAL AR</p>
-                    <p class="metric-value">
-                        <lightning-formatted-number value={totalAR} format-style="currency"
-                            currency-code="USD" minimum-fraction-digits="0"
-                            maximum-fraction-digits="0"></lightning-formatted-number>
-                    </p>
-                    <p class="metric-sub">{openInvoiceCount} invoices</p>
-                </div>
-                <!-- Past Due -->
-                <div class="metric-card metric-red">
-                    <p class="metric-label">PAST DUE</p>
-                    <p class="metric-value metric-value-red">
-                        <lightning-formatted-number value={pastDue} format-style="currency"
-                            currency-code="USD" minimum-fraction-digits="0"
-                            maximum-fraction-digits="0"></lightning-formatted-number>
-                    </p>
-                    <p class="metric-sub">{overdueInvoiceCount} overdue</p>
-                </div>
-                <!-- In Dispute -->
-                <div class="metric-card metric-orange">
-                    <p class="metric-label">IN DISPUTE</p>
-                    <p class="metric-value metric-value-orange">
-                        <lightning-formatted-number value={inDispute} format-style="currency"
-                            currency-code="USD" minimum-fraction-digits="0"
-                            maximum-fraction-digits="0"></lightning-formatted-number>
-                    </p>
-                    <p class="metric-sub">{openDisputeCount} open</p>
-                </div>
-                <!-- Promised -->
-                <div class="metric-card metric-teal">
-                    <p class="metric-label">PROMISED</p>
-                    <p class="metric-value">
-                        <lightning-formatted-number value={promised} format-style="currency"
-                            currency-code="USD" minimum-fraction-digits="0"
-                            maximum-fraction-digits="0"></lightning-formatted-number>
-                    </p>
-                    <p class="metric-sub">&nbsp;</p>
-                </div>
-                <!-- Risk Score -->
-                <div class="metric-card metric-risk">
-                    <p class="metric-label">RISK SCORE</p>
-                    <p class="metric-value">{riskScore}</p>
-                    <p class="metric-sub">
-                        <template for:each={riskDots} for:item="dot">
-                            <span key={dot.key} class={dot.class}></span>
-                        </template>
-                        <span class="risk-inline-label">{riskLabel}</span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- ═══ CREDIT UTILIZATION BAR ═══ -->
-            <div class="credit-section">
-                <div class="credit-header">
-                    <span class="credit-title">Credit Utilization</span>
-                    <span class="credit-pct">{creditUtilPct}%</span>
-                </div>
-                <div class="credit-bar-track">
-                    <div class={creditBarClass} style={creditBarStyle}></div>
-                </div>
-                <div class="credit-detail">
-                    <lightning-formatted-number value={creditUsedFormatted} format-style="currency"
-                        currency-code="USD" minimum-fraction-digits="0"
-                        maximum-fraction-digits="0"></lightning-formatted-number>
-                    <span> of </span>
-                    <lightning-formatted-number value={creditLimitFormatted} format-style="currency"
-                        currency-code="USD" minimum-fraction-digits="0"
-                        maximum-fraction-digits="0"></lightning-formatted-number>
-                </div>
-            </div>
-
-            <!-- ═══ AGING BREAKDOWN BAR ═══ -->
-            <template lwc:if={hasAging}>
-                <div class="aging-section">
-                    <p class="aging-title">Aging Breakdown</p>
-                    <div class="aging-bar-track">
-                        <template for:each={agingBuckets} for:item="bucket">
-                            <template lwc:if={bucket.hasAmount}>
-                                <div key={bucket.key} class={bucket.colorClass} style={bucket.style}></div>
-                            </template>
-                        </template>
+            <!-- ═══ SUMMARY: TWO-COLUMN LAYOUT ═══ -->
+            <div class="summary-columns">
+                <!-- Left: Metric Cards Grid -->
+                <div class="summary-left">
+                    <div class="metrics-grid">
+                        <div class="metric-card metric-blue">
+                            <p class="metric-label">TOTAL AR</p>
+                            <p class="metric-value">
+                                <lightning-formatted-number value={totalAR} format-style="currency"
+                                    currency-code="USD" minimum-fraction-digits="0"
+                                    maximum-fraction-digits="0"></lightning-formatted-number>
+                            </p>
+                            <p class="metric-sub">{openInvoiceCount} invoices</p>
+                        </div>
+                        <div class="metric-card metric-red">
+                            <p class="metric-label">PAST DUE</p>
+                            <p class="metric-value metric-value-red">
+                                <lightning-formatted-number value={pastDue} format-style="currency"
+                                    currency-code="USD" minimum-fraction-digits="0"
+                                    maximum-fraction-digits="0"></lightning-formatted-number>
+                            </p>
+                            <p class="metric-sub">{overdueInvoiceCount} overdue</p>
+                        </div>
+                        <div class="metric-card metric-orange">
+                            <p class="metric-label">IN DISPUTE</p>
+                            <p class="metric-value metric-value-orange">
+                                <lightning-formatted-number value={inDispute} format-style="currency"
+                                    currency-code="USD" minimum-fraction-digits="0"
+                                    maximum-fraction-digits="0"></lightning-formatted-number>
+                            </p>
+                            <p class="metric-sub">{openDisputeCount} open</p>
+                        </div>
+                        <div class="metric-card metric-teal">
+                            <p class="metric-label">PROMISED</p>
+                            <p class="metric-value">
+                                <lightning-formatted-number value={promised} format-style="currency"
+                                    currency-code="USD" minimum-fraction-digits="0"
+                                    maximum-fraction-digits="0"></lightning-formatted-number>
+                            </p>
+                            <p class="metric-sub">&nbsp;</p>
+                        </div>
                     </div>
-                    <div class="aging-labels">
-                        <template for:each={agingBuckets} for:item="bucket">
-                            <div key={bucket.key} class="aging-label-item">
-                                <span class={bucket.colorClass}></span>
-                                <span class="aging-label-text">{bucket.label}</span>
-                                <span class="aging-label-amount">
-                                    <lightning-formatted-number value={bucket.amount}
-                                        format-style="currency" currency-code="USD"
-                                        minimum-fraction-digits="0"
-                                        maximum-fraction-digits="0"
-                                        notation="compact"></lightning-formatted-number>
-                                </span>
+                </div>
+
+                <!-- Right: Credit + Aging -->
+                <div class="summary-right">
+                    <div class="credit-section">
+                        <div class="credit-header">
+                            <span class="credit-title">Credit Utilization</span>
+                            <span class="credit-pct">{creditUtilPct}%</span>
+                        </div>
+                        <div class="credit-bar-track">
+                            <div class={creditBarClass} style={creditBarStyle}></div>
+                        </div>
+                        <div class="credit-detail">
+                            <lightning-formatted-number value={creditUsedFormatted} format-style="currency"
+                                currency-code="USD" minimum-fraction-digits="0"
+                                maximum-fraction-digits="0"></lightning-formatted-number>
+                            <span> of </span>
+                            <lightning-formatted-number value={creditLimitFormatted} format-style="currency"
+                                currency-code="USD" minimum-fraction-digits="0"
+                                maximum-fraction-digits="0"></lightning-formatted-number>
+                        </div>
+                    </div>
+
+                    <template lwc:if={hasAging}>
+                        <div class="aging-section">
+                            <p class="aging-title">Aging Breakdown</p>
+                            <div class="aging-bar-track">
+                                <template for:each={agingBuckets} for:item="bucket">
+                                    <template lwc:if={bucket.hasAmount}>
+                                        <div key={bucket.key} class={bucket.colorClass} style={bucket.style}></div>
+                                    </template>
+                                </template>
                             </div>
-                        </template>
-                    </div>
+                            <div class="aging-labels">
+                                <template for:each={agingBuckets} for:item="bucket">
+                                    <div key={bucket.key} class="aging-label-item">
+                                        <span class={bucket.colorClass}></span>
+                                        <span class="aging-label-text">{bucket.label}</span>
+                                        <span class="aging-label-amount">
+                                            <lightning-formatted-number value={bucket.amount}
+                                                format-style="currency" currency-code="USD"
+                                                minimum-fraction-digits="0"
+                                                maximum-fraction-digits="0"
+                                                notation="compact"></lightning-formatted-number>
+                                        </span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
                 </div>
-            </template>
+            </div>
 
             <!-- ═══ INFO STRIP ═══ -->
             <div class="info-strip">

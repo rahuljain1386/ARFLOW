@@ -58,8 +58,11 @@ public with sharing class ARF_AgentController {
 
             // Reconstruct conversation history
             List<Map<String, Object>> messages = new List<Map<String, Object>>();
-            if (String.isNotBlank(conversationJson)) {
-                messages = (List<Map<String, Object>>) JSON.deserializeUntyped(conversationJson);
+            if (String.isNotBlank(conversationJson) && conversationJson != '[]') {
+                List<Object> rawList = (List<Object>) JSON.deserializeUntyped(conversationJson);
+                for (Object item : rawList) {
+                    messages.add((Map<String, Object>) item);
+                }
             }
 
             // Append new user message
@@ -71,9 +74,15 @@ public with sharing class ARF_AgentController {
             // Tool-calling loop
             List<ARF_AgentService.ToolResult> toolResults = new List<ARF_AgentService.ToolResult>();
             String finalText = '';
+            Boolean didDML = false;
 
             for (Integer i = 0; i < MAX_TOOL_ITERATIONS; i++) {
-                Map<String, Object> apiResponse = callClaudeAPI(systemPrompt, messages, tools);
+                // After DML, we can't make more callouts — break and use tool results
+                Map<String, Object> apiResponse;
+                if (didDML) {
+                    break;
+                }
+                apiResponse = callClaudeAPI(systemPrompt, messages, tools);
 
                 String stopReason = (String) apiResponse.get('stop_reason');
                 List<Object> contentBlocks = (List<Object>) apiResponse.get('content');
@@ -120,10 +129,16 @@ public with sharing class ARF_AgentController {
                         escalateToHuman(accountId, chatSessionId, reason, conversationJson);
                         response.escalated = true;
                         response.actions.add(new ActionCard('escalation', 'Escalated to Human Agent', JSON.serialize(new Map<String, String>{ 'reason' => reason })));
+                        didDML = true;
                     }
 
                     ARF_AgentService.ToolResult result = ARF_AgentService.executeTool(toolName, toolArgs, accountId, uType);
                     toolResults.add(result);
+
+                    // Track DML-causing tools so we don't attempt another callout
+                    if (result.actionType == 'action' || result.actionType == 'escalation') {
+                        didDML = true;
+                    }
 
                     // Build action cards for non-data results
                     if (result.actionType == 'action' && result.displayMessage != null) {
@@ -149,6 +164,17 @@ public with sharing class ARF_AgentController {
                     'role' => 'user',
                     'content' => toolResultContent
                 });
+            }
+
+            // If DML happened and we couldn't get a final text from Claude, build from tool results
+            if (String.isBlank(finalText) && !toolResults.isEmpty()) {
+                List<String> summaries = new List<String>();
+                for (ARF_AgentService.ToolResult tr : toolResults) {
+                    if (String.isNotBlank(tr.displayMessage)) {
+                        summaries.add(tr.displayMessage);
+                    }
+                }
+                finalText = summaries.isEmpty() ? 'Done.' : String.join(summaries, '\n');
             }
 
             response.message = finalText;
@@ -253,16 +279,18 @@ public with sharing class ARF_AgentController {
         String base;
 
         if (userType == ARF_AgentService.AgentUserType.COLLECTOR) {
-            base = 'You are an AI assistant for AR Flow, an accounts receivable collections platform. '
+            base = 'You are an AI assistant for Inqulo, an accounts receivable collections platform. '
                 + 'You are helping a COLLECTOR manage their accounts. You have access to tools for querying account data, '
                 + 'creating disputes, logging promises to pay, drafting emails, and more.\n\n'
                 + 'Guidelines:\n'
                 + '- Always use the account_id parameter: ' + accountId + '\n'
                 + '- When the user references an invoice by number (e.g., INV-001), use that as the invoice_document_number.\n'
-                + '- For email drafts, create a preview — never auto-send.\n'
+                + '- For email drafts, ALWAYS use templates: (1) call get_email_templates to list available templates, (2) call draft_email with template_id and invoice_document_numbers — the template is auto-resolved with merge fields. Only 2 tool calls needed. Never compose email body from scratch.\n'
                 + '- If you cannot help with a request, offer to escalate to a human.\n'
                 + '- Be concise and professional. Format currency amounts and dates clearly.\n'
-                + '- When showing data, summarize key points rather than dumping raw JSON.';
+                + '- When showing data, summarize key points rather than dumping raw JSON.\n'
+                + '- Do NOT use markdown formatting (no **bold**, *italic*, or ### headers). Use plain text only.\n'
+                + '- Answer only what the user asked. Do not repeat information you already provided in earlier messages.';
         } else {
             base = 'You are an AI assistant for a customer payment portal. '
                 + 'You are helping a CUSTOMER understand their invoices and make payments.\n\n'
@@ -271,7 +299,9 @@ public with sharing class ARF_AgentController {
                 + '- Never reveal internal data like risk scores, collection strategies, or internal notes.\n'
                 + '- You can help customers view invoices, check payment history, file disputes, and set up payment promises.\n'
                 + '- If you cannot help, escalate to a human agent.\n'
-                + '- Be friendly, helpful, and concise. Format currency amounts and dates clearly.';
+                + '- Be friendly, helpful, and concise. Format currency amounts and dates clearly.\n'
+                + '- Do NOT use markdown formatting (no **bold**, *italic*, or ### headers). Use plain text only.\n'
+                + '- Answer only what the user asked. Do not repeat information you already provided in earlier messages.';
         }
 
         return base;

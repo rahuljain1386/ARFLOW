@@ -1,0 +1,180 @@
+<template>
+    <div class="dashboard">
+
+        <!-- Header -->
+        <div class="dash-header">
+            <div>
+                <h1 class="dash-title">Inqulo Dashboard</h1>
+                <p class="dash-subtitle">Real-time accounts receivable overview</p>
+            </div>
+            <lightning-button-icon icon-name="utility:refresh" onclick={handleRefresh}
+                alternative-text="Refresh" variant="border-filled" class="refresh-btn">
+            </lightning-button-icon>
+        </div>
+
+        <!-- Loading -->
+        <template lwc:if={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error -->
+        <template lwc:if={hasError}>
+            <div class="error-container">
+                <lightning-icon icon-name="utility:warning" size="small" class="slds-m-right_small"></lightning-icon>
+                <span>Unable to load dashboard data.</span>
+            </div>
+        </template>
+
+        <!-- Dashboard Content -->
+        <template lwc:if={hasData}>
+
+            <!-- KPI Cards -->
+            <div class="kpi-row">
+                <div class="kpi-card kpi-blue">
+                    <p class="kpi-label">TOTAL AR</p>
+                    <p class="kpi-value">
+                        <lightning-formatted-number value={data.totalAR} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="kpi-sub">{data.openInvoiceCount} open invoices</p>
+                </div>
+                <div class="kpi-card kpi-red">
+                    <p class="kpi-label">PAST DUE</p>
+                    <p class="kpi-value kpi-red-text">
+                        <lightning-formatted-number value={data.pastDue} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="kpi-sub">{data.overdueCount} overdue</p>
+                </div>
+                <div class="kpi-card kpi-orange">
+                    <p class="kpi-label">IN DISPUTE</p>
+                    <p class="kpi-value kpi-orange-text">
+                        <lightning-formatted-number value={data.inDispute} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="kpi-sub">{data.openDisputeCount} open</p>
+                </div>
+                <div class="kpi-card kpi-teal">
+                    <p class="kpi-label">PROMISED</p>
+                    <p class="kpi-value">
+                        <lightning-formatted-number value={data.promisedAmount} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="kpi-sub">{data.promiseCount} active</p>
+                </div>
+                <div class="kpi-card kpi-green">
+                    <p class="kpi-label">COLLECTED (MTD)</p>
+                    <p class="kpi-value kpi-green-text">
+                        <lightning-formatted-number value={data.paymentsThisMonth} format-style="currency"
+                            currency-code="USD" minimum-fraction-digits="0"
+                            maximum-fraction-digits="0"></lightning-formatted-number>
+                    </p>
+                    <p class="kpi-sub">this month</p>
+                </div>
+            </div>
+
+            <!-- Charts Row 1 -->
+            <div class="charts-row">
+
+                <!-- Top Accounts -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Top Accounts by AR Balance</h2>
+                    <div class="bar-chart">
+                        <template lwc:if={hasTopAccounts}>
+                            <template for:each={topAccountsComputed} for:item="acct">
+                                <div key={acct.accountId} class="bar-row">
+                                    <span class="bar-label" title={acct.accountName}>{acct.accountName}</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill" style={acct.barStyle}></div>
+                                    </div>
+                                    <span class="bar-value">{acct.formattedBalance}</span>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else>
+                            <p class="empty-state">No open invoices</p>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Aging Breakdown -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Aging Breakdown</h2>
+                    <div class="aging-chart">
+                        <div class="aging-donut" style={agingDonutStyle}></div>
+                        <div class="aging-center-label">
+                            <span class="aging-center-value">{agingTotalFormatted}</span>
+                            <span class="aging-center-sub">Total</span>
+                        </div>
+                        <div class="aging-legend">
+                            <template for:each={agingComputed} for:item="bucket">
+                                <div key={bucket.label} class="aging-legend-item">
+                                    <span class="aging-dot" style={bucket.dotStyle}></span>
+                                    <span class="aging-legend-label">{bucket.label}</span>
+                                    <span class="aging-legend-value">{bucket.formattedAmount}</span>
+                                    <span class="aging-legend-pct">{bucket.pct}%</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2 -->
+            <div class="charts-row">
+
+                <!-- Payment Trend -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Payment Trend (6 Months)</h2>
+                    <template lwc:if={hasPaymentTrend}>
+                        <div class="column-chart">
+                            <template for:each={paymentTrendComputed} for:item="month">
+                                <div key={month.label} class="column-item">
+                                    <span class="column-value">{month.formattedAmount}</span>
+                                    <div class="column-bar-wrapper">
+                                        <div class="column-bar" style={month.barStyle}></div>
+                                    </div>
+                                    <span class="column-label">{month.label}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <p class="empty-state">No payment data</p>
+                    </template>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Recent Activity</h2>
+                    <div class="activity-feed">
+                        <template lwc:if={hasActivity}>
+                            <template for:each={data.recentActivity} for:item="item">
+                                <div key={item.id} class="activity-item">
+                                    <div class="activity-icon-wrap">
+                                        <lightning-icon icon-name={item.icon} size="xx-small"
+                                            class="activity-icon"></lightning-icon>
+                                    </div>
+                                    <div class="activity-content">
+                                        <p class="activity-desc">{item.description}</p>
+                                        <p class="activity-time">{item.timeAgo}</p>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else>
+                            <p class="empty-state">No recent activity</p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+        </template>
+    </div>
+</template>

@@ -673,4 +673,109 @@ private class ARF_Account360ControllerTest {
         }
         Test.stopTest();
     }
+
+    // ===== Translation Tests =====
+
+    private class MockClaudeTranslation implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setStatusCode(200);
+            res.setHeader('Content-Type', 'application/json');
+            res.setBody('{"id":"msg_test","type":"message","content":[{"type":"text","text":"' +
+                '{\\"translated_subject\\":\\"I dispute invoice INV-001\\",' +
+                '\\"translated_body\\":\\"We are disputing the charges on INV-001.\\"}' +
+                '"}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}');
+            return res;
+        }
+    }
+
+    @isTest
+    static void testTranslateCommunication() {
+        ARF_AI_Config__c config = ARF_AI_Config__c.getOrgDefaults();
+        config.API_Key__c = 'test-key';
+        upsert config;
+
+        Id acctId = [SELECT Id FROM Account LIMIT 1].Id;
+        ARF_Communication__c comm = new ARF_Communication__c(
+            Account__c = acctId,
+            Channel__c = 'Email',
+            Direction__c = 'Inbound',
+            Subject__c = 'Disputo la factura INV-001',
+            Body__c = 'Estamos disputando los cargos en INV-001.',
+            Detected_Language__c = 'es',
+            Detected_Language_Name__c = 'Spanish',
+            Status__c = 'Received',
+            Sent_Date__c = Datetime.now()
+        );
+        insert comm;
+
+        Test.setMock(HttpCalloutMock.class, new MockClaudeTranslation());
+        Test.startTest();
+        ARF_Communication__c result = ARF_Account360Controller.translateCommunication(comm.Id);
+        Test.stopTest();
+
+        System.assertNotEquals(null, result.Translated_Body__c, 'Translated body should be populated');
+        System.assertNotEquals(null, result.Translated_Subject__c, 'Translated subject should be populated');
+    }
+
+    @isTest
+    static void testTranslateCommunicationCached() {
+        Id acctId = [SELECT Id FROM Account LIMIT 1].Id;
+        ARF_Communication__c comm = new ARF_Communication__c(
+            Account__c = acctId,
+            Channel__c = 'Email',
+            Direction__c = 'Inbound',
+            Subject__c = 'Test',
+            Body__c = 'Test body',
+            Detected_Language__c = 'es',
+            Translated_Body__c = 'Already translated',
+            Translated_Subject__c = 'Already translated subject',
+            Status__c = 'Received',
+            Sent_Date__c = Datetime.now()
+        );
+        insert comm;
+
+        Test.startTest();
+        ARF_Communication__c result = ARF_Account360Controller.translateCommunication(comm.Id);
+        Test.stopTest();
+
+        System.assertEquals('Already translated', result.Translated_Body__c);
+    }
+
+    @isTest
+    static void testTranslateCommunicationEnglish() {
+        Id acctId = [SELECT Id FROM Account LIMIT 1].Id;
+        ARF_Communication__c comm = new ARF_Communication__c(
+            Account__c = acctId,
+            Channel__c = 'Email',
+            Direction__c = 'Inbound',
+            Subject__c = 'English email',
+            Body__c = 'This is in English',
+            Detected_Language__c = 'en',
+            Status__c = 'Received',
+            Sent_Date__c = Datetime.now()
+        );
+        insert comm;
+
+        Test.startTest();
+        try {
+            ARF_Account360Controller.translateCommunication(comm.Id);
+            System.assert(false, 'Should have thrown exception for English content');
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e.getMessage());
+        }
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testTranslateCommunicationNullId() {
+        Test.startTest();
+        try {
+            ARF_Account360Controller.translateCommunication(null);
+            System.assert(false, 'Should have thrown exception');
+        } catch (AuraHandledException e) {
+            System.assertNotEquals(null, e.getMessage());
+        }
+        Test.stopTest();
+    }
 }

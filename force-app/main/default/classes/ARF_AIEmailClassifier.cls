@@ -10,7 +10,8 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
         ARF_Communication__c comm = [
             SELECT Id, Account__c, Subject__c, Body__c, From_Address__c,
                    Match_Method__c, Match_Confidence__c, Needs_Review__c,
-                   Thread_ID__c, Channel__c
+                   Thread_ID__c, Channel__c,
+                   Detected_Language__c, Detected_Language_Name__c
             FROM ARF_Communication__c
             WHERE Id = :communicationId
             LIMIT 1
@@ -32,9 +33,19 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
             intent = normalizeIntent((String) parsed.get('intent'));
             summary = (String) parsed.get('summary');
 
+            // Language detection
+            String languageCode = (String) parsed.get('language_code');
+            String languageName = (String) parsed.get('language_name');
+
             // Update communication record
             comm.AI_Intent__c = intent;
             comm.AI_Drafted__c = true;
+            if (String.isNotBlank(languageCode)) {
+                comm.Detected_Language__c = languageCode.left(10);
+            }
+            if (String.isNotBlank(languageName)) {
+                comm.Detected_Language_Name__c = languageName.left(50);
+            }
             update comm;
         } catch (Exception e) {
             System.debug(LoggingLevel.ERROR, 'ARF_AIEmailClassifier parse error: ' + e.getMessage());
@@ -85,7 +96,9 @@ public class ARF_AIEmailClassifier implements Queueable, Database.AllowsCallouts
             '    "reference_numbers": []\n' +
             '  },\n' +
             '  "suggested_action": "description of recommended action",\n' +
-            '  "summary": "one line summary"\n' +
+            '  "summary": "one line summary",\n' +
+            '  "language_code": "ISO 639-1 code of the email language (e.g., en, es, fr, de, zh, ja, pt, ar, ko)",\n' +
+            '  "language_name": "full name of the detected language (e.g., English, Spanish, French)"\n' +
             '}\n\n' +
             'Extract ALL invoice numbers (INV-XXXX), PO numbers (PO-XXXX), company/account names, ' +
             'and reference numbers mentioned in the email.\n\n' +

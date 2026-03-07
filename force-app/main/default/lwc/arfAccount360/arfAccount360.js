@@ -31,6 +31,7 @@ export default class ArfAccount360 extends LightningElement {
 
     @track refreshKey = 0;
     @track tabCounts = {};
+    @track agentDraft = null;
 
     connectedCallback() {
         this.loadTabCounts();
@@ -110,5 +111,16 @@ export default class ArfAccount360 extends LightningElement {
     handleChildRecordCreated() {
         this.refreshKey++;
         this.loadTabCounts();
+    }
+
+    handleAgentDraftEmail(event) {
+        // Switch to Communications tab and open compose modal with draft data
+        this.agentDraft = {
+            to: event.detail.to || '',
+            subject: event.detail.subject || '',
+            body: event.detail.body || '',
+            timestamp: Date.now()
+        };
+        this.activeTab = 'emails';
     }
 }

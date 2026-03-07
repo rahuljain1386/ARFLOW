@@ -4,6 +4,6 @@ private class ARF_HelloWorldTest {
     static void testGreeting() {
         String result = ARF_HelloWorld.getGreeting();
         System.assertNotEquals(null, result, 'Should return greeting');
-        System.assert(result.contains('AR Flow'), 'Should mention AR Flow');
+        System.assert(result.contains('Inqulo'), 'Should mention Inqulo');
     }
 }

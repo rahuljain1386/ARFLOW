@@ -96,7 +96,7 @@ private class ARF_TwilioServiceTest {
 
         Test.setMock(HttpCalloutMock.class, new MockTwilioSmsSuccess());
         Test.startTest();
-        Id commId = ARF_TwilioService.sendSmsWithRecord('+14155551234', 'Hello from AR Flow', acct.Id, con.Id);
+        Id commId = ARF_TwilioService.sendSmsWithRecord('+14155551234', 'Hello from Inqulo', acct.Id, con.Id);
         Test.stopTest();
 
         ARF_Communication__c comm = [

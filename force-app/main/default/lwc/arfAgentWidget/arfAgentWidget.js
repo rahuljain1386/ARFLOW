@@ -32,7 +32,7 @@ export default class ArfAgentWidget extends LightningElement {
     }
 
     get panelTitle() {
-        return this.isCollector ? 'AR Flow Assistant' : 'Support Assistant';
+        return this.isCollector ? 'Inqulo Assistant' : 'Support Assistant';
     }
 
     get welcomeMessage() {

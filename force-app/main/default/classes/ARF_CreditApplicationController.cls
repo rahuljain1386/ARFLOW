@@ -1,4 +1,4 @@
-public with sharing class ARF_CreditApplicationController {
+public without sharing class ARF_CreditApplicationController {
 
     // ===== STAFF-SIDE: LIST & MANAGE APPLICATIONS =====
 
@@ -185,6 +185,30 @@ public with sharing class ARF_CreditApplicationController {
         if (!contacts.isEmpty()) {
             insert contacts;
         }
+    }
+
+    // ===== EXTERNAL FORM: GUEST APPLICATION =====
+
+    @AuraEnabled
+    public static Map<String, Object> createGuestApplication() {
+        String token = generateToken();
+        ARF_Credit_Application__c app = new ARF_Credit_Application__c(
+            Status__c = 'Draft',
+            Legal_Name__c = 'New Application',
+            Access_Token__c = token,
+            Token_Expiry__c = Datetime.now().addDays(30)
+        );
+        insert app;
+
+        Map<String, Object> result = new Map<String, Object>();
+        result.put('token', token);
+        result.put('applicationId', app.Id);
+        return result;
+    }
+
+    private static String generateToken() {
+        Blob b = Crypto.generateAesKey(128);
+        return EncodingUtil.convertToHex(b);
     }
 
     // ===== EXTERNAL FORM: LOAD & SAVE BY TOKEN =====

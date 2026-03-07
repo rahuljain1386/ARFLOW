@@ -2,6 +2,7 @@ import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import loadApplicationByToken from '@salesforce/apex/ARF_CreditApplicationController.loadApplicationByToken';
 import saveApplicationStep from '@salesforce/apex/ARF_CreditApplicationController.saveApplicationStep';
+import createGuestApplication from '@salesforce/apex/ARF_CreditApplicationController.createGuestApplication';
 
 const US_STATES = [
     { label: 'Alabama', value: 'AL' }, { label: 'Alaska', value: 'AK' },
@@ -236,7 +237,33 @@ export default class ArfCreditApplication extends LightningElement {
             this.loginToken = this.token;
             this.showLoginPage = false;
             this.loadApplication();
+        } else {
+            // Guest user — create a new blank application directly
+            this.startNewApplication();
         }
+    }
+
+    startNewApplication() {
+        this.isLoading = true;
+        this.showLoginPage = false;
+        createGuestApplication()
+            .then(result => {
+                this.token = result.token;
+                this.loginToken = result.token;
+                this.applicationId = result.applicationId;
+                this.currentStep = 1;
+                this.isLoading = false;
+            })
+            .catch(error => {
+                let msg = 'Failed to start application';
+                if (error.body && error.body.message) msg = error.body.message;
+                else if (error.message) msg = error.message;
+                else if (typeof error === 'string') msg = error;
+                else msg = JSON.stringify(error);
+                this.loginError = msg;
+                this.showLoginPage = true;
+                this.isLoading = false;
+            });
     }
 
     renderedCallback() {

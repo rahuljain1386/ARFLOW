@@ -4,9 +4,9 @@
         <application>ARF_AR_Flow</application>
         <visible>true</visible>
     </applicationVisibilities>
-    <description>Grants full access to AR Flow: application, tabs, objects, and all fields</description>
+    <description>Grants full access to Inqulo: application, tabs, objects, and all fields</description>
     <hasActivationRequired>false</hasActivationRequired>
-    <label>AR Flow User</label>
+    <label>Inqulo User</label>
 
     <!-- ===== Object Permissions ===== -->
     <objectPermissions>
@@ -963,6 +963,28 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>ARF_Communication__c.Total_Balance__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+
+    <!-- ===== ARF_Communication__c Translation Fields ===== -->
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Detected_Language__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Detected_Language_Name__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Translated_Body__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>ARF_Communication__c.Translated_Subject__c</field>
         <readable>true</readable>
     </fieldPermissions>
 

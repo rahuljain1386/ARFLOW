@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import getCommunications from '@salesforce/apex/ARF_Account360Controller.getCommunications';
 import getAttachmentsForCommunication from '@salesforce/apex/ARF_Account360Controller.getAttachmentsForCommunication';
+import translateCommunication from '@salesforce/apex/ARF_Account360Controller.translateCommunication';
 
 const CHANNEL_OPTIONS = [
     { label: 'All Channels', value: 'All' },
@@ -21,6 +22,8 @@ export default class ArfAccount360Emails extends LightningElement {
 
     expandedCommId = null;
     @track expandedAttachments = [];
+    translatingCommId = null;
+    showTranslatedMap = {};
 
     // Reply / Forward / Compose modal
     showComposeModal = false;
@@ -40,6 +43,21 @@ export default class ArfAccount360Emails extends LightningElement {
         }
     }
 
+    _agentDraft = null;
+    @api
+    get agentDraft() { return this._agentDraft; }
+    set agentDraft(value) {
+        this._agentDraft = value;
+        if (value) {
+            this.composePrefillTo = value.to || '';
+            this.composePrefillCc = '';
+            this.composePrefillSubject = value.subject || '';
+            this.composePrefillBody = value.body || '';
+            this.composeReplyMode = true;
+            this.showComposeModal = true;
+        }
+    }
+
     connectedCallback() {
         this.loadCommunications();
     }
@@ -47,18 +65,36 @@ export default class ArfAccount360Emails extends LightningElement {
     async loadCommunications() {
         try {
             const data = await getCommunications({ accountId: this.recordId });
-            this.allCommunications = data.map(c => ({
-                ...c,
-                commUrl: '/' + c.Id,
-                contactName: c.Contact__r ? c.Contact__r.Name : '',
-                directionClass: c.Direction__c === 'Inbound' ? 'direction-inbound' : 'direction-outbound',
-                directionLabel: c.Direction__c === 'Inbound' ? 'IN' : 'OUT',
-                channelIcon: this.getChannelIcon(c.Channel__c),
-                isExpanded: c.Id === this.expandedCommId,
-                hasAttachment: c.Has_Attachment__c || false,
-                formattedDate: c.Sent_Date__c ? new Date(c.Sent_Date__c).toLocaleString() : '',
-                bodyPreview: c.HTML_Body__c || c.Body__c || ''
-            }));
+            this.allCommunications = data.map(c => {
+                const isNonEnglish = c.Detected_Language__c && c.Detected_Language__c !== 'en';
+                const showTranslated = this.showTranslatedMap[c.Id] || false;
+                const hasTranslation = !!c.Translated_Body__c;
+                return {
+                    ...c,
+                    commUrl: '/' + c.Id,
+                    contactName: c.Contact__r ? c.Contact__r.Name : '',
+                    directionClass: c.Direction__c === 'Inbound' ? 'direction-inbound' : 'direction-outbound',
+                    directionLabel: c.Direction__c === 'Inbound' ? 'IN' : 'OUT',
+                    channelIcon: this.getChannelIcon(c.Channel__c),
+                    isExpanded: c.Id === this.expandedCommId,
+                    hasAttachment: c.Has_Attachment__c || false,
+                    formattedDate: c.Sent_Date__c ? new Date(c.Sent_Date__c).toLocaleString() : '',
+                    bodyPreview: (showTranslated && c.Translated_Body__c)
+                        ? c.Translated_Body__c : (c.HTML_Body__c || c.Body__c || ''),
+                    isNonEnglish,
+                    languageBadge: c.Detected_Language_Name__c || c.Detected_Language__c || null,
+                    hasTranslation,
+                    showTranslated,
+                    isTranslating: this.translatingCommId === c.Id,
+                    displaySubject: (showTranslated && c.Translated_Subject__c)
+                        ? c.Translated_Subject__c : (c.Subject__c || ''),
+                    translateButtonLabel: hasTranslation
+                        ? (showTranslated
+                            ? 'Show Original (' + (c.Detected_Language_Name__c || c.Detected_Language__c) + ')'
+                            : 'Show Translation (English)')
+                        : 'Translate to English'
+                };
+            });
             this.applyFilter();
             this.error = undefined;
         } catch (error) {
@@ -122,6 +158,72 @@ export default class ArfAccount360Emails extends LightningElement {
             ...c,
             isExpanded: c.Id === this.expandedCommId
         }));
+        this.applyFilter();
+    }
+
+    async handleTranslate(event) {
+        event.stopPropagation();
+        const commId = event.currentTarget.dataset.id;
+        const comm = this.allCommunications.find(c => c.Id === commId);
+
+        // If already translated, toggle view
+        if (comm && comm.hasTranslation) {
+            this.showTranslatedMap = {
+                ...this.showTranslatedMap,
+                [commId]: !this.showTranslatedMap[commId]
+            };
+            this.refreshDisplayData();
+            return;
+        }
+
+        // Call API to translate
+        this.translatingCommId = commId;
+        this.refreshDisplayData();
+        try {
+            const result = await translateCommunication({ communicationId: commId });
+            this.allCommunications = this.allCommunications.map(c => {
+                if (c.Id === commId) {
+                    return {
+                        ...c,
+                        Translated_Body__c: result.Translated_Body__c || '',
+                        Translated_Subject__c: result.Translated_Subject__c || '',
+                        hasTranslation: true
+                    };
+                }
+                return c;
+            });
+            this.showTranslatedMap = {
+                ...this.showTranslatedMap,
+                [commId]: true
+            };
+        } catch (error) {
+            console.error('Translation error:', error);
+        } finally {
+            this.translatingCommId = null;
+            this.refreshDisplayData();
+        }
+    }
+
+    refreshDisplayData() {
+        this.allCommunications = this.allCommunications.map(c => {
+            const showTranslated = this.showTranslatedMap[c.Id] || false;
+            const hasTranslation = !!c.Translated_Body__c;
+            return {
+                ...c,
+                showTranslated,
+                hasTranslation,
+                isTranslating: this.translatingCommId === c.Id,
+                bodyPreview: (showTranslated && c.Translated_Body__c)
+                    ? c.Translated_Body__c : (c.HTML_Body__c || c.Body__c || ''),
+                displaySubject: (showTranslated && c.Translated_Subject__c)
+                    ? c.Translated_Subject__c : (c.Subject__c || ''),
+                translateButtonLabel: hasTranslation
+                    ? (showTranslated
+                        ? 'Show Original (' + (c.Detected_Language_Name__c || c.Detected_Language__c) + ')'
+                        : 'Show Translation (English)')
+                    : 'Translate to English'
+            };
+        });
         this.applyFilter();
     }
 

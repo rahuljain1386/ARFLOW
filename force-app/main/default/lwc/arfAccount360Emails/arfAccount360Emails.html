@@ -30,7 +30,10 @@
                         <div class="comm-row-summary" data-id={comm.Id} onclick={handleRowClick}>
                             <span class={comm.directionClass}>{comm.directionLabel}</span>
                             <lightning-icon icon-name={comm.channelIcon} size="xx-small" class="comm-channel-icon"></lightning-icon>
-                            <span class="comm-subject" title={comm.Subject__c}>{comm.Subject__c}</span>
+                            <span class="comm-subject" title={comm.displaySubject}>{comm.displaySubject}</span>
+                            <template lwc:if={comm.isNonEnglish}>
+                                <span class="lang-badge" title={comm.languageBadge}>{comm.languageBadge}</span>
+                            </template>
                             <span class="comm-contact">{comm.contactName}</span>
                             <template lwc:if={comm.hasAttachment}>
                                 <lightning-icon icon-name="utility:attach" size="xx-small" class="comm-attach-icon" alternative-text="Has attachment"></lightning-icon>
@@ -70,6 +73,23 @@
                                         <span><b>CC:</b> {comm.CC_Addresses__c}</span>
                                     </template>
                                 </div>
+                                <!-- Translation Bar -->
+                                <template lwc:if={comm.isNonEnglish}>
+                                    <div class="comm-translation-bar" onclick={stopPropagation}>
+                                        <lightning-button
+                                            label={comm.translateButtonLabel}
+                                            icon-name="utility:world"
+                                            variant="neutral"
+                                            data-id={comm.Id}
+                                            onclick={handleTranslate}
+                                            disabled={comm.isTranslating}
+                                            class="translate-btn">
+                                        </lightning-button>
+                                        <template lwc:if={comm.showTranslated}>
+                                            <span class="translation-indicator">Showing English translation</span>
+                                        </template>
+                                    </div>
+                                </template>
                                 <!-- Attachments -->
                                 <template lwc:if={hasExpandedAttachments}>
                                     <div class="comm-attachments">

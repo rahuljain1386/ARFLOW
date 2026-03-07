@@ -3,6 +3,11 @@ private class ARF_AgentControllerTest {
 
     // ─── Mock HTTP Callouts ─────────────────────────────────────────────
 
+    // Static call counter — persists across mock invocations within the same test
+    private static Integer sMockCallCount = 0;
+    private static String sFirstResponse;
+    private static String sSecondResponse;
+
     private class MockClaudeSimpleResponse implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
@@ -13,20 +18,16 @@ private class ARF_AgentControllerTest {
         }
     }
 
-    private class MockClaudeWithToolCall implements HttpCalloutMock {
-        private Integer callCount = 0;
+    private class MockClaudeMultiTurn implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             HttpResponse res = new HttpResponse();
             res.setStatusCode(200);
             res.setHeader('Content-Type', 'application/json');
-
-            callCount++;
-            if (callCount == 1) {
-                // First call: agent wants to use a tool
-                res.setBody('{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_01","name":"get_disputes","input":{"account_id":"001000000000001"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}');
+            ARF_AgentControllerTest.sMockCallCount++;
+            if (ARF_AgentControllerTest.sMockCallCount == 1) {
+                res.setBody(ARF_AgentControllerTest.sFirstResponse);
             } else {
-                // Second call: agent responds with final text
-                res.setBody('{"id":"msg_2","type":"message","content":[{"type":"text","text":"There are no disputes on this account."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}');
+                res.setBody(ARF_AgentControllerTest.sSecondResponse);
             }
             return res;
         }
@@ -39,6 +40,13 @@ private class ARF_AgentControllerTest {
             res.setBody('Internal Server Error');
             return res;
         }
+    }
+
+    private static void setupMultiTurnMock(String first, String second) {
+        ARF_AgentControllerTest.sMockCallCount = 0;
+        ARF_AgentControllerTest.sFirstResponse = first;
+        ARF_AgentControllerTest.sSecondResponse = second;
+        Test.setMock(HttpCalloutMock.class, new MockClaudeMultiTurn());
     }
 
     // ─── Test Setup ─────────────────────────────────────────────────────
@@ -91,7 +99,10 @@ private class ARF_AgentControllerTest {
     static void testSendMessage_WithToolCall() {
         Account acct = [SELECT Id FROM Account LIMIT 1];
 
-        Test.setMock(HttpCalloutMock.class, new MockClaudeWithToolCall());
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_01","name":"get_disputes","input":{"account_id":"' + acct.Id + '"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"There are no disputes on this account."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
         Test.startTest();
         ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
             acct.Id,
@@ -237,5 +248,147 @@ private class ARF_AgentControllerTest {
         System.assertEquals('action', card.cardType);
         System.assertEquals('Dispute created', card.title);
         System.assertEquals('{"id":"001"}', card.dataJson);
+    }
+
+    // ─── Additional Coverage Tests ──────────────────────────────────────
+
+    @isTest
+    static void testSendMessage_WithActionToolCall() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_02","name":"create_note","input":{"account_id":"' + acct.Id + '","subject":"Test Note","body":"Created by agent"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"I have created the note for you."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Create a note', '[]', 'collector', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+        System.assert(response.actions.size() > 0, 'Should have action cards');
+        System.assertEquals('action', response.actions[0].cardType);
+    }
+
+    @isTest
+    static void testSendMessage_WithDraftEmail() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_03","name":"draft_email","input":{"account_id":"' + acct.Id + '","to_address":"cust@test.com","subject":"Payment Reminder","body":"Please pay"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"Here is your email draft."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Draft an email', '[]', 'collector', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+        System.assert(response.actions.size() > 0, 'Should have draft email card');
+        System.assertEquals('draft_email', response.actions[0].cardType);
+    }
+
+    @isTest
+    static void testSendMessage_WithEscalationTool() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_04","name":"escalate_to_human","input":{"account_id":"' + acct.Id + '","reason":"Customer wants a manager"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"I have escalated your request."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'I want to speak to a human', '[]', 'collector', 'CHAT-ESC-TOOL'
+        );
+        Test.stopTest();
+
+        // escalateToHuman does DML, so the 2nd callout hits callout-after-DML
+        // but the escalation DML and action cards are set before the 2nd callout attempt
+        System.assertNotEquals(null, response);
+        System.assertNotEquals(null, response.message);
+
+        // Verify escalation DML completed (Task + Communication created)
+        List<Task> tasks = [SELECT Id FROM Task WHERE WhatId = :acct.Id AND ARF_Task_Type__c = 'Chat Escalation'];
+        System.assertEquals(1, tasks.size(), 'Escalation task should be created');
+
+        List<ARF_Communication__c> comms = [SELECT Id FROM ARF_Communication__c WHERE Account__c = :acct.Id AND Channel__c = 'Chat' AND Status__c = 'Escalated'];
+        System.assertEquals(1, comms.size(), 'Escalation communication should be created');
+    }
+
+    @isTest
+    static void testSendMessage_WithTextAndToolMixed() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"text","text":"Let me look that up."},{"type":"tool_use","id":"toolu_06","name":"get_disputes","input":{"account_id":"' + acct.Id + '"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"No disputes found."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Show disputes', '[]', 'collector', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+    }
+
+    @isTest
+    static void testSendMessage_NullConversationJson() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        Test.setMock(HttpCalloutMock.class, new MockClaudeSimpleResponse());
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Hello', null, 'collector', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+    }
+
+    @isTest
+    static void testSendMessage_EmptyConversationJson() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        Test.setMock(HttpCalloutMock.class, new MockClaudeSimpleResponse());
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Hello', '', 'collector', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+    }
+
+    @isTest
+    static void testSendMessage_CustomerPermissionDeniedTool() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        // Mock returns get_invoices which is collector-only — customer will get permission denied error tool result
+        String first = '{"id":"msg_1","type":"message","content":[{"type":"tool_use","id":"toolu_05","name":"get_invoices","input":{"account_id":"' + acct.Id + '"}}],"model":"claude-sonnet-4-20250514","stop_reason":"tool_use"}';
+        String second = '{"id":"msg_2","type":"message","content":[{"type":"text","text":"I could not retrieve the invoices."}],"model":"claude-sonnet-4-20250514","stop_reason":"end_turn"}';
+
+        setupMultiTurnMock(first, second);
+        Test.startTest();
+        ARF_AgentController.AgentResponse response = ARF_AgentController.sendMessage(
+            acct.Id, 'Show invoices', '[]', 'customer', null
+        );
+        Test.stopTest();
+
+        System.assertNotEquals(null, response.message);
+    }
+
+    @isTest
+    static void testEscalateToHuman_NullTranscript() {
+        Account acct = [SELECT Id FROM Account LIMIT 1];
+
+        Test.startTest();
+        ARF_AgentController.escalateToHuman(acct.Id, 'CHAT-NULL', 'Test reason', null);
+        Test.stopTest();
+
+        ARF_Communication__c comm = [SELECT Body__c FROM ARF_Communication__c WHERE Account__c = :acct.Id AND Channel__c = 'Chat' LIMIT 1];
+        System.assert(comm.Body__c.contains('No transcript available'));
     }
 }

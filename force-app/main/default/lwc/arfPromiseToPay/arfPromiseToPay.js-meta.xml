@@ -2,7 +2,7 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>AR Flow Promise to Pay</masterLabel>
+    <masterLabel>Inqulo Promise to Pay</masterLabel>
     <description>Record and track payment promises with installment support</description>
     <targets>
         <target>lightning__RecordPage</target>

@@ -4,12 +4,12 @@
         <headerColor>#0070D2</headerColor>
         <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
     </brand>
-    <description>AR Flow — Invoice-to-Cash collections management suite</description>
+    <description>Inqulo — Invoice-to-Cash finance &amp; accounting suite</description>
     <formFactors>Large</formFactors>
     <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
     <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
     <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
-    <label>AR Flow</label>
+    <label>Inqulo</label>
     <navType>Standard</navType>
     <profileActionOverrides>
         <actionName>View</actionName>
