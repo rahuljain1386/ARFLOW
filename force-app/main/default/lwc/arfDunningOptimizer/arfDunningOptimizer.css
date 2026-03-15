@@ -1,0 +1,256 @@
+/* KPI Cards */
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.kpi-card--highlight {
+    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+    color: #ffffff;
+    border: none;
+}
+
+.kpi-card--highlight .kpi-label,
+.kpi-card--highlight .kpi-sublabel {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #706e6b;
+    margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.kpi-sublabel {
+    font-size: 0.7rem;
+    color: #969492;
+}
+
+/* Chart */
+.chart-container {
+    background: #fafaf9;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.chart-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.chart-row:last-child {
+    margin-bottom: 0;
+}
+
+.chart-label {
+    width: 80px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    flex-shrink: 0;
+}
+
+.chart-bar-container {
+    flex: 1;
+    background: #e0e5ee;
+    border-radius: 4px;
+    height: 28px;
+    margin: 0 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-bar {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    transition: width 0.6s ease;
+    min-width: 40px;
+}
+
+.chart-bar--email {
+    background: linear-gradient(90deg, #1565c0, #42a5f5);
+}
+
+.chart-bar--sms {
+    background: linear-gradient(90deg, #2e7d32, #66bb6a);
+}
+
+.chart-bar--phone {
+    background: linear-gradient(90deg, #e65100, #ff9800);
+}
+
+.chart-bar--ai-voice {
+    background: linear-gradient(90deg, #6a1b9a, #ab47bc);
+}
+
+.chart-bar--default {
+    background: linear-gradient(90deg, #546e7a, #90a4ae);
+}
+
+.chart-bar-text {
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.chart-amount {
+    width: 90px;
+    text-align: right;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    flex-shrink: 0;
+}
+
+/* Table badges */
+.rate-badge--high {
+    --slds-c-badge-color-background: #2e7d32;
+    --slds-c-badge-text-color: #ffffff;
+}
+
+.rate-badge--medium {
+    --slds-c-badge-color-background: #f57f17;
+    --slds-c-badge-text-color: #ffffff;
+}
+
+.rate-badge--low {
+    --slds-c-badge-color-background: #c62828;
+    --slds-c-badge-text-color: #ffffff;
+}
+
+/* Recommendation Card */
+.recommendation-card {
+    background: #ffffff;
+    border: 2px solid #1565c0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.rec-header {
+    background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.rec-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rec-body {
+    padding: 1rem;
+}
+
+.rec-channel {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rec-detail {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.rec-label {
+    font-weight: 600;
+    color: #706e6b;
+    min-width: 90px;
+}
+
+.rec-reason {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: #f3f2f2;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #514f4d;
+    line-height: 1.4;
+}
+
+/* Score Breakdown */
+.rec-scores {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #d8dde6;
+}
+
+.rec-scores-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #706e6b;
+    margin-bottom: 0.5rem;
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.score-row:last-child {
+    margin-bottom: 0;
+}
+
+.score-channel {
+    width: 70px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    flex-shrink: 0;
+}
+
+.score-bar-bg {
+    flex: 1;
+    background: #e0e5ee;
+    border-radius: 3px;
+    height: 16px;
+    margin: 0 0.5rem;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1565c0, #42a5f5);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.score-value {
+    width: 35px;
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #3e3e3c;
+    flex-shrink: 0;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payments_Generated__c</fullName>
+    <label>Payments Generated</label>
+    <type>Number</type>
+    <precision>18</precision>
+    <scale>0</scale>
+    <required>false</required>
+    <defaultValue>0</defaultValue>
+</CustomField>

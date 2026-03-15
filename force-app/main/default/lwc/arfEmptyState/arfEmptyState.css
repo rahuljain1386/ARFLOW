@@ -1,0 +1,81 @@
+.empty-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+    min-height: 200px;
+}
+
+.icon-container {
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+.icon-container-error {
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.empty-title {
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.4;
+}
+
+.empty-message {
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin: 0 0 1.5rem 0;
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: #0070d2;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.action-button:hover {
+    background: #005fb2;
+    box-shadow: 0 4px 6px -1px rgba(0, 112, 210, 0.25);
+    transform: translateY(-1px);
+}
+.action-button:active {
+    transform: translateY(0);
+}
+
+.action-button-error {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: #c23934;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.action-button-error:hover {
+    background: #8c1a11;
+    box-shadow: 0 4px 6px -1px rgba(194, 57, 52, 0.25);
+    transform: translateY(-1px);
+}

@@ -1,0 +1,95 @@
+<template>
+    <template for:each={items} for:item="item">
+        <!-- Card Skeleton -->
+        <template if:true={isCard}>
+            <div key={item.key} class="skeleton-card">
+                <div class="skeleton-card-header">
+                    <div class="skeleton-line skeleton-title"></div>
+                    <div class="skeleton-line skeleton-subtitle"></div>
+                </div>
+                <div class="skeleton-card-body">
+                    <div class="skeleton-line skeleton-text-full"></div>
+                    <div class="skeleton-line skeleton-text-medium"></div>
+                    <div class="skeleton-line skeleton-text-short"></div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Table Skeleton -->
+        <template if:true={isTable}>
+            <div key={item.key} class="skeleton-table">
+                <div class="skeleton-table-header">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+                <div class="skeleton-table-row">
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell"></div>
+                    <div class="skeleton-line skeleton-cell-short"></div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Metric Skeleton -->
+        <template if:true={isMetric}>
+            <div key={item.key} class="skeleton-metric">
+                <div class="skeleton-metric-icon skeleton-line"></div>
+                <div class="skeleton-metric-content">
+                    <div class="skeleton-line skeleton-metric-value"></div>
+                    <div class="skeleton-line skeleton-metric-label"></div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Chart Skeleton -->
+        <template if:true={isChart}>
+            <div key={item.key} class="skeleton-chart">
+                <div class="skeleton-chart-header">
+                    <div class="skeleton-line skeleton-title"></div>
+                </div>
+                <div class="skeleton-chart-area">
+                    <div class="skeleton-chart-bar" style="height: 60%"></div>
+                    <div class="skeleton-chart-bar" style="height: 85%"></div>
+                    <div class="skeleton-chart-bar" style="height: 45%"></div>
+                    <div class="skeleton-chart-bar" style="height: 70%"></div>
+                    <div class="skeleton-chart-bar" style="height: 90%"></div>
+                    <div class="skeleton-chart-bar" style="height: 55%"></div>
+                    <div class="skeleton-chart-bar" style="height: 75%"></div>
+                </div>
+            </div>
+        </template>
+    </template>
+</template>

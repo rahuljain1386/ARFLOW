@@ -1,0 +1,243 @@
+<template>
+    <div class="forecast-container">
+
+        <!-- ═══ GRADIENT HEADER ═══ -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-icon-area">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" fill="rgba(255,255,255,0.9)"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="page-title">Cash Forecast</h1>
+                    <p class="page-subtitle">AI-Powered Payment Predictions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ KPI METRIC CARDS ═══ -->
+        <div class="kpi-row">
+            <div class="kpi-card kpi-border-blue">
+                <div class="kpi-icon-area kpi-icon-blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Total Forecast (30 Days)</p>
+                    <p class="kpi-value">{formattedTotalForecast}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-green">
+                <div class="kpi-icon-area kpi-icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">High Confidence Amount</p>
+                    <p class="kpi-value kpi-value-green">{formattedHighConfidence}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-teal">
+                <div class="kpi-icon-area kpi-icon-teal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Prediction Accuracy</p>
+                    <p class="kpi-value">{formattedAccuracy}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-amber">
+                <div class="kpi-icon-area kpi-icon-amber">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Average Days Off</p>
+                    <p class="kpi-value kpi-value-amber">{formattedAvgDaysOff}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ACTION BAR ═══ -->
+        <div class="action-bar">
+            <div class="action-bar-left">
+                <button class="btn btn-primary" onclick={handleGenerate} disabled={isGenerating}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" fill="currentColor"/>
+                    </svg>
+                    <template lwc:if={isGenerating}>Generating...</template>
+                    <template lwc:else>Generate Forecast</template>
+                </button>
+            </div>
+            <div class="action-bar-right">
+                <div class="period-toggle">
+                    <button class={weeklyClass} data-period="Weekly" onclick={handlePeriodChange}>Weekly</button>
+                    <button class={monthlyClass} data-period="Monthly" onclick={handlePeriodChange}>Monthly</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ LOADING STATE ═══ -->
+        <template lwc:if={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                <p class="loading-text">Loading forecast data...</p>
+            </div>
+        </template>
+
+        <template lwc:if={hasPeriods}>
+            <!-- ═══ FORECAST BAR CHART ═══ -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Forecast Overview</h2>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot legend-high"></span>
+                            <span class="legend-label">High Confidence</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot legend-medium"></span>
+                            <span class="legend-label">Medium Confidence</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot legend-low"></span>
+                            <span class="legend-label">Low Confidence</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-area">
+                    <div class="chart-bars">
+                        <template for:each={chartPeriods} for:item="period">
+                            <div key={period.key} class="bar-group">
+                                <div class="bar-stack" style={period.totalBarHeight}>
+                                    <div class="bar-segment bar-high" style={period.highBarHeight}></div>
+                                    <div class="bar-segment bar-med" style={period.medBarHeight}></div>
+                                    <div class="bar-segment bar-low" style={period.lowBarHeight}></div>
+                                </div>
+                                <p class="bar-amount">{period.formattedTotal}</p>
+                                <p class="bar-label">{period.label}</p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ FORECAST TABLE ═══ -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 class="table-title">Forecast Breakdown</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th class="th-amount">Predicted Amount</th>
+                                <th class="th-amount">High Confidence</th>
+                                <th class="th-amount">Medium Confidence</th>
+                                <th class="th-amount">Low Confidence</th>
+                                <th class="th-count">Invoice Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={chartPeriods} for:item="period">
+                                <tr key={period.key} class="table-row">
+                                    <td class="td-period">{period.label}</td>
+                                    <td class="td-amount td-amount-bold">
+                                        <lightning-formatted-number value={period.predicted}
+                                            format-style="currency" currency-code="USD"
+                                            minimum-fraction-digits="0"
+                                            maximum-fraction-digits="0"></lightning-formatted-number>
+                                    </td>
+                                    <td class="td-amount td-high">
+                                        <lightning-formatted-number value={period.highConfidence}
+                                            format-style="currency" currency-code="USD"
+                                            minimum-fraction-digits="0"
+                                            maximum-fraction-digits="0"></lightning-formatted-number>
+                                    </td>
+                                    <td class="td-amount td-med">
+                                        <lightning-formatted-number value={period.mediumConfidence}
+                                            format-style="currency" currency-code="USD"
+                                            minimum-fraction-digits="0"
+                                            maximum-fraction-digits="0"></lightning-formatted-number>
+                                    </td>
+                                    <td class="td-amount td-low">
+                                        <lightning-formatted-number value={period.lowConfidence}
+                                            format-style="currency" currency-code="USD"
+                                            minimum-fraction-digits="0"
+                                            maximum-fraction-digits="0"></lightning-formatted-number>
+                                    </td>
+                                    <td class="td-count">{period.invoiceCount}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ ACCURACY SECTION ═══ -->
+            <div class="accuracy-card">
+                <div class="accuracy-header">
+                    <div class="accuracy-header-content">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="accuracy-icon">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="rgba(255,255,255,0.9)"/>
+                        </svg>
+                        <h2 class="accuracy-title">Prediction Accuracy</h2>
+                    </div>
+                </div>
+                <div class="accuracy-body">
+                    <div class="accuracy-metrics">
+                        <div class="accuracy-metric">
+                            <p class="accuracy-metric-label">Overall Accuracy</p>
+                            <p class="accuracy-metric-value">{formattedAccuracy}</p>
+                            <div class="accuracy-bar-track">
+                                <div class="accuracy-bar-fill" style={accuracyWidth}></div>
+                            </div>
+                        </div>
+                        <div class="accuracy-metric">
+                            <p class="accuracy-metric-label">Avg Days Off</p>
+                            <p class="accuracy-metric-value">{formattedAvgDaysOff}</p>
+                            <p class="accuracy-metric-sub">days from predicted date</p>
+                        </div>
+                        <div class="accuracy-metric">
+                            <p class="accuracy-metric-label">Amount Variance</p>
+                            <p class="accuracy-metric-value">{accuracy.amountVariance}%</p>
+                            <p class="accuracy-metric-sub">average deviation</p>
+                        </div>
+                        <div class="accuracy-metric">
+                            <p class="accuracy-metric-label">Predictions Made</p>
+                            <p class="accuracy-metric-value">{accuracy.totalPredictions}</p>
+                            <p class="accuracy-metric-sub">last 90 days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══ EMPTY STATE ═══ -->
+        <template lwc:if={showEmpty}>
+            <div class="empty-state">
+                <div class="empty-icon-circle">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="empty-title">No Forecast Data</h3>
+                <p class="empty-desc">Generate a forecast to see AI-powered payment predictions. The engine analyzes historical patterns to predict future cash inflows.</p>
+                <button class="btn btn-primary" onclick={handleGenerate}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z" fill="currentColor"/>
+                    </svg>
+                    Generate Forecast
+                </button>
+            </div>
+        </template>
+
+    </div>
+</template>

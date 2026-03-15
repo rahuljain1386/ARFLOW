@@ -1,0 +1,104 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="widget-container">
+            <lightning-spinner alternative-text="Loading AR data" size="small"></lightning-spinner>
+        </div>
+    </template>
+    <template if:false={isLoading}>
+        <template if:true={error}>
+            <div class="widget-container error-state">
+                <p class="error-text">Unable to load AR data</p>
+            </div>
+        </template>
+        <template if:false={error}>
+            <div class="widget-container">
+                <!-- Header -->
+                <div class="widget-header">
+                    <h3 class="widget-title">AR Health</h3>
+                    <span class={riskBadgeClass}>{riskLabel}</span>
+                </div>
+
+                <template if:true={hasData}>
+                    <!-- Key Metrics -->
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <span class="metric-label">Total AR</span>
+                            <span class="metric-value">{formattedTotalAR}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Past Due</span>
+                            <span class={pastDueClass}>{formattedPastDue}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">DSO</span>
+                            <span class="metric-value">{formattedDSO} days</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Open Invoices</span>
+                            <span class="metric-value">{summary.openInvoiceCount}</span>
+                        </div>
+                    </div>
+
+                    <!-- Aging Bar -->
+                    <div class="aging-section">
+                        <span class="section-label">Aging Breakdown</span>
+                        <div class="aging-bar">
+                            <template if:true={hasAgingCurrent}>
+                                <div class="aging-segment aging-current" style={currentBarStyle} title={currentTitle}></div>
+                            </template>
+                            <template if:true={hasAging30}>
+                                <div class="aging-segment aging-30" style={aging30Style} title={aging30Title}></div>
+                            </template>
+                            <template if:true={hasAging60}>
+                                <div class="aging-segment aging-60" style={aging60Style} title={aging60Title}></div>
+                            </template>
+                            <template if:true={hasAging90}>
+                                <div class="aging-segment aging-90" style={aging90Style} title={aging90Title}></div>
+                            </template>
+                            <template if:true={hasAgingOver90}>
+                                <div class="aging-segment aging-over90" style={agingOver90Style} title={agingOver90Title}></div>
+                            </template>
+                        </div>
+                        <div class="aging-legend">
+                            <span class="legend-item"><span class="legend-dot legend-current"></span>Current</span>
+                            <span class="legend-item"><span class="legend-dot legend-30"></span>1-30</span>
+                            <span class="legend-item"><span class="legend-dot legend-60"></span>31-60</span>
+                            <span class="legend-item"><span class="legend-dot legend-90"></span>61-90</span>
+                            <span class="legend-item"><span class="legend-dot legend-over90"></span>90+</span>
+                        </div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <template if:true={hasAlerts}>
+                        <div class="alerts-section">
+                            <template for:each={alerts} for:item="alert">
+                                <div key={alert.key} class={alert.className}>
+                                    <span class="alert-icon">{alert.icon}</span>
+                                    <span class="alert-text">{alert.message}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Last Activity -->
+                    <div class="last-activity">
+                        <span class="activity-label">Last Contact:</span>
+                        <span class="activity-value">{summary.lastContactDate}</span>
+                        <p class="activity-summary">{summary.lastContactSummary}</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="action-buttons">
+                        <button class="btn-primary" onclick={navigateToAr}>View Full AR Details</button>
+                    </div>
+                </template>
+
+                <template if:false={hasData}>
+                    <div class="no-data">
+                        <p class="no-data-text">No outstanding receivables</p>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </template>
+</template>

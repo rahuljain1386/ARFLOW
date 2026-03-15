@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <label>Cash Forecast</label>
+    <nameField><label>Forecast Number</label><displayFormat>CF-{0000}</displayFormat><type>AutoNumber</type></nameField>
+    <pluralLabel>Cash Forecasts</pluralLabel>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

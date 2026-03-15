@@ -1,0 +1,166 @@
+/* ═══════════ General ═══════════ */
+:host {
+    --brand-primary: #0070d2;
+    --success-color: #2e844a;
+    --error-color: #c23934;
+    --warning-color: #fe9339;
+}
+
+.step-container {
+    min-height: 320px;
+}
+
+/* ═══════════ Step 1: Type Selection Cards ═══════════ */
+.type-card {
+    border: 2px solid #d8dde6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+}
+
+.type-card:hover {
+    border-color: var(--brand-primary);
+    box-shadow: 0 2px 8px rgba(0, 112, 210, 0.15);
+    transform: translateY(-2px);
+}
+
+.type-card-selected {
+    border: 2px solid var(--brand-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #f3f8ff;
+    box-shadow: 0 2px 12px rgba(0, 112, 210, 0.2);
+}
+
+/* ═══════════ Step 2: Upload ═══════════ */
+.dropzone {
+    border: 2px dashed #d8dde6;
+    border-radius: 8px;
+    background-color: #fafbfc;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.dropzone:hover {
+    border-color: var(--brand-primary);
+    background-color: #f3f8ff;
+}
+
+.dropzone-active {
+    border: 2px dashed var(--brand-primary);
+    border-radius: 8px;
+    background-color: #e6f2ff;
+}
+
+.upload-icon {
+    opacity: 0.5;
+}
+
+.file-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f3f8ff;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+}
+
+.csv-textarea {
+    --slds-c-textarea-sizing-min-height: 120px;
+}
+
+.divider-text {
+    position: relative;
+}
+
+/* ═══════════ Step 3: Preview Table ═══════════ */
+.table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #d8dde6;
+    border-radius: 4px;
+}
+
+.row-num-col {
+    width: 50px;
+    text-align: center;
+    color: #706e6b;
+    font-size: 0.75rem;
+}
+
+/* ═══════════ Step 4: Confirm ═══════════ */
+.confirm-icon {
+    color: var(--brand-primary);
+}
+
+.confirm-details {
+    display: inline-block;
+    border-radius: 8px;
+    background-color: #fafbfc;
+}
+
+/* ═══════════ Step 5: Results ═══════════ */
+.success-text {
+    color: var(--success-color);
+}
+
+.result-stat {
+    text-align: center;
+    border-radius: 8px;
+}
+
+.success-stat {
+    background-color: #ecfaf0;
+    border-color: #2e844a;
+}
+
+.success-stat .slds-text-heading_large {
+    color: var(--success-color);
+}
+
+.error-stat {
+    background-color: #fef1f1;
+    border-color: #c23934;
+}
+
+.error-stat .slds-text-heading_large {
+    color: var(--error-color);
+}
+
+.error-log {
+    max-height: 250px;
+    overflow-y: auto;
+    background-color: #fef1f1;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+}
+
+.error-line {
+    border-bottom: 1px solid #f2dfde;
+    color: #8e030f;
+}
+
+.error-line:last-child {
+    border-bottom: none;
+}
+
+/* ═══════════ Badges ═══════════ */
+.slds-badge.slds-theme_success {
+    background-color: #2e844a;
+    color: #ffffff;
+}
+
+/* ═══════════ Alert overrides ═══════════ */
+.slds-alert_error {
+    background-color: #fef1f1;
+    border: 1px solid #ea001e;
+    border-radius: 4px;
+    color: #8e030f;
+}
+
+.slds-alert_warning {
+    background-color: #fff8e6;
+    border: 1px solid #fe9339;
+    border-radius: 4px;
+    color: #8c4b02;
+}

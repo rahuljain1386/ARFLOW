@@ -1,0 +1,375 @@
+<template>
+    <!-- ═══════════ Wizard Container ═══════════ -->
+    <lightning-card>
+        <h1 slot="title">
+            <lightning-icon icon-name="standard:data_streams" size="small" class="slds-m-right_x-small"></lightning-icon>
+            Bulk Import Wizard
+        </h1>
+
+        <!-- Progress Indicator -->
+        <div class="slds-p-horizontal_large slds-p-top_medium">
+            <lightning-progress-indicator current-step={currentStep} type="path" variant="base">
+                <lightning-progress-step label="Import Type" value="1"></lightning-progress-step>
+                <lightning-progress-step label="Upload Data" value="2"></lightning-progress-step>
+                <lightning-progress-step label="Preview" value="3"></lightning-progress-step>
+                <lightning-progress-step label="Import" value="4"></lightning-progress-step>
+                <lightning-progress-step label="Results" value="5"></lightning-progress-step>
+            </lightning-progress-indicator>
+        </div>
+
+        <div class="slds-p-around_large">
+
+            <!-- ═══════════ STEP 1: Choose Import Type ═══════════ -->
+            <template if:true={isStep1}>
+                <div class="step-container">
+                    <h2 class="slds-text-heading_medium slds-m-bottom_medium">What would you like to import?</h2>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <!-- Invoice Card -->
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <div class={invoiceCardClass} onclick={handleSelectInvoice} role="button" tabindex="0">
+                                <div class="slds-p-around_large slds-text-align_center">
+                                    <lightning-icon icon-name="standard:invoice" size="large" class="slds-m-bottom_small"></lightning-icon>
+                                    <h3 class="slds-text-heading_small slds-m-bottom_x-small">Invoices</h3>
+                                    <p class="slds-text-body_small slds-text-color_weak">
+                                        Import open invoices with account, amount, due date, and PO number.
+                                    </p>
+                                    <div class="slds-m-top_small">
+                                        <span class="slds-badge slds-badge_lightest">Required: Account_Name, Document_Number, Amount, Due_Date</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Payment Card -->
+                        <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                            <div class={paymentCardClass} onclick={handleSelectPayment} role="button" tabindex="0">
+                                <div class="slds-p-around_large slds-text-align_center">
+                                    <lightning-icon icon-name="standard:currency" size="large" class="slds-m-bottom_small"></lightning-icon>
+                                    <h3 class="slds-text-heading_small slds-m-bottom_x-small">Payments</h3>
+                                    <p class="slds-text-body_small slds-text-color_weak">
+                                        Import payment records with account, amount, date, and method.
+                                    </p>
+                                    <div class="slds-m-top_small">
+                                        <span class="slds-badge slds-badge_lightest">Required: Account_Name, Amount, Payment_Date</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- ═══════════ STEP 2: Upload CSV ═══════════ -->
+            <template if:true={isStep2}>
+                <div class="step-container">
+                    <div class="slds-grid slds-m-bottom_medium">
+                        <div class="slds-col slds-grow">
+                            <h2 class="slds-text-heading_medium">
+                                Upload {importType} CSV
+                            </h2>
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                Upload a CSV file or paste the content directly below.
+                            </p>
+                        </div>
+                        <div class="slds-col slds-no-flex">
+                            <lightning-button
+                                label="Download Template"
+                                icon-name="utility:download"
+                                variant="neutral"
+                                onclick={handleDownloadTemplate}
+                            ></lightning-button>
+                        </div>
+                    </div>
+
+                    <!-- Drag & Drop Zone -->
+                    <div class={dropzoneClass}
+                         ondragover={handleDragOver}
+                         ondragleave={handleDragLeave}
+                         ondrop={handleDrop}>
+                        <div class="slds-text-align_center slds-p-around_large">
+                            <lightning-icon icon-name="utility:upload" size="large" class="slds-m-bottom_small upload-icon"></lightning-icon>
+                            <p class="slds-text-heading_small slds-m-bottom_x-small">
+                                Drag &amp; drop your CSV file here
+                            </p>
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium">
+                                or
+                            </p>
+                            <lightning-input
+                                type="file"
+                                label=""
+                                accept=".csv"
+                                onchange={handleFileUpload}
+                                class="file-input"
+                            ></lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- File info -->
+                    <template if:true={fileName}>
+                        <div class="slds-m-top_small slds-p-around_small file-badge">
+                            <lightning-icon icon-name="doctype:csv" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <span class="slds-text-body_small">{fileName}</span>
+                            <lightning-button-icon
+                                icon-name="utility:close"
+                                variant="bare"
+                                size="small"
+                                alternative-text="Remove file"
+                                onclick={handleRemoveFile}
+                                class="slds-m-left_small"
+                            ></lightning-button-icon>
+                        </div>
+                    </template>
+
+                    <!-- Or Paste -->
+                    <div class="slds-m-top_medium">
+                        <p class="divider-text slds-text-align_center slds-m-bottom_small">
+                            <span class="slds-text-body_small slds-text-color_weak">-- OR paste CSV text below --</span>
+                        </p>
+                        <lightning-textarea
+                            label="Paste CSV Content"
+                            placeholder="Account_Name,Document_Number,Amount,Due_Date&#10;&quot;Acme Corp&quot;,&quot;INV-001&quot;,&quot;5000.00&quot;,&quot;2026-04-15&quot;"
+                            value={pastedCSV}
+                            onchange={handlePasteCSV}
+                            class="csv-textarea"
+                        ></lightning-textarea>
+                    </div>
+                </div>
+            </template>
+
+            <!-- ═══════════ STEP 3: Preview ═══════════ -->
+            <template if:true={isStep3}>
+                <div class="step-container">
+                    <template if:true={isLoading}>
+                        <div class="slds-text-align_center slds-p-around_large">
+                            <lightning-spinner alternative-text="Parsing CSV..." size="medium"></lightning-spinner>
+                            <p class="slds-m-top_medium slds-text-color_weak">Parsing your CSV data...</p>
+                        </div>
+                    </template>
+
+                    <template if:false={isLoading}>
+                        <!-- Errors -->
+                        <template if:true={hasPreviewErrors}>
+                            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium" role="alert">
+                                <lightning-icon icon-name="utility:error" variant="inverse" size="x-small" class="slds-m-right_small"></lightning-icon>
+                                <h2>
+                                    <template for:each={previewData.errors} for:item="err">
+                                        <span key={err} class="slds-display_block">{err}</span>
+                                    </template>
+                                </h2>
+                            </div>
+                        </template>
+
+                        <!-- Warnings -->
+                        <template if:true={hasPreviewWarnings}>
+                            <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_medium" role="alert">
+                                <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-right_small"></lightning-icon>
+                                <h2>
+                                    <template for:each={previewData.warnings} for:item="warn">
+                                        <span key={warn} class="slds-display_block">{warn}</span>
+                                    </template>
+                                </h2>
+                            </div>
+                        </template>
+
+                        <!-- Summary -->
+                        <template if:false={hasPreviewErrors}>
+                            <div class="slds-grid slds-m-bottom_medium">
+                                <div class="slds-col slds-grow">
+                                    <h2 class="slds-text-heading_medium">Data Preview</h2>
+                                    <p class="slds-text-body_small slds-text-color_weak">
+                                        Showing {previewData.previewRows} of {previewData.totalRows} rows
+                                    </p>
+                                </div>
+                                <div class="slds-col slds-no-flex slds-align-middle">
+                                    <span class="slds-badge slds-theme_success">
+                                        {previewData.totalRows} rows ready to import
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Data Table -->
+                            <div class="table-container slds-scrollable_x">
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th class="row-num-col" scope="col">
+                                                <div class="slds-truncate" title="#">#</div>
+                                            </th>
+                                            <template for:each={previewData.columns} for:item="col">
+                                                <th key={col} scope="col">
+                                                    <div class="slds-truncate" title={col}>{col}</div>
+                                                </th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={previewRowsWithIndex} for:item="row">
+                                            <tr key={row.index}>
+                                                <td class="row-num-col">
+                                                    <div class="slds-truncate">{row.index}</div>
+                                                </td>
+                                                <template for:each={row.cells} for:item="cell">
+                                                    <td key={cell.key}>
+                                                        <div class="slds-truncate" title={cell.value}>{cell.value}</div>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+            </template>
+
+            <!-- ═══════════ STEP 4: Confirm & Import ═══════════ -->
+            <template if:true={isStep4}>
+                <div class="step-container">
+                    <template if:true={isImporting}>
+                        <div class="slds-text-align_center slds-p-around_x-large">
+                            <lightning-spinner alternative-text="Importing..." size="large"></lightning-spinner>
+                            <p class="slds-m-top_large slds-text-heading_small">Importing records...</p>
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                Please do not close this window.
+                            </p>
+                        </div>
+                    </template>
+
+                    <template if:false={isImporting}>
+                        <div class="slds-text-align_center slds-p-around_large">
+                            <lightning-icon icon-name="utility:check" size="large" class="confirm-icon slds-m-bottom_medium"></lightning-icon>
+                            <h2 class="slds-text-heading_medium slds-m-bottom_small">Ready to Import</h2>
+                            <p class="slds-text-body_regular slds-m-bottom_large">
+                                You are about to import <strong>{previewData.totalRows}</strong> {importTypeLower} records.
+                            </p>
+
+                            <div class="confirm-details slds-box slds-box_x-small slds-m-bottom_large">
+                                <div class="slds-grid slds-wrap slds-p-around_medium">
+                                    <div class="slds-col slds-size_1-of-3 slds-text-align_center">
+                                        <p class="slds-text-title_caps slds-text-color_weak">Type</p>
+                                        <p class="slds-text-heading_small">{importType}</p>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3 slds-text-align_center">
+                                        <p class="slds-text-title_caps slds-text-color_weak">Rows</p>
+                                        <p class="slds-text-heading_small">{previewData.totalRows}</p>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-3 slds-text-align_center">
+                                        <p class="slds-text-title_caps slds-text-color_weak">Columns</p>
+                                        <p class="slds-text-heading_small">{columnCount}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <template if:true={hasPreviewWarnings}>
+                                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_medium" role="alert">
+                                    <lightning-icon icon-name="utility:warning" size="x-small" class="slds-m-right_small"></lightning-icon>
+                                    <span>{previewData.warnings.length} warning(s) detected. Rows with warnings will still be processed.</span>
+                                </div>
+                            </template>
+
+                            <lightning-button
+                                label="Confirm & Import"
+                                variant="brand"
+                                icon-name="utility:upload"
+                                onclick={handleExecuteImport}
+                                class="slds-m-top_medium"
+                            ></lightning-button>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- ═══════════ STEP 5: Results ═══════════ -->
+            <template if:true={isStep5}>
+                <div class="step-container">
+                    <div class="slds-text-align_center slds-p-around_large">
+                        <template if:true={importFullySuccessful}>
+                            <lightning-icon icon-name="action:approval" size="large" class="slds-m-bottom_medium"></lightning-icon>
+                            <h2 class="slds-text-heading_medium slds-m-bottom_small success-text">Import Complete!</h2>
+                        </template>
+                        <template if:false={importFullySuccessful}>
+                            <lightning-icon icon-name="action:priority" size="large" class="slds-m-bottom_medium"></lightning-icon>
+                            <h2 class="slds-text-heading_medium slds-m-bottom_small">Import Completed with Errors</h2>
+                        </template>
+
+                        <!-- Result Stats -->
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-vertical_large">
+                            <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                                <div class="result-stat success-stat slds-box slds-p-around_medium">
+                                    <p class="slds-text-title_caps">Successful</p>
+                                    <p class="slds-text-heading_large">{importResult.successCount}</p>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2 slds-p-around_small">
+                                <div class="result-stat error-stat slds-box slds-p-around_medium">
+                                    <p class="slds-text-title_caps">Errors</p>
+                                    <p class="slds-text-heading_large">{importResult.errorCount}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Details -->
+                        <template if:true={hasImportErrors}>
+                            <div class="slds-text-align_left slds-m-top_medium">
+                                <h3 class="slds-text-heading_small slds-m-bottom_small">Error Details</h3>
+                                <div class="error-log slds-box slds-p-around_small">
+                                    <template for:each={importResult.errors} for:item="err">
+                                        <p key={err} class="error-line slds-p-vertical_xx-small">
+                                            <lightning-icon icon-name="utility:error" size="xx-small" variant="error" class="slds-m-right_xx-small"></lightning-icon>
+                                            {err}
+                                        </p>
+                                    </template>
+                                </div>
+                                <div class="slds-m-top_small">
+                                    <lightning-button
+                                        label="Download Error Report"
+                                        icon-name="utility:download"
+                                        variant="neutral"
+                                        onclick={handleDownloadErrors}
+                                    ></lightning-button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Action Buttons -->
+                        <div class="slds-m-top_large">
+                            <lightning-button
+                                label="Import Another File"
+                                variant="brand"
+                                icon-name="utility:refresh"
+                                onclick={handleReset}
+                                class="slds-m-right_small"
+                            ></lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+
+        <!-- ═══════════ Navigation Footer ═══════════ -->
+        <div slot="footer" class="slds-grid">
+            <div class="slds-col">
+                <template if:true={showBackButton}>
+                    <lightning-button
+                        label="Back"
+                        icon-name="utility:back"
+                        onclick={handleBack}
+                    ></lightning-button>
+                </template>
+            </div>
+            <div class="slds-col slds-text-align_right">
+                <template if:true={showNextButton}>
+                    <lightning-button
+                        label={nextButtonLabel}
+                        variant="brand"
+                        icon-name="utility:forward"
+                        icon-position="right"
+                        onclick={handleNext}
+                        disabled={isNextDisabled}
+                    ></lightning-button>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

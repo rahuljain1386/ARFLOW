@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Payment_Method__c</fullName>
+    <label>Payment Method</label>
+    <type>Lookup</type>
+    <referenceTo>ARF_Account_Payment_Method__c</referenceTo>
+    <relationshipName>Payment_Plans</relationshipName>
+    <relationshipLabel>Payment Plans</relationshipLabel>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <required>false</required>
+</CustomField>

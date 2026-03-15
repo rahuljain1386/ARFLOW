@@ -2,131 +2,521 @@
 <html>
 <head>
 <style type="text/css">
+    @page {
+        size: letter;
+        margin: 0.6in 0.6in 0.8in 0.6in;
+        @bottom-center {
+            content: "Page " counter(page) " of " counter(pages);
+            font-size: 8px;
+            color: #999999;
+        }
+    }
+
     body {
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 11px;
-        color: #333;
-        margin: 40px;
+        font-size: 10px;
+        color: #333333;
+        margin: 0;
+        padding: 0;
+        line-height: 1.4;
     }
+
+    /* ═══════ Header ═══════ */
     .header {
         border-bottom: 3px solid #0070d2;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
     }
-    .header h1 {
-        font-size: 22px;
-        color: #0070d2;
-        margin: 0 0 5px 0;
-    }
-    .header .subtitle {
-        font-size: 12px;
-        color: #666;
-    }
-    .account-info {
-        margin-bottom: 25px;
-    }
-    .account-info table {
+
+    .header-table {
         width: 100%;
+        border-collapse: collapse;
     }
-    .account-info td {
+
+    .header-table td {
         vertical-align: top;
-        padding: 3px 0;
+        padding: 0;
     }
-    .account-info .label {
+
+    .company-info {
+        width: 60%;
+    }
+
+    .statement-title-block {
+        width: 40%;
+        text-align: right;
+    }
+
+    .logo-placeholder {
+        width: 160px;
+        height: 50px;
+        background-color: #f0f3f5;
+        border: 1px dashed #c9c9c9;
+        text-align: center;
+        line-height: 50px;
+        font-size: 9px;
+        color: #999;
+        margin-bottom: 6px;
+        border-radius: 3px;
+    }
+
+    .company-name {
+        font-size: 14px;
         font-weight: bold;
-        color: #555;
-        width: 120px;
+        color: #333333;
+        margin-top: 4px;
     }
+
+    .company-detail {
+        font-size: 9px;
+        color: #666666;
+        line-height: 1.5;
+    }
+
+    .statement-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #0070d2;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .statement-meta {
+        font-size: 9px;
+        color: #666666;
+    }
+
+    .statement-meta td {
+        padding: 2px 0;
+    }
+
+    .statement-meta .label {
+        text-align: right;
+        padding-right: 8px;
+        color: #888888;
+        font-weight: normal;
+    }
+
+    .statement-meta .value {
+        text-align: right;
+        font-weight: bold;
+        color: #333333;
+    }
+
+    /* ═══════ Account Info ═══════ */
+    .account-section {
+        margin-bottom: 20px;
+        background-color: #f8f9fb;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 14px 16px;
+    }
+
+    .account-section-title {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #888888;
+        font-weight: bold;
+        margin-bottom: 8px;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 4px;
+    }
+
+    .account-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .account-table td {
+        vertical-align: top;
+        padding: 2px 0;
+        font-size: 10px;
+    }
+
+    .account-table .label {
+        font-weight: bold;
+        color: #555555;
+        width: 110px;
+    }
+
+    .account-table .value {
+        color: #333333;
+    }
+
+    /* ═══════ Balance Due Box ═══════ */
+    .balance-due-box {
+        background-color: #0070d2;
+        color: #ffffff;
+        border-radius: 4px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .balance-due-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.85;
+        margin-bottom: 2px;
+    }
+
+    .balance-due-amount {
+        font-size: 28px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+
+    .balance-due-sub {
+        font-size: 9px;
+        opacity: 0.7;
+        margin-top: 2px;
+    }
+
+    /* ═══════ Aging Summary ═══════ */
+    .aging-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .aging-table th {
+        background-color: #f0f3f5;
+        color: #555555;
+        padding: 8px 10px;
+        text-align: center;
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
+        border: 1px solid #d8dde6;
+    }
+
+    .aging-table td {
+        padding: 10px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+        border: 1px solid #d8dde6;
+        color: #333333;
+    }
+
+    .aging-current { color: #2e844a; }
+    .aging-30 { color: #fe9339; }
+    .aging-60 { color: #e87600; }
+    .aging-90 { color: #c23934; }
+    .aging-over90 { color: #8e030f; background-color: #fef1f1; }
+
+    /* ═══════ Invoice Table ═══════ */
+    .section-title {
+        font-size: 11px;
+        font-weight: bold;
+        color: #0070d2;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #d8dde6;
+    }
+
     .invoice-table {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 20px;
     }
+
     .invoice-table th {
         background-color: #0070d2;
-        color: white;
-        padding: 8px 10px;
+        color: #ffffff;
+        padding: 8px 8px;
         text-align: left;
-        font-size: 10px;
+        font-size: 8px;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: bold;
     }
+
     .invoice-table th.right {
         text-align: right;
     }
-    .invoice-table td {
-        padding: 7px 10px;
-        border-bottom: 1px solid #e0e0e0;
-        font-size: 11px;
+
+    .invoice-table th.center {
+        text-align: center;
     }
+
+    .invoice-table td {
+        padding: 6px 8px;
+        border-bottom: 1px solid #e8e8e8;
+        font-size: 9.5px;
+        color: #333333;
+    }
+
     .invoice-table td.right {
         text-align: right;
     }
-    .invoice-table tr.alt {
-        background-color: #f8f9fa;
-    }
-    .totals-row td {
-        font-weight: bold;
-        border-top: 2px solid #0070d2;
-        padding-top: 10px;
-        font-size: 12px;
-    }
-    .footer {
-        margin-top: 30px;
-        padding-top: 15px;
-        border-top: 1px solid #ddd;
-        font-size: 9px;
-        color: #999;
+
+    .invoice-table td.center {
         text-align: center;
     }
+
+    .invoice-table tr.alt {
+        background-color: #f8f9fb;
+    }
+
+    .invoice-table tr.totals-row td {
+        font-weight: bold;
+        border-top: 2px solid #0070d2;
+        border-bottom: 2px solid #0070d2;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: 10px;
+        background-color: #f0f3f5;
+    }
+
     .overdue {
         color: #c23934;
         font-weight: bold;
+    }
+
+    .status-open {
+        color: #0070d2;
+        font-weight: bold;
+    }
+
+    .status-overdue {
+        color: #c23934;
+        font-weight: bold;
+    }
+
+    .status-paid {
+        color: #2e844a;
+    }
+
+    /* ═══════ Payment Instructions ═══════ */
+    .payment-section {
+        background-color: #f8f9fb;
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+
+    .payment-section h3 {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #0070d2;
+        font-weight: bold;
+        margin: 0 0 8px 0;
+    }
+
+    .payment-section p {
+        font-size: 9px;
+        color: #555555;
+        margin: 3px 0;
+        line-height: 1.5;
+    }
+
+    .payment-methods {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .payment-methods td {
+        vertical-align: top;
+        width: 33%;
+        padding: 6px 8px;
+    }
+
+    .payment-methods .method-title {
+        font-weight: bold;
+        font-size: 9px;
+        color: #333333;
+        margin-bottom: 3px;
+    }
+
+    .payment-methods .method-detail {
+        font-size: 8.5px;
+        color: #666666;
+        line-height: 1.5;
+    }
+
+    /* ═══════ Footer ═══════ */
+    .footer {
+        margin-top: 20px;
+        padding-top: 12px;
+        border-top: 2px solid #0070d2;
+        text-align: center;
+    }
+
+    .footer-company {
+        font-size: 9px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 3px;
+    }
+
+    .footer-contact {
+        font-size: 8px;
+        color: #888888;
+        line-height: 1.6;
+    }
+
+    .footer-legal {
+        font-size: 7.5px;
+        color: #aaaaaa;
+        margin-top: 8px;
+        font-style: italic;
     }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════ HEADER ═══════════════════ -->
 <div class="header">
-    <h1>Invoice Statement</h1>
-    <div class="subtitle">Generated on {!generatedDate}</div>
-</div>
-
-<div class="account-info">
-    <table>
+    <table class="header-table">
         <tr>
-            <td class="label">Account:</td>
-            <td>{!account.Name}</td>
-            <td class="label">Account #:</td>
-            <td>{!account.AccountNumber}</td>
-        </tr>
-        <tr>
-            <td class="label">Address:</td>
-            <td>
-                <apex:outputText value="{!account.BillingStreet}" rendered="{!NOT(ISBLANK(account.BillingStreet))}"/><br/>
-                <apex:outputText value="{!account.BillingCity}" rendered="{!NOT(ISBLANK(account.BillingCity))}"/><apex:outputText value=", " rendered="{!AND(NOT(ISBLANK(account.BillingCity)), NOT(ISBLANK(account.BillingState)))}"/>
-                <apex:outputText value="{!account.BillingState}" rendered="{!NOT(ISBLANK(account.BillingState))}"/>
-                <apex:outputText value=" {!account.BillingPostalCode}" rendered="{!NOT(ISBLANK(account.BillingPostalCode))}"/>
+            <td class="company-info">
+                <div class="logo-placeholder">[ COMPANY LOGO ]</div>
+                <div class="company-name">{!companyName}</div>
+                <div class="company-detail">
+                    <apex:outputText value="{!companyStreet}" rendered="{!NOT(ISBLANK(companyStreet))}"/><br/>
+                    <apex:outputText value="{!companyCityStateZip}" rendered="{!NOT(ISBLANK(companyCityStateZip))}"/><br/>
+                    <apex:outputPanel rendered="{!NOT(ISBLANK(companyPhone))}">
+                        Phone: {!companyPhone}<br/>
+                    </apex:outputPanel>
+                    <apex:outputPanel rendered="{!NOT(ISBLANK(companyEmail))}">
+                        Email: {!companyEmail}
+                    </apex:outputPanel>
+                </div>
             </td>
-            <td class="label">Invoices:</td>
-            <td>{!invoices.size}</td>
+            <td class="statement-title-block">
+                <div class="statement-title">INVOICE<br/>STATEMENT</div>
+                <table class="statement-meta" style="margin-left: auto;">
+                    <tr>
+                        <td class="label">Statement Date:</td>
+                        <td class="value">{!generatedDate}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Account #:</td>
+                        <td class="value">{!account.AccountNumber}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Payment Terms:</td>
+                        <td class="value">{!paymentTerms}</td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 </div>
 
+<!-- ═══════════════════ ACCOUNT INFO ═══════════════════ -->
+<div class="account-section">
+    <div class="account-section-title">Bill To</div>
+    <table class="account-table">
+        <tr>
+            <td class="label">Account Name:</td>
+            <td class="value" colspan="3">{!account.Name}</td>
+        </tr>
+        <tr>
+            <td class="label">Billing Address:</td>
+            <td class="value" colspan="3">
+                <apex:outputText value="{!account.BillingStreet}" rendered="{!NOT(ISBLANK(account.BillingStreet))}"/><br/>
+                <apex:outputText value="{!account.BillingCity}" rendered="{!NOT(ISBLANK(account.BillingCity))}"/>
+                <apex:outputText value=", " rendered="{!AND(NOT(ISBLANK(account.BillingCity)), NOT(ISBLANK(account.BillingState)))}"/>
+                <apex:outputText value="{!account.BillingState}" rendered="{!NOT(ISBLANK(account.BillingState))}"/>
+                <apex:outputText value=" {!account.BillingPostalCode}" rendered="{!NOT(ISBLANK(account.BillingPostalCode))}"/><br/>
+                <apex:outputText value="{!account.BillingCountry}" rendered="{!NOT(ISBLANK(account.BillingCountry))}"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Total Invoices:</td>
+            <td class="value">{!invoices.size}</td>
+            <td class="label" style="width:120px;">Open Invoices:</td>
+            <td class="value">{!openInvoiceCount}</td>
+        </tr>
+    </table>
+</div>
+
+<!-- ═══════════════════ TOTAL BALANCE DUE ═══════════════════ -->
+<div class="balance-due-box">
+    <div class="balance-due-label">Total Balance Due</div>
+    <div class="balance-due-amount">
+        <apex:outputText value="${0,number,#,##0.00}">
+            <apex:param value="{!totalBalance}"/>
+        </apex:outputText>
+    </div>
+    <div class="balance-due-sub">
+        <apex:outputPanel rendered="{!overdueBalance > 0}">
+            Overdue: <apex:outputText value="${0,number,#,##0.00}"><apex:param value="{!overdueBalance}"/></apex:outputText>
+        </apex:outputPanel>
+    </div>
+</div>
+
+<!-- ═══════════════════ AGING SUMMARY ═══════════════════ -->
+<div class="section-title">Aging Summary</div>
+<table class="aging-table">
+    <tr>
+        <th>Current</th>
+        <th>1 - 30 Days</th>
+        <th>31 - 60 Days</th>
+        <th>61 - 90 Days</th>
+        <th>90+ Days</th>
+        <th>Total</th>
+    </tr>
+    <tr>
+        <td class="aging-current">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!agingCurrent}"/>
+            </apex:outputText>
+        </td>
+        <td class="aging-30">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!aging1to30}"/>
+            </apex:outputText>
+        </td>
+        <td class="aging-60">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!aging31to60}"/>
+            </apex:outputText>
+        </td>
+        <td class="aging-90">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!aging61to90}"/>
+            </apex:outputText>
+        </td>
+        <td class="aging-over90">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!agingOver90}"/>
+            </apex:outputText>
+        </td>
+        <td style="font-size:13px;">
+            <apex:outputText value="${0,number,#,##0.00}">
+                <apex:param value="{!totalBalance}"/>
+            </apex:outputText>
+        </td>
+    </tr>
+</table>
+
+<!-- ═══════════════════ INVOICE TABLE ═══════════════════ -->
+<div class="section-title">Invoice Details</div>
 <table class="invoice-table">
     <tr>
-        <th>Document #</th>
+        <th>Invoice #</th>
         <th>Invoice Date</th>
         <th>Due Date</th>
         <th>PO Number</th>
-        <th>Status</th>
+        <th class="center">Status</th>
         <th class="right">Amount</th>
         <th class="right">Balance</th>
-        <th class="right">Days Past Due</th>
+        <th class="center">Days Past Due</th>
     </tr>
+    <apex:variable var="rowIdx" value="{!0}"/>
     <apex:repeat value="{!invoices}" var="inv">
-        <tr>
-            <td>{!inv.Document_Number__c}</td>
+        <tr class="{!IF(MOD(VALUE(TEXT(rowIdx)), 2) == 0, '', 'alt')}">
+            <td><strong>{!inv.Document_Number__c}</strong></td>
             <td>
                 <apex:outputText value="{0,date,MM/dd/yyyy}">
                     <apex:param value="{!inv.Invoice_Date__c}"/>
@@ -138,18 +528,37 @@
                 </apex:outputText>
             </td>
             <td>{!inv.PO_Number__c}</td>
-            <td>{!inv.Status__c}</td>
+            <td class="center">
+                <apex:outputPanel rendered="{!inv.Status__c == 'Overdue'}">
+                    <span class="status-overdue">{!inv.Status__c}</span>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!inv.Status__c == 'Open'}">
+                    <span class="status-open">{!inv.Status__c}</span>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!AND(inv.Status__c != 'Overdue', inv.Status__c != 'Open')}">
+                    <span class="status-paid">{!inv.Status__c}</span>
+                </apex:outputPanel>
+            </td>
             <td class="right">
                 <apex:outputText value="${0,number,#,##0.00}">
                     <apex:param value="{!inv.Amount__c}"/>
                 </apex:outputText>
             </td>
             <td class="right">
-                <apex:outputText value="${0,number,#,##0.00}">
-                    <apex:param value="{!inv.Balance__c}"/>
-                </apex:outputText>
+                <apex:outputPanel rendered="{!inv.Balance__c > 0}">
+                    <strong>
+                    <apex:outputText value="${0,number,#,##0.00}">
+                        <apex:param value="{!inv.Balance__c}"/>
+                    </apex:outputText>
+                    </strong>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!inv.Balance__c == 0}">
+                    <apex:outputText value="${0,number,#,##0.00}">
+                        <apex:param value="{!inv.Balance__c}"/>
+                    </apex:outputText>
+                </apex:outputPanel>
             </td>
-            <td class="right">
+            <td class="center">
                 <apex:outputPanel rendered="{!inv.Days_Past_Due__c > 0}">
                     <span class="overdue">
                         <apex:outputText value="{0,number,0}">
@@ -158,15 +567,18 @@
                     </span>
                 </apex:outputPanel>
                 <apex:outputPanel rendered="{!inv.Days_Past_Due__c <= 0}">
-                    <apex:outputText value="{0,number,0}">
-                        <apex:param value="{!inv.Days_Past_Due__c}"/>
-                    </apex:outputText>
+                    <span style="color:#2e844a;">
+                        <apex:outputText value="{0,number,0}">
+                            <apex:param value="{!inv.Days_Past_Due__c}"/>
+                        </apex:outputText>
+                    </span>
                 </apex:outputPanel>
             </td>
         </tr>
+        <apex:variable var="rowIdx" value="{!rowIdx + 1}"/>
     </apex:repeat>
     <tr class="totals-row">
-        <td colspan="5">Total ({!invoices.size} invoices)</td>
+        <td colspan="5"><strong>Total ({!invoices.size} invoices)</strong></td>
         <td class="right">
             <apex:outputText value="${0,number,#,##0.00}">
                 <apex:param value="{!totalAmount}"/>
@@ -181,8 +593,69 @@
     </tr>
 </table>
 
+<!-- ═══════════════════ PAYMENT INSTRUCTIONS ═══════════════════ -->
+<div class="payment-section">
+    <h3>Payment Instructions</h3>
+    <table class="payment-methods">
+        <tr>
+            <td>
+                <div class="method-title">ACH / Wire Transfer</div>
+                <div class="method-detail">
+                    Bank: [Your Bank Name]<br/>
+                    Routing #: [Routing Number]<br/>
+                    Account #: [Account Number]<br/>
+                    Reference: {!account.AccountNumber}
+                </div>
+            </td>
+            <td>
+                <div class="method-title">Check</div>
+                <div class="method-detail">
+                    Make payable to: {!companyName}<br/>
+                    Mail to: {!companyStreet}<br/>
+                    {!companyCityStateZip}<br/>
+                    Memo: {!account.AccountNumber}
+                </div>
+            </td>
+            <td>
+                <div class="method-title">Online Payment</div>
+                <div class="method-detail">
+                    Visit our payment portal at:<br/>
+                    [payments.yourcompany.com]<br/>
+                    Use Account #: {!account.AccountNumber}
+                </div>
+            </td>
+        </tr>
+    </table>
+    <p style="margin-top:8px; font-size:8.5px; color:#888;">
+        Please include your account number ({!account.AccountNumber}) on all payments for proper credit.
+        For questions regarding this statement, please contact our accounts receivable department.
+    </p>
+</div>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
 <div class="footer">
-    This statement was generated automatically. Please contact us if you have any questions regarding these invoices.
+    <div class="footer-company">{!companyName}</div>
+    <div class="footer-contact">
+        <apex:outputText value="{!companyStreet}" rendered="{!NOT(ISBLANK(companyStreet))}"/>
+        <apex:outputText value=" | " rendered="{!NOT(ISBLANK(companyStreet))}"/>
+        <apex:outputText value="{!companyCityStateZip}" rendered="{!NOT(ISBLANK(companyCityStateZip))}"/>
+        <br/>
+        <apex:outputPanel rendered="{!NOT(ISBLANK(companyPhone))}">
+            Phone: {!companyPhone}
+        </apex:outputPanel>
+        <apex:outputText value=" | " rendered="{!AND(NOT(ISBLANK(companyPhone)), NOT(ISBLANK(companyEmail)))}"/>
+        <apex:outputPanel rendered="{!NOT(ISBLANK(companyEmail))}">
+            Email: {!companyEmail}
+        </apex:outputPanel>
+        <apex:outputText value=" | " rendered="{!NOT(ISBLANK(companyWebsite))}"/>
+        <apex:outputPanel rendered="{!NOT(ISBLANK(companyWebsite))}">
+            Web: {!companyWebsite}
+        </apex:outputPanel>
+    </div>
+    <div class="footer-legal">
+        This statement was generated on {!generatedDate}. All amounts are in USD unless otherwise noted.
+        Please contact us if you have any questions or discrepancies regarding this statement.
+    </div>
 </div>
 
 </body>

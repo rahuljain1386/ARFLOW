@@ -1,0 +1,179 @@
+<template>
+    <lightning-card title="AI Dunning Optimization Dashboard" icon-name="standard:strategy">
+
+        <!-- KPI Summary Row -->
+        <div class="slds-grid slds-wrap slds-gutters slds-p-around_medium">
+            <div class="slds-col slds-size_1-of-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Attempts</div>
+                    <div class="kpi-value">{totalAttempts}</div>
+                    <div class="kpi-sublabel">Last 3 Months</div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Responses</div>
+                    <div class="kpi-value">{totalResponses}</div>
+                    <div class="kpi-sublabel">Last 3 Months</div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <div class="kpi-card kpi-card--highlight">
+                    <div class="kpi-label">Overall Response Rate</div>
+                    <div class="kpi-value">{overallResponseRate}%</div>
+                    <div class="kpi-sublabel">Across All Channels</div>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-4">
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Collected</div>
+                    <div class="kpi-value">${totalCollected}</div>
+                    <div class="kpi-sublabel">Last 3 Months</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Channel Performance Bar Chart -->
+        <div class="slds-p-around_medium">
+            <h2 class="slds-text-heading_small slds-m-bottom_small">Channel Performance Comparison</h2>
+            <div class="chart-container">
+                <template for:each={chartData} for:item="item">
+                    <div key={item.channel} class="chart-row">
+                        <div class="chart-label">{item.channel}</div>
+                        <div class="chart-bar-container">
+                            <div class={item.barClass} style={item.barStyle}>
+                                <span class="chart-bar-text">{item.responseRate}%</span>
+                            </div>
+                        </div>
+                        <div class="chart-amount">${item.totalCollected}</div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Channel Metrics Table -->
+        <div class="slds-p-around_medium">
+            <h2 class="slds-text-heading_small slds-m-bottom_small">Channel-by-Channel Metrics</h2>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col"><div class="slds-truncate" title="Channel">Channel</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Attempts">Attempts</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Responses">Responses</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Response Rate">Response Rate</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Payments">Payments</div></th>
+                        <th scope="col"><div class="slds-truncate" title="Amount Collected">Amount Collected</div></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={channelSummaries} for:item="summary">
+                        <tr key={summary.channel}>
+                            <td>
+                                <div class="slds-truncate">
+                                    <lightning-icon icon-name={summary.iconName} size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                    {summary.channel}
+                                </div>
+                            </td>
+                            <td><div class="slds-truncate">{summary.totalAttempts}</div></td>
+                            <td><div class="slds-truncate">{summary.totalResponses}</div></td>
+                            <td>
+                                <div class="slds-truncate">
+                                    <lightning-badge label={summary.responseRateLabel} class={summary.rateBadgeClass}></lightning-badge>
+                                </div>
+                            </td>
+                            <td><div class="slds-truncate">{summary.totalPayments}</div></td>
+                            <td><div class="slds-truncate">${summary.totalCollected}</div></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Channel Recommendation Widget -->
+        <div class="slds-p-around_medium">
+            <h2 class="slds-text-heading_small slds-m-bottom_small">Channel Recommendation</h2>
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-size_1-of-2">
+                    <div class="slds-box slds-theme_default">
+                        <lightning-record-picker
+                            label="Select Account"
+                            placeholder="Search for an account..."
+                            object-api-name="Account"
+                            onchange={handleAccountSelect}>
+                        </lightning-record-picker>
+                    </div>
+                </div>
+                <div class="slds-col slds-size_1-of-2">
+                    <template if:true={recommendation}>
+                        <div class="recommendation-card">
+                            <div class="rec-header">
+                                <lightning-icon icon-name="utility:magicwand" size="small" class="slds-m-right_small"></lightning-icon>
+                                <span class="rec-title">AI Recommendation</span>
+                            </div>
+                            <div class="rec-body">
+                                <div class="rec-channel">
+                                    <span class="rec-label">Best Channel:</span>
+                                    <lightning-badge label={recommendation.recommendedChannel} class="slds-badge_inverse"></lightning-badge>
+                                </div>
+                                <div class="rec-detail">
+                                    <span class="rec-label">Confidence:</span>
+                                    <span>{recommendation.confidence}%</span>
+                                </div>
+                                <div class="rec-detail">
+                                    <span class="rec-label">Fallback:</span>
+                                    <span>{recommendation.fallbackChannel}</span>
+                                </div>
+                                <div class="rec-detail">
+                                    <span class="rec-label">Best Day:</span>
+                                    <span>{recommendation.suggestedDayOfWeek}</span>
+                                </div>
+                                <div class="rec-detail">
+                                    <span class="rec-label">Best Time:</span>
+                                    <span>{recommendation.suggestedTimeOfDay}</span>
+                                </div>
+                                <div class="rec-reason">{recommendation.reason}</div>
+                            </div>
+                            <!-- Channel score breakdown -->
+                            <template if:true={recommendation.channelScores}>
+                                <div class="rec-scores">
+                                    <div class="rec-scores-title">Score Breakdown</div>
+                                    <template for:each={recommendation.channelScores} for:item="score">
+                                        <div key={score.channel} class="score-row">
+                                            <span class="score-channel">{score.channel}</span>
+                                            <div class="score-bar-bg">
+                                                <div class="score-bar-fill" style={score.barStyle}></div>
+                                            </div>
+                                            <span class="score-value">{score.compositeScore}</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template if:false={recommendation}>
+                        <div class="slds-box slds-theme_shade slds-text-align_center slds-p-around_large">
+                            <lightning-icon icon-name="utility:search" size="large" class="slds-m-bottom_small"></lightning-icon>
+                            <p class="slds-text-color_weak">Select an account to see AI channel recommendation</p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
+        <!-- Error -->
+        <template if:true={error}>
+            <div class="slds-p-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                    <span class="slds-assistive-text">error</span>
+                    <h2>{error}</h2>
+                </div>
+            </div>
+        </template>
+
+    </lightning-card>
+</template>

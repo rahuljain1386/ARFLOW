@@ -1,0 +1,53 @@
+<template>
+    <div class={containerClass}>
+        <!-- Icon -->
+        <div class={iconContainerClass}>
+            <template if:true={isDefault}>
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="16" y="8" width="48" height="60" rx="4" stroke="#94a3b8" stroke-width="2" fill="#f8fafc"/>
+                    <line x1="26" y1="24" x2="54" y2="24" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="26" y1="34" x2="48" y2="34" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="26" y1="44" x2="42" y2="44" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="58" cy="54" r="14" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                    <path d="M54 54h8M58 50v8" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </template>
+            <template if:true={isNoData}>
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 20h40v44H20z" rx="3" stroke="#94a3b8" stroke-width="2" fill="#f8fafc"/>
+                    <path d="M20 20h40v12H20z" fill="#e2e8f0"/>
+                    <circle cx="40" cy="50" r="8" stroke="#cbd5e1" stroke-width="2" fill="none"/>
+                    <line x1="40" y1="46" x2="40" y2="51" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="40" cy="54" r="1" fill="#cbd5e1"/>
+                </svg>
+            </template>
+            <template if:true={isNoResults}>
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="36" cy="36" r="18" stroke="#94a3b8" stroke-width="2.5" fill="#f8fafc"/>
+                    <line x1="49" y1="49" x2="64" y2="64" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="30" y1="36" x2="42" y2="36" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </template>
+            <template if:true={isError}>
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="28" stroke="#c23934" stroke-width="2" fill="#fef0ef"/>
+                    <line x1="40" y1="26" x2="40" y2="44" stroke="#c23934" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="40" cy="52" r="2" fill="#c23934"/>
+                </svg>
+            </template>
+        </div>
+
+        <!-- Text -->
+        <h3 class="empty-title">{title}</h3>
+        <template if:true={message}>
+            <p class="empty-message">{message}</p>
+        </template>
+
+        <!-- Action Button -->
+        <template if:true={hasAction}>
+            <button class={actionButtonClass} onclick={handleAction}>
+                {actionLabel}
+            </button>
+        </template>
+    </div>
+</template>

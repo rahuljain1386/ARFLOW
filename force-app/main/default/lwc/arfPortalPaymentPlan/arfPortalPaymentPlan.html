@@ -1,0 +1,247 @@
+<template>
+    <!-- Progress Bar -->
+    <div class="wizard-container">
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style={progressStyle}></div>
+            </div>
+            <div class="step-indicators">
+                <template for:each={steps} for:item="step">
+                    <div key={step.num} class={step.className}>
+                        <div class={step.circleClass}>
+                            <template if:true={step.completed}>
+                                <span class="check-icon">&#10003;</span>
+                            </template>
+                            <template if:false={step.completed}>
+                                <span>{step.num}</span>
+                            </template>
+                        </div>
+                        <span class="step-label">{step.label}</span>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Step 1: Select Invoices -->
+        <template if:true={isStep1}>
+            <div class="step-card">
+                <h2 class="step-title">Select Invoices</h2>
+                <p class="step-subtitle">Choose the invoices you'd like to include in your payment plan</p>
+
+                <template if:true={isLoadingInvoices}>
+                    <c-arf-loading-skeleton variant="table"></c-arf-loading-skeleton>
+                </template>
+                <template if:false={isLoadingInvoices}>
+                    <template if:true={hasInvoices}>
+                        <div class="invoice-table-container">
+                            <table class="invoice-table">
+                                <thead>
+                                    <tr>
+                                        <th class="th-checkbox"><input type="checkbox" onchange={handleSelectAll}></th>
+                                        <th>Invoice #</th>
+                                        <th>Due Date</th>
+                                        <th>Amount</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={invoices} for:item="inv">
+                                        <tr key={inv.Id} class={inv.rowClass}>
+                                            <td><input type="checkbox" data-id={inv.Id} checked={inv.selected} onchange={handleInvoiceSelect}></td>
+                                            <td class="td-bold">{inv.Document_Number__c}</td>
+                                            <td>{inv.formattedDueDate}</td>
+                                            <td>{inv.formattedAmount}</td>
+                                            <td class="td-bold">{inv.formattedBalance}</td>
+                                            <td><span class={inv.statusClass}>{inv.Status__c}</span></td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="selected-summary">
+                            <span class="summary-label">{selectedCount} invoice(s) selected</span>
+                            <span class="summary-amount">Total: {formattedSelectedTotal}</span>
+                        </div>
+                    </template>
+                    <template if:false={hasInvoices}>
+                        <c-arf-empty-state variant="no-data" title="No Outstanding Invoices" message="You don't have any outstanding invoices to create a payment plan for."></c-arf-empty-state>
+                    </template>
+                </template>
+            </div>
+        </template>
+
+        <!-- Step 2: AI Recommendation -->
+        <template if:true={isStep2}>
+            <div class="step-card">
+                <h2 class="step-title">Recommended Plans</h2>
+                <p class="step-subtitle">Based on your account history, here are your best options</p>
+
+                <template if:true={isLoadingRecommendation}>
+                    <c-arf-loading-skeleton variant="card" count="3"></c-arf-loading-skeleton>
+                </template>
+                <template if:false={isLoadingRecommendation}>
+                    <div class="plan-options">
+                        <template for:each={recommendation.sampleSchedules} for:item="option">
+                            <div key={option.key} class={option.cardClass} onclick={handleSelectOption} data-index={option.index}>
+                                <template if:true={option.isRecommended}>
+                                    <div class="recommended-badge">AI Recommended</div>
+                                </template>
+                                <div class="option-header">
+                                    <h3 class="option-title">{option.title}</h3>
+                                    <span class="option-frequency">{option.frequencyLabel}</span>
+                                </div>
+                                <div class="option-amount">
+                                    <span class="amount-value">{option.formattedInstallment}</span>
+                                    <span class="amount-label">per {option.frequencyShort}</span>
+                                </div>
+                                <div class="option-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Installments</span>
+                                        <span class="detail-value">{option.installments}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Down Payment</span>
+                                        <span class="detail-value">{option.formattedDownPayment}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">First Payment</span>
+                                        <span class="detail-value">{option.formattedFirstPayment}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Last Payment</span>
+                                        <span class="detail-value">{option.formattedLastPayment}</span>
+                                    </div>
+                                </div>
+                                <div class="option-total">
+                                    Total: {option.formattedTotal}
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="ai-reason">
+                        <div class="reason-icon">&#x1f4a1;</div>
+                        <p class="reason-text">{recommendation.reason}</p>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Step 3: Customize -->
+        <template if:true={isStep3}>
+            <div class="step-card">
+                <h2 class="step-title">Customize Your Plan</h2>
+                <p class="step-subtitle">Adjust the plan to fit your needs</p>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Number of Installments</label>
+                        <lightning-input type="number" value={customInstallments} min="2" max={maxInstallments} onchange={handleInstallmentsChange}></lightning-input>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Frequency</label>
+                        <lightning-combobox value={customFrequency} options={frequencyOptions} onchange={handleFrequencyChange}></lightning-combobox>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <lightning-input type="date" value={customStartDate} min={minStartDate} onchange={handleStartDateChange}></lightning-input>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Enable Auto-Pay</label>
+                        <lightning-input type="toggle" checked={autoPay} onchange={handleAutoPayChange}></lightning-input>
+                    </div>
+                </div>
+                <div class="plan-summary-card">
+                    <h4 class="summary-title">Plan Summary</h4>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">Total Amount</span>
+                            <span class="summary-value">{formattedSelectedTotal}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Per Installment</span>
+                            <span class="summary-value">{formattedInstallmentAmount}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Duration</span>
+                            <span class="summary-value">{planDuration}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Step 4: Review & Accept -->
+        <template if:true={isStep4}>
+            <div class="step-card">
+                <h2 class="step-title">Review & Accept</h2>
+                <p class="step-subtitle">Please review your payment plan details</p>
+                <div class="review-section">
+                    <div class="review-block">
+                        <h4>Plan Details</h4>
+                        <div class="review-grid">
+                            <div class="review-item"><span class="review-label">Total Amount</span><span class="review-value">{formattedSelectedTotal}</span></div>
+                            <div class="review-item"><span class="review-label">Installments</span><span class="review-value">{customInstallments} x {formattedInstallmentAmount}</span></div>
+                            <div class="review-item"><span class="review-label">Frequency</span><span class="review-value">{customFrequencyLabel}</span></div>
+                            <div class="review-item"><span class="review-label">Start Date</span><span class="review-value">{customStartDate}</span></div>
+                            <div class="review-item"><span class="review-label">Auto-Pay</span><span class="review-value">{autoPayLabel}</span></div>
+                        </div>
+                    </div>
+                    <div class="review-block">
+                        <h4>Included Invoices ({selectedCount})</h4>
+                        <div class="review-invoices">
+                            <template for:each={selectedInvoices} for:item="inv">
+                                <div key={inv.Id} class="review-invoice-row">
+                                    <span>{inv.Document_Number__c}</span>
+                                    <span>{inv.formattedBalance}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div class="terms-section">
+                    <label class="terms-checkbox">
+                        <input type="checkbox" checked={termsAccepted} onchange={handleTermsChange}>
+                        <span>I agree to the payment plan terms. I understand that missed payments may result in late fees and plan cancellation.</span>
+                    </label>
+                </div>
+            </div>
+        </template>
+
+        <!-- Step 5: Confirmation -->
+        <template if:true={isStep5}>
+            <div class="step-card confirmation-card">
+                <div class="success-icon">&#10003;</div>
+                <h2 class="confirmation-title">Payment Plan Created!</h2>
+                <p class="confirmation-message">Your plan has been submitted for approval. You'll receive confirmation once it's active.</p>
+                <div class="confirmation-details">
+                    <div class="detail-row"><span>Plan ID</span><span>{createdPlanId}</span></div>
+                    <div class="detail-row"><span>Total Amount</span><span>{formattedSelectedTotal}</span></div>
+                    <div class="detail-row"><span>First Payment</span><span>{customStartDate}</span></div>
+                    <div class="detail-row"><span>Installment</span><span>{formattedInstallmentAmount} / {customFrequencyLabel}</span></div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Navigation Buttons -->
+        <template if:false={isStep5}>
+            <div class="nav-buttons">
+                <template if:false={isStep1}>
+                    <button class="btn-secondary" onclick={handleBack}>Back</button>
+                </template>
+                <template if:true={isLastStep}>
+                    <button class="btn-primary" onclick={handleSubmit} disabled={submitDisabled}>
+                        <template if:true={isSubmitting}>
+                            <lightning-spinner alternative-text="Submitting" size="small"></lightning-spinner>
+                        </template>
+                        <template if:false={isSubmitting}>
+                            Submit Payment Plan
+                        </template>
+                    </button>
+                </template>
+                <template if:false={isLastStep}>
+                    <button class="btn-primary" onclick={handleNext} disabled={nextDisabled}>Continue</button>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

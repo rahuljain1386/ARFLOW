@@ -1,0 +1,205 @@
+<template>
+    <div class="manager-container">
+        <!-- Gradient Header -->
+        <div class="manager-header">
+            <div class="header-content">
+                <h1 class="header-title">Payment Plans</h1>
+                <p class="header-subtitle">Monitor, approve, and manage customer payment plans</p>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <div class="kpi-card kpi-blue">
+                <div class="kpi-icon-wrap kpi-icon-blue">
+                    <lightning-icon icon-name="standard:contract" size="small"></lightning-icon>
+                </div>
+                <div class="kpi-data">
+                    <span class="kpi-value">{activePlanCount}</span>
+                    <span class="kpi-label">Active Plans</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-teal">
+                <div class="kpi-icon-wrap kpi-icon-teal">
+                    <lightning-icon icon-name="standard:currency" size="small"></lightning-icon>
+                </div>
+                <div class="kpi-data">
+                    <span class="kpi-value">{formattedTotalUnderPlan}</span>
+                    <span class="kpi-label">Total Under Plan</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-green">
+                <div class="kpi-icon-wrap kpi-icon-green">
+                    <lightning-icon icon-name="standard:payment_gateway" size="small"></lightning-icon>
+                </div>
+                <div class="kpi-data">
+                    <span class="kpi-value">{formattedMonthCollections}</span>
+                    <span class="kpi-label">This Month's Collections</span>
+                </div>
+            </div>
+            <div class="kpi-card kpi-red">
+                <div class="kpi-icon-wrap kpi-icon-red">
+                    <lightning-icon icon-name="standard:dashboard_ea" size="small"></lightning-icon>
+                </div>
+                <div class="kpi-data">
+                    <span class="kpi-value">{formattedDefaultRate}%</span>
+                    <span class="kpi-label">Default Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-bar">
+            <template for:each={filterTabs} for:item="tab">
+                <button key={tab.value} class={tab.className} data-filter={tab.value} onclick={handleFilterChange}>
+                    {tab.label}
+                    <template if:true={tab.count}>
+                        <span class="tab-count">{tab.count}</span>
+                    </template>
+                </button>
+            </template>
+        </div>
+
+        <!-- Plans Table -->
+        <div class="table-card">
+            <template if:true={isLoading}>
+                <c-arf-loading-skeleton variant="table"></c-arf-loading-skeleton>
+            </template>
+            <template if:false={isLoading}>
+                <template if:true={hasPlan}>
+                    <div class="table-container">
+                        <table class="plans-table">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Plan Name</th>
+                                    <th>Total Amount</th>
+                                    <th>Remaining</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Next Payment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={filteredPlans} for:item="plan">
+                                    <tr key={plan.Id}>
+                                        <td class="td-account">
+                                            <span class="account-name">{plan.accountName}</span>
+                                        </td>
+                                        <td class="td-bold">{plan.planName}</td>
+                                        <td>{plan.formattedTotal}</td>
+                                        <td class="td-bold">{plan.formattedRemaining}</td>
+                                        <td class="td-progress">
+                                            <div class="progress-track">
+                                                <div class={plan.progressBarClass} style={plan.progressBarStyle}></div>
+                                            </div>
+                                            <span class="progress-pct">{plan.progressPct}%</span>
+                                        </td>
+                                        <td>
+                                            <span class={plan.statusBadgeClass}>{plan.statusLabel}</span>
+                                        </td>
+                                        <td>{plan.formattedNextPayment}</td>
+                                        <td class="td-actions">
+                                            <template if:true={plan.showApprove}>
+                                                <button class="action-btn action-approve" data-id={plan.Id} onclick={handleApprove} title="Approve">
+                                                    <lightning-icon icon-name="utility:check" size="xx-small" alternative-text="Approve"></lightning-icon>
+                                                </button>
+                                                <button class="action-btn action-reject" data-id={plan.Id} onclick={handleReject} title="Reject">
+                                                    <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Reject"></lightning-icon>
+                                                </button>
+                                            </template>
+                                            <button class="action-btn action-view" data-id={plan.Id} onclick={handleViewDetail} title="View Details">
+                                                <lightning-icon icon-name="utility:preview" size="xx-small" alternative-text="View"></lightning-icon>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+                <template if:false={hasPlan}>
+                    <c-arf-empty-state variant="no-data" title="No Payment Plans" message="No payment plans match the current filter."></c-arf-empty-state>
+                </template>
+            </template>
+        </div>
+
+        <!-- Detail Modal -->
+        <template if:true={showDetailModal}>
+            <section role="dialog" tabindex="-1" class="modal-overlay" onclick={handleOverlayClick}>
+                <div class="modal-container" onclick={handleModalContentClick}>
+                    <div class="modal-header">
+                        <h2 class="modal-title">Plan Details</h2>
+                        <button class="modal-close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" size="small" alternative-text="Close"></lightning-icon>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <template if:true={planDetail}>
+                            <!-- Plan Summary -->
+                            <div class="modal-summary">
+                                <div class="modal-summary-grid">
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Account</span>
+                                        <span class="modal-summary-value">{planDetail.accountName}</span>
+                                    </div>
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Status</span>
+                                        <span class={planDetail.statusBadgeClass}>{planDetail.statusLabel}</span>
+                                    </div>
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Total Amount</span>
+                                        <span class="modal-summary-value">{planDetail.formattedTotal}</span>
+                                    </div>
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Remaining</span>
+                                        <span class="modal-summary-value">{planDetail.formattedRemaining}</span>
+                                    </div>
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Frequency</span>
+                                        <span class="modal-summary-value">{planDetail.frequencyLabel}</span>
+                                    </div>
+                                    <div class="modal-summary-item">
+                                        <span class="modal-summary-label">Auto-Pay</span>
+                                        <span class="modal-summary-value">{planDetail.autoPayLabel}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Installment Schedule -->
+                            <h3 class="schedule-title">Installment Schedule</h3>
+                            <div class="schedule-table-container">
+                                <table class="schedule-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Due Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Paid Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={planDetail.installments} for:item="inst">
+                                            <tr key={inst.id} class={inst.rowClass}>
+                                                <td class="td-center">{inst.number}</td>
+                                                <td>{inst.formattedDueDate}</td>
+                                                <td class="td-bold">{inst.formattedAmount}</td>
+                                                <td><span class={inst.statusBadgeClass}>{inst.statusLabel}</span></td>
+                                                <td>{inst.formattedPaidDate}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" onclick={handleCloseModal}>Close</button>
+                    </div>
+                </div>
+            </section>
+        </template>
+    </div>
+</template>

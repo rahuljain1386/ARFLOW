@@ -1,0 +1,219 @@
+<template>
+    <div class="cash-app-container">
+
+        <!-- ═══ GRADIENT HEADER ═══ -->
+        <div class="page-header">
+            <div class="header-content">
+                <div class="header-icon-area">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.94s4.18 1.36 4.18 3.85c0 1.89-1.44 2.98-3.12 3.19z" fill="rgba(255,255,255,0.9)"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="page-title">Cash Application</h1>
+                    <p class="page-subtitle">AI-Powered Payment Matching</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ KPI METRIC CARDS ═══ -->
+        <div class="kpi-row">
+            <div class="kpi-card kpi-border-blue">
+                <div class="kpi-icon-area kpi-icon-blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Total Unmatched</p>
+                    <p class="kpi-value">{formattedUnmatched}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-green">
+                <div class="kpi-icon-area kpi-icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Auto-Applied Today</p>
+                    <p class="kpi-value kpi-value-green">{formattedAutoApplied}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-amber">
+                <div class="kpi-icon-area kpi-icon-amber">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Pending Review</p>
+                    <p class="kpi-value kpi-value-amber">{formattedPendingCount}</p>
+                </div>
+            </div>
+            <div class="kpi-card kpi-border-teal">
+                <div class="kpi-icon-area kpi-icon-teal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="kpi-text">
+                    <p class="kpi-label">Match Rate</p>
+                    <p class="kpi-value">{formattedMatchRate}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ ACTION BAR ═══ -->
+        <div class="action-bar">
+            <div class="action-bar-left">
+                <button class="btn btn-primary" onclick={handleRunMatching} disabled={isProcessing}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a.9959.9959 0 00-1.41 0L1.29 18.96c-.39.39-.39 1.02 0 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05c.39-.39.39-1.02 0-1.41l-2.33-2.35z" fill="currentColor"/>
+                    </svg>
+                    Run Matching
+                </button>
+                <button class="btn btn-secondary" onclick={handleAutoApplyAll} disabled={isProcessing}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z" fill="currentColor"/>
+                    </svg>
+                    Auto-Apply All High Confidence
+                </button>
+            </div>
+            <div class="action-bar-right">
+                <div class="search-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="search-icon">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search payments, invoices, rules..."
+                           value={searchTerm} onkeyup={handleSearch} />
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ BULK ACTION BAR ═══ -->
+        <template lwc:if={hasSelection}>
+            <div class="bulk-bar">
+                <span class="bulk-label">{selectedCount} selected</span>
+                <button class="btn btn-success btn-sm" onclick={handleBulkApply}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                    </svg>
+                    Apply Selected ({selectedCount})
+                </button>
+                <button class="btn btn-danger btn-sm" onclick={handleBulkReject}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/>
+                    </svg>
+                    Reject Selected ({selectedCount})
+                </button>
+            </div>
+        </template>
+
+        <!-- ═══ LOADING STATE ═══ -->
+        <template lwc:if={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                <p class="loading-text">Loading cash application data...</p>
+            </div>
+        </template>
+
+        <!-- ═══ RESULTS TABLE ═══ -->
+        <template lwc:if={hasResults}>
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 class="table-title">Match Results</h2>
+                    <span class="result-count">{filteredResults.length} results</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="th-check">
+                                    <input type="checkbox" class="custom-checkbox"
+                                           checked={allSelected}
+                                           onchange={handleSelectAll} />
+                                </th>
+                                <th class="th-confidence">Confidence</th>
+                                <th>Rule Used</th>
+                                <th>Payment Ref</th>
+                                <th>Invoice #</th>
+                                <th class="th-amount">Suggested Amount</th>
+                                <th class="th-status">Status</th>
+                                <th class="th-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={filteredResults} for:item="row">
+                                <tr key={row.id} class={row.rowClass}>
+                                    <td class="td-check">
+                                        <input type="checkbox" class="custom-checkbox"
+                                               checked={row.isSelected}
+                                               data-id={row.id}
+                                               onchange={handleCheckbox} />
+                                    </td>
+                                    <td class="td-confidence">
+                                        <div class="confidence-wrapper">
+                                            <div class="confidence-track">
+                                                <div class={row.confBarClass} style={row.confBarStyle}></div>
+                                            </div>
+                                            <span class="confidence-pct">{row.confLabel}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="rule-pill">{row.ruleName}</span>
+                                    </td>
+                                    <td class="td-ref">{row.paymentRef}</td>
+                                    <td class="td-ref">{row.invoiceNum}</td>
+                                    <td class="td-amount">
+                                        <lightning-formatted-number value={row.suggestedAmount}
+                                            format-style="currency" currency-code="USD"
+                                            minimum-fraction-digits="2"
+                                            maximum-fraction-digits="2"></lightning-formatted-number>
+                                    </td>
+                                    <td>
+                                        <span class={row.statusClass}>{row.statusLabel}</span>
+                                    </td>
+                                    <td class="td-actions">
+                                        <template lwc:if={row.isPending}>
+                                            <button class="action-btn action-approve" data-id={row.id} onclick={handleApprove} title="Approve">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                                                </svg>
+                                            </button>
+                                            <button class="action-btn action-reject" data-id={row.id} onclick={handleReject} title="Reject">
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/>
+                                                </svg>
+                                            </button>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══ EMPTY STATE ═══ -->
+        <template lwc:if={showEmpty}>
+            <div class="empty-state">
+                <div class="empty-icon-circle">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <h3 class="empty-title">No Match Results</h3>
+                <p class="empty-desc">Run the matching engine to find payment-to-invoice matches. Results will appear here for your review.</p>
+                <button class="btn btn-primary" onclick={handleRunMatching}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="btn-icon">
+                        <path d="M7.5 5.6L10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a.9959.9959 0 00-1.41 0L1.29 18.96c-.39.39-.39 1.02 0 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05c.39-.39.39-1.02 0-1.41l-2.33-2.35z" fill="currentColor"/>
+                    </svg>
+                    Run Matching
+                </button>
+            </div>
+        </template>
+
+    </div>
+</template>
