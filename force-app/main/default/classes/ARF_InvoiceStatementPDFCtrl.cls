@@ -86,7 +86,7 @@ public with sharing class ARF_InvoiceStatementPDFCtrl {
         for (ARF_Invoice__c inv : invoices) {
             if (inv.Amount__c != null) totalAmount += inv.Amount__c;
             if (inv.Balance__c != null) totalBalance += inv.Balance__c;
-            if (inv.Status__c == 'Open' || inv.Status__c == 'Overdue') {
+            if (inv.Status__c == 'Open' || inv.Status__c == 'Partially Paid') {
                 openInvoiceCount++;
             }
         }

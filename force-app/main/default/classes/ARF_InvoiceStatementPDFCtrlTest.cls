@@ -18,7 +18,7 @@ private class ARF_InvoiceStatementPDFCtrlTest {
         // Overdue invoice (45 days past due)
         invoices.add(new ARF_Invoice__c(
             Account__c = acct.Id, Document_Number__c = 'PDF-INV-001',
-            Amount__c = 10000, Balance__c = 10000, Status__c = 'Overdue',
+            Amount__c = 10000, Balance__c = 10000, Status__c = 'Open',
             Invoice_Date__c = Date.today().addDays(-75),
             Due_Date__c = Date.today().addDays(-45),
             PO_Number__c = 'PO-PDF-1'
@@ -89,8 +89,8 @@ private class ARF_InvoiceStatementPDFCtrlTest {
         System.assertEquals(0, ctrl.agingOver90, '90+ aging should be 0');
         System.assertEquals(12000, ctrl.overdueBalance, 'Overdue balance should be 12000');
 
-        // Open invoice count (Open + Overdue statuses)
-        System.assertEquals(3, ctrl.openInvoiceCount, 'Should have 3 open/overdue invoices');
+        // Open invoice count (Open + Partially Paid statuses)
+        System.assertEquals(3, ctrl.openInvoiceCount, 'Should have 3 open invoices');
 
         // Company info
         System.assert(String.isNotBlank(ctrl.companyName), 'Company name should be set');
