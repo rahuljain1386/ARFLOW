@@ -21,31 +21,35 @@ private class ARF_SalesArControllerTest {
         );
         insert acct;
 
-        // Create invoices — some over 60 days past due
+        // Create invoices — use Due_Date__c to drive Days_Past_Due__c formula
         List<ARF_Invoice__c> invoices = new List<ARF_Invoice__c>();
         invoices.add(new ARF_Invoice__c(
             Account__c = acct.Id,
             Status__c = 'Open',
             Amount__c = 10000,
-            Days_Past_Due__c = 75
+            Balance__c = 10000,
+            Due_Date__c = Date.today().addDays(-75)
         ));
         invoices.add(new ARF_Invoice__c(
             Account__c = acct.Id,
             Status__c = 'Open',
             Amount__c = 5000,
-            Days_Past_Due__c = 95
+            Balance__c = 5000,
+            Due_Date__c = Date.today().addDays(-95)
         ));
         invoices.add(new ARF_Invoice__c(
             Account__c = acct.Id,
             Status__c = 'Open',
             Amount__c = 20000,
-            Days_Past_Due__c = 15
+            Balance__c = 20000,
+            Due_Date__c = Date.today().addDays(-15)
         ));
         invoices.add(new ARF_Invoice__c(
             Account__c = acct.Id,
             Status__c = 'Paid',
             Amount__c = 8000,
-            Days_Past_Due__c = 100
+            Balance__c = 0,
+            Due_Date__c = Date.today().addDays(-100)
         ));
         insert invoices;
 
