@@ -42,7 +42,7 @@ public with sharing class ARF_SalesArController {
         summary.openDisputes = [
             SELECT COUNT() FROM ARF_Dispute__c
             WHERE Invoice__r.Account__c = :accountId
-            AND (Status__c = 'New' OR Status__c = 'In Progress')
+            AND (Status__c = 'New' OR Status__c = 'Under Investigation' OR Status__c = 'Pending Approval')
         ];
 
         // Broken promises

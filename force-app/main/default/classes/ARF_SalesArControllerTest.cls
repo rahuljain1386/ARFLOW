@@ -56,7 +56,7 @@ private class ARF_SalesArControllerTest {
         // Create disputes on the first invoice
         ARF_Dispute__c dispute = new ARF_Dispute__c(
             Invoice__c = invoices[0].Id,
-            Status__c = 'In Progress',
+            Status__c = 'Under Investigation',
             Dispute_Amount__c = 5000,
             Category__c = 'Pricing',
             Account__c = acct.Id

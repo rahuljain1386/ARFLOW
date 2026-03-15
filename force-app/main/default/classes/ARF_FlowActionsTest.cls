@@ -208,7 +208,7 @@ private class ARF_FlowActionsTest {
         ARF_FlowActionsCreateDispute.DisputeRequest req = new ARF_FlowActionsCreateDispute.DisputeRequest();
         req.invoiceId = inv.Id;
         req.amount = 1000;
-        req.category = 'Billing Error';
+        req.category = 'Pricing';
         req.description = 'Customer disputes the billed amount due to pricing discrepancy.';
 
         Test.startTest();
@@ -227,7 +227,7 @@ private class ARF_FlowActionsTest {
             Description__c, Status__c, Priority__c FROM ARF_Dispute__c WHERE Id = :results[0].disputeId];
         System.assertEquals(inv.Id, dispute.Invoice__c);
         System.assertEquals(1000, dispute.Dispute_Amount__c);
-        System.assertEquals('Billing Error', dispute.Category__c);
+        System.assertEquals('Pricing', dispute.Category__c);
         System.assertEquals('New', dispute.Status__c);
         System.assertEquals('Medium', dispute.Priority__c);
     }
@@ -262,14 +262,14 @@ private class ARF_FlowActionsTest {
         ARF_FlowActionsCreateDispute.DisputeRequest req1 = new ARF_FlowActionsCreateDispute.DisputeRequest();
         req1.invoiceId = inv.Id;
         req1.amount = 200;
-        req1.category = 'Quality Issue';
+        req1.category = 'Quality';
         req1.description = 'Product quality was subpar.';
         requests.add(req1);
 
         ARF_FlowActionsCreateDispute.DisputeRequest req2 = new ARF_FlowActionsCreateDispute.DisputeRequest();
         req2.invoiceId = inv.Id;
         req2.amount = 300;
-        req2.category = 'Duplicate Charge';
+        req2.category = 'Duplicate';
         req2.description = 'Invoice was sent twice.';
         requests.add(req2);
 

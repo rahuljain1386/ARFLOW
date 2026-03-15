@@ -22,6 +22,7 @@
                 <value><fullName>In Progress</fullName><default>false</default><label>In Progress</label></value>
                 <value><fullName>Completed</fullName><default>false</default><label>Completed</label></value>
                 <value><fullName>Escalated</fullName><default>false</default><label>Escalated</label></value>
+                <value><fullName>Initiated</fullName><default>false</default><label>Initiated</label></value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

@@ -5,7 +5,7 @@
     <externalId>false</externalId>
     <label>Rule Name</label>
     <length>255</length>
-    <required>true</required>
+    <required>false</required>
     <trackHistory>false</trackHistory>
     <type>Text</type>
     <unique>false</unique>
