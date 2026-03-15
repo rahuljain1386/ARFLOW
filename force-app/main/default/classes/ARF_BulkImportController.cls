@@ -195,7 +195,7 @@ public with sharing class ARF_BulkImportController {
                 pmt.Applied_Amount__c = 0;
                 pmt.Unapplied_Amount__c = pmt.Amount__c;
                 pmt.Payment_Date__c = Date.valueOf(row.get('Payment_Date'));
-                pmt.Status__c = 'Pending';
+                pmt.Status__c = 'Received';
 
                 if (row.containsKey('Method')) pmt.Method__c = row.get('Method');
                 if (row.containsKey('Reference')) pmt.Reference__c = row.get('Reference');

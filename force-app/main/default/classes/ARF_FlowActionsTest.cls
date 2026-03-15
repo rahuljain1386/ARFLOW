@@ -21,7 +21,7 @@ private class ARF_FlowActionsTest {
         inv.Account__c = acct.Id;
         inv.Amount__c = 5000;
         inv.Due_Date__c = Date.today().addDays(-30);
-        inv.Status__c = 'Overdue';
+        inv.Status__c = 'Open';
         insert inv;
     }
 

@@ -354,8 +354,10 @@ private class ARF_Account360ControllerTest {
         Test.startTest();
         List<ARF_Invoice__c> result = ARF_Account360Controller.getInvoicesFiltered(acctId, 'inDispute', 'all', '');
         Test.stopTest();
-        System.assertEquals(1, result.size(), 'Should return 1 disputed invoice');
-        System.assertEquals(true, result[0].Has_Dispute__c);
+        System.assertEquals(2, result.size(), 'Should return 2 disputed invoices');
+        for (ARF_Invoice__c inv : result) {
+            System.assertEquals(true, inv.Has_Dispute__c, 'All returned invoices should have disputes');
+        }
     }
 
     @isTest
