@@ -292,15 +292,14 @@ public with sharing class ARF_TransactionActionController {
         }
 
         // 1. Make the Twilio callout FIRST (before any DML)
+        if (String.isBlank(collectorPhone)) {
+            throw new AuraHandledException('My Phone is empty. Enter your phone number so we can connect you to the customer.');
+        }
+
         String callSid;
         try {
-            if (String.isNotBlank(collectorPhone)) {
-                // Bridge: call collector first, then connect to customer
-                callSid = ARF_TwilioService.initiateCallBridge(collectorPhone, phoneNumber);
-            } else {
-                // Direct: just call the number
-                callSid = ARF_TwilioService.initiateDirectCall(phoneNumber);
-            }
+            // Bridge: call collector first, then connect to customer
+            callSid = ARF_TwilioService.initiateCallBridge(collectorPhone, phoneNumber);
         } catch (Exception e) {
             throw new AuraHandledException('Call failed: ' + e.getMessage());
         }
