@@ -187,21 +187,8 @@ public with sharing class ARF_TransactionActionController {
             }
         }
 
-        // Phone callout
-        if (channel == 'Phone' && contactId != null) {
-            if (!ARF_TwilioService.isConfigured()) {
-                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
-            }
-            String phone = getContactPhone(contactId);
-            if (String.isBlank(phone)) {
-                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
-            }
-            try {
-                callSid = ARF_TwilioService.initiateCall(phone);
-            } catch (Exception e) {
-                throw new AuraHandledException('Call failed: ' + e.getMessage());
-            }
-        }
+        // Phone channel: just log the call. Actual calling is done via initiateCallNow() or browser WebRTC.
+        // No Twilio callout needed here.
 
         // ── STEP 2: Now do all DML after callouts are done ──
 

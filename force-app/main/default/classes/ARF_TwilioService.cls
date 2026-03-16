@@ -59,9 +59,7 @@ public class ARF_TwilioService {
     // ===== INITIATE CALL =====
 
     public static String initiateCall(String toNumber) {
-        // Get collector's phone from current user
-        String collectorPhone = getCollectorPhone();
-        return initiateCallBridge(collectorPhone, toNumber);
+        return initiateDirectCall(toNumber);
     }
 
     // Click-to-Dial: Calls the collector first, then bridges to customer
