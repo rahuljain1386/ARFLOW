@@ -300,6 +300,63 @@ public with sharing class ARF_TransactionActionController {
         return comm.Id;
     }
 
+    // ===== INITIATE CALL NOW =====
+
+    @AuraEnabled
+    public static Map<String, String> initiateCallNow(Id accountId, Id contactId, String phoneNumber, List<Id> invoiceIds) {
+        Map<String, String> result = new Map<String, String>();
+
+        if (String.isBlank(phoneNumber)) {
+            throw new AuraHandledException('Phone number is required to make a call.');
+        }
+
+        if (!ARF_TwilioService.isConfigured()) {
+            throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
+        }
+
+        // Create Communication record immediately
+        ARF_Communication__c comm = new ARF_Communication__c(
+            Account__c = accountId,
+            Channel__c = 'Phone',
+            Direction__c = 'Outbound',
+            Contact__c = contactId,
+            To_Address__c = phoneNumber,
+            Status__c = 'In Progress',
+            Sent_Date__c = Datetime.now()
+        );
+        insert comm;
+
+        // Create invoice junctions
+        if (invoiceIds != null && !invoiceIds.isEmpty()) {
+            List<ARF_Communication_Invoice__c> junctions = new List<ARF_Communication_Invoice__c>();
+            for (Id invId : invoiceIds) {
+                junctions.add(new ARF_Communication_Invoice__c(
+                    Communication__c = comm.Id,
+                    Invoice__c = invId
+                ));
+            }
+            insert junctions;
+        }
+
+        // Initiate the actual Twilio call
+        try {
+            String callSid = ARF_TwilioService.initiateCall(phoneNumber);
+            comm.Thread_ID__c = callSid;
+            update comm;
+            result.put('status', 'success');
+            result.put('callSid', callSid);
+            result.put('communicationId', comm.Id);
+            result.put('message', 'Call initiated to ' + phoneNumber);
+        } catch (Exception e) {
+            comm.Status__c = 'Failed';
+            comm.Body__c = '[CALL ERROR: ' + e.getMessage() + ']';
+            update comm;
+            throw new AuraHandledException('Call failed: ' + e.getMessage());
+        }
+
+        return result;
+    }
+
     // ===== CSV GENERATION =====
 
     @AuraEnabled

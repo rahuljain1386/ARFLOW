@@ -7,6 +7,7 @@ import getOrgWideEmailAddresses from '@salesforce/apex/ARF_TransactionActionCont
 import getCurrentUserEmail from '@salesforce/apex/ARF_TransactionActionController.getCurrentUserEmail';
 import resolveTemplate from '@salesforce/apex/ARF_TransactionActionController.resolveTemplate';
 import executeContactCustomerWithFormat from '@salesforce/apex/ARF_TransactionActionController.executeContactCustomerWithFormat';
+import initiateCallNow from '@salesforce/apex/ARF_TransactionActionController.initiateCallNow';
 import getOpenInvoicesForAccount from '@salesforce/apex/ARF_TransactionActionController.getOpenInvoicesForAccount';
 
 export default class ArfContactCustomerModal extends LightningElement {
@@ -65,6 +66,8 @@ export default class ArfContactCustomerModal extends LightningElement {
     callState = 'pre'; // pre, active, post
     callTimerSeconds = 0;
     _callTimerInterval = null;
+    _callCommunicationId = null;
+    _callSid = null;
 
     // SMS
     smsMessage = '';
@@ -443,17 +446,34 @@ export default class ArfContactCustomerModal extends LightningElement {
         return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
     }
 
-    handleCallNow() {
-        this.callState = 'active';
-        this.callTimerSeconds = 0;
-        // Start timer
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        this._callTimerInterval = setInterval(() => {
-            this.callTimerSeconds++;
-        }, 1000);
+    async handleCallNow() {
+        // Initiate real Twilio call immediately
+        try {
+            this.callState = 'active';
+            this.callTimerSeconds = 0;
 
-        // The actual Twilio call is initiated when we save (handleExecute)
-        // For now we just show the in-progress UI
+            const result = await initiateCallNow({
+                accountId: this.accountId,
+                contactId: this.selectedContactId,
+                phoneNumber: this.contactPhoneNumber,
+                invoiceIds: this.invoiceIds
+            });
+
+            this._callCommunicationId = result.communicationId;
+            this._callSid = result.callSid;
+
+            this.showToast('Call Connected', result.message, 'success');
+
+            // Start timer after call is confirmed initiated
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            this._callTimerInterval = setInterval(() => {
+                this.callTimerSeconds++;
+            }, 1000);
+
+        } catch (error) {
+            this.callState = 'pre';
+            this.showToast('Call Failed', this.extractError(error), 'error');
+        }
     }
 
     handleEndCall() {
