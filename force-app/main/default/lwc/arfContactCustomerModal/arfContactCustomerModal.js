@@ -604,11 +604,7 @@ export default class ArfContactCustomerModal extends LightningElement {
 
         // Validate before calling
         if (!this.contactPhoneNumber) {
-            this.showToast('Missing Phone', 'Enter the customer phone number.', 'error');
-            return;
-        }
-        if (!this.collectorPhone) {
-            this.showToast('Missing My Phone', 'Enter your phone number in the "My Phone" field.', 'error');
+            this.showToast('Missing Phone', 'Enter the phone number to call.', 'error');
             return;
         }
 
