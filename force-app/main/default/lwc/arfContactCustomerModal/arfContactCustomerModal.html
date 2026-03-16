@@ -191,9 +191,9 @@
                             <lightning-combobox label="Contact" value={selectedContactId}
                                 options={contactPickerOptions} onchange={handleContactPickerChange}
                                 placeholder="Select contact..." class="slds-m-bottom_small"></lightning-combobox>
-                            <lightning-input type="tel" label="Phone Number"
+                            <lightning-input type="text" label="Phone Number"
                                 value={contactPhoneNumber} onchange={handlePhoneNumberChange}
-                                placeholder="+1 (555) 123-4567" required
+                                placeholder="+14155551234"
                                 class="slds-m-bottom_small"></lightning-input>
 
                             <template lwc:if={isBrowserCallReady}>
@@ -208,9 +208,9 @@
                                 </div>
                             </template>
                             <template lwc:else>
-                                <lightning-input type="tel" label="My Phone"
+                                <lightning-input type="text" label="My Phone"
                                     value={collectorPhone} onchange={handleCollectorPhoneChange}
-                                    placeholder="+14693258262" required
+                                    placeholder="+14693258262"
                                     class="slds-m-bottom_small"
                                     field-level-help="Your phone rings first, then connects to customer"></lightning-input>
                                 <div class="slds-text-align_center slds-m-top_small">
