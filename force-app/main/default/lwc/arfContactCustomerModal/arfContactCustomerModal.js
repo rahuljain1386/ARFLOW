@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { loadScript } from 'lightning/platformResourceLoader';
 import getAccountSummary from '@salesforce/apex/ARF_Account360Controller.getAccountSummary';
 import getContactsForEmail from '@salesforce/apex/ARF_TransactionActionController.getContactsForEmail';
 import getEmailTemplates from '@salesforce/apex/ARF_TransactionActionController.getEmailTemplates';
@@ -9,6 +10,8 @@ import resolveTemplate from '@salesforce/apex/ARF_TransactionActionController.re
 import executeContactCustomerWithFormat from '@salesforce/apex/ARF_TransactionActionController.executeContactCustomerWithFormat';
 import initiateCallNow from '@salesforce/apex/ARF_TransactionActionController.initiateCallNow';
 import getOpenInvoicesForAccount from '@salesforce/apex/ARF_TransactionActionController.getOpenInvoicesForAccount';
+import getVoiceToken from '@salesforce/apex/ARF_TwilioTokenService.getVoiceToken';
+import TWILIO_CLIENT_JS from '@salesforce/resourceUrl/TwilioClientJS';
 
 export default class ArfContactCustomerModal extends LightningElement {
     @api accountId;
@@ -71,6 +74,14 @@ export default class ArfContactCustomerModal extends LightningElement {
     _callCommunicationId = null;
     _callSid = null;
     _COLLECTOR_PHONE_KEY = 'arf_collector_phone';
+
+    // Browser calling (WebRTC)
+    isBrowserCallReady = false;
+    isBrowserCall = false;
+    isMuted = false;
+    _twilioDevice = null;
+    _activeConnection = null;
+    _twilioSdkLoaded = false;
 
     // SMS
     smsMessage = '';
@@ -308,6 +319,52 @@ export default class ArfContactCustomerModal extends LightningElement {
         } catch (error) {
             this.showToast('Error loading data', this.extractError(error), 'error');
         }
+
+        // Initialize browser calling (non-blocking)
+        this.initTwilioDevice();
+    }
+
+    async initTwilioDevice() {
+        try {
+            // Load Twilio Client JS SDK from static resource
+            if (!this._twilioSdkLoaded) {
+                await loadScript(this, TWILIO_CLIENT_JS);
+                this._twilioSdkLoaded = true;
+            }
+
+            // Check if Twilio global is available (SDK loaded successfully)
+            if (typeof Twilio === 'undefined' || !Twilio.Device) {
+                this.isBrowserCallReady = false;
+                return;
+            }
+
+            // Get a voice token from Apex
+            const tokenResult = await getVoiceToken();
+            if (tokenResult && tokenResult.token) {
+                // Initialize the Twilio Device
+                this._twilioDevice = new Twilio.Device(tokenResult.token, {
+                    codecPreferences: ['opus', 'pcmu'],
+                    enableRingingState: true
+                });
+
+                this._twilioDevice.on('ready', () => {
+                    this.isBrowserCallReady = true;
+                });
+
+                this._twilioDevice.on('error', (err) => {
+                    console.error('Twilio Device error:', err);
+                    this.isBrowserCallReady = false;
+                });
+
+                this._twilioDevice.on('disconnect', () => {
+                    this.handleBrowserCallDisconnect();
+                });
+            }
+        } catch (e) {
+            // If SDK fails to load or token fails, fall back to phone bridge
+            console.warn('Browser calling unavailable, falling back to phone bridge:', e);
+            this.isBrowserCallReady = false;
+        }
     }
 
     // === HANDLERS: Channel ===
@@ -448,6 +505,10 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
     get isCallDisabled() { return !this.contactPhoneNumber || !this.collectorPhone; }
+    get isBrowserCallDisabled() { return !this.contactPhoneNumber; }
+    get muteIcon() { return this.isMuted ? 'utility:unmute' : 'utility:mute'; }
+    get muteLabel() { return this.isMuted ? 'Unmute' : 'Mute'; }
+    get muteButtonClass() { return this.isMuted ? 'mute-btn muted' : 'mute-btn'; }
     get hasRememberedPhone() {
         try { return !!localStorage.getItem(this._COLLECTOR_PHONE_KEY); }
         catch (e) { return false; }
@@ -473,6 +534,61 @@ export default class ArfContactCustomerModal extends LightningElement {
             this.collectorPhone = '';
             this.rememberMyNumber = true;
         } catch (e) { /* ignore */ }
+    }
+
+    handleBrowserCall() {
+        if (!this._twilioDevice || !this.contactPhoneNumber) return;
+
+        this.isBrowserCall = true;
+        this.callState = 'active';
+        this.callTimerSeconds = 0;
+
+        try {
+            this._activeConnection = this._twilioDevice.connect({
+                To: this.contactPhoneNumber
+            });
+
+            this._activeConnection.on('accept', () => {
+                // Call connected — start timer
+                // eslint-disable-next-line @lwc/lwc/no-async-operation
+                this._callTimerInterval = setInterval(() => {
+                    this.callTimerSeconds++;
+                }, 1000);
+            });
+
+            this._activeConnection.on('disconnect', () => {
+                this.handleBrowserCallDisconnect();
+            });
+
+            this._activeConnection.on('error', (err) => {
+                console.error('Browser call error:', err);
+                this.showToast('Call Error', err.message || 'An error occurred during the call.', 'error');
+                this.handleBrowserCallDisconnect();
+            });
+        } catch (error) {
+            this.callState = 'pre';
+            this.isBrowserCall = false;
+            this.showToast('Call Failed', this.extractError(error), 'error');
+        }
+    }
+
+    handleBrowserCallDisconnect() {
+        if (this._callTimerInterval) {
+            clearInterval(this._callTimerInterval);
+            this._callTimerInterval = null;
+        }
+        if (this.callState === 'active') {
+            this.callDuration = this.callTimerSeconds;
+            this.callState = 'post';
+        }
+        this._activeConnection = null;
+    }
+
+    handleToggleMute() {
+        if (this._activeConnection) {
+            this.isMuted = !this.isMuted;
+            this._activeConnection.mute(this.isMuted);
+        }
     }
 
     async handleCallNow() {
@@ -516,6 +632,10 @@ export default class ArfContactCustomerModal extends LightningElement {
     }
 
     handleEndCall() {
+        // Disconnect browser call if active
+        if (this.isBrowserCall && this._activeConnection) {
+            this._activeConnection.disconnect();
+        }
         // Stop timer
         if (this._callTimerInterval) {
             clearInterval(this._callTimerInterval);
@@ -523,6 +643,7 @@ export default class ArfContactCustomerModal extends LightningElement {
         }
         this.callDuration = this.callTimerSeconds;
         this.callState = 'post';
+        this._activeConnection = null;
     }
 
     handleDurationChange(event) { this.callDuration = parseInt(event.detail.value, 10) || 0; }
