@@ -236,6 +236,41 @@
     background: #fafbfc !important;
 }
 
+/* ─── Call Buttons Row ─── */
+.call-buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+.call-button-group {
+    text-align: center;
+}
+
+/* ─── AI Call Button ─── */
+.ai-call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #6b21a8, #9333ea);
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 4px 12px rgba(107, 33, 168, 0.3);
+}
+.ai-call-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(107, 33, 168, 0.4);
+}
+.ai-call-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* ─── Call Now Button ─── */
 .call-now-btn {
     display: inline-flex;

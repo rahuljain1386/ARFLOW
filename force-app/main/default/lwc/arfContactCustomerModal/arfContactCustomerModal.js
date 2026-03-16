@@ -9,6 +9,7 @@ import getCurrentUserEmail from '@salesforce/apex/ARF_TransactionActionControlle
 import resolveTemplate from '@salesforce/apex/ARF_TransactionActionController.resolveTemplate';
 import executeContactCustomerWithFormat from '@salesforce/apex/ARF_TransactionActionController.executeContactCustomerWithFormat';
 import initiateCallNow from '@salesforce/apex/ARF_TransactionActionController.initiateCallNow';
+import initiateAICall from '@salesforce/apex/ARF_TransactionActionController.initiateAICall';
 import getOpenInvoicesForAccount from '@salesforce/apex/ARF_TransactionActionController.getOpenInvoicesForAccount';
 import getVoiceToken from '@salesforce/apex/ARF_TwilioTokenService.getVoiceToken';
 import TWILIO_CLIENT_JS from '@salesforce/resourceUrl/TwilioClientJS';
@@ -505,6 +506,38 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
     get isCallDisabled() { return false; }
+
+    async handleAICall() {
+        if (!this.contactPhoneNumber) {
+            this.showToast('Missing Phone', 'Enter the phone number to call.', 'error');
+            return;
+        }
+
+        this.isSubmitting = true;
+        try {
+            const result = await initiateAICall({
+                accountId: this.accountId,
+                contactId: this.selectedContactId,
+                phoneNumber: this.contactPhoneNumber
+            });
+
+            this.callState = 'active';
+            this.callTimerSeconds = 0;
+            this.isSubmitting = false;
+            this._callCommunicationId = result.communicationId;
+
+            this.showToast('AI Call Started', result.message, 'success');
+
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            this._callTimerInterval = setInterval(() => {
+                this.callTimerSeconds++;
+            }, 1000);
+
+        } catch (error) {
+            this.isSubmitting = false;
+            this.showToast('AI Call Failed', this.extractError(error), 'error');
+        }
+    }
 
     async handleMakeCall() {
         if (!this.contactPhoneNumber) {

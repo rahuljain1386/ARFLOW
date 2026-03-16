@@ -196,20 +196,37 @@
                                 placeholder="+14155551234"
                                 class="slds-m-bottom_small"></lightning-input>
 
-                            <div class="slds-text-align_center slds-m-top_small">
-                                <button class="call-now-btn" onclick={handleMakeCall} disabled={isSubmitting}>
-                                    <template lwc:if={isSubmitting}>
-                                        <lightning-spinner alternative-text="Calling..." size="small" class="slds-m-right_x-small"></lightning-spinner>
-                                        Calling...
-                                    </template>
-                                    <template lwc:else>
-                                        <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
-                                        Call
-                                    </template>
-                                </button>
-                                <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                    Dials the number via Twilio — call is recorded
-                                </p>
+                            <div class="call-buttons-row slds-m-top_small">
+                                <div class="call-button-group">
+                                    <button class="call-now-btn" onclick={handleMakeCall} disabled={isSubmitting}>
+                                        <template lwc:if={isSubmitting}>
+                                            <lightning-spinner alternative-text="Calling..." size="small" class="slds-m-right_x-small"></lightning-spinner>
+                                            Calling...
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                            Call
+                                        </template>
+                                    </button>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                        Dials via Twilio
+                                    </p>
+                                </div>
+                                <div class="call-button-group">
+                                    <button class="ai-call-btn" onclick={handleAICall} disabled={isSubmitting}>
+                                        <template lwc:if={isSubmitting}>
+                                            <lightning-spinner alternative-text="Calling..." size="small" class="slds-m-right_x-small"></lightning-spinner>
+                                            Calling...
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-icon icon-name="utility:einstein" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                            AI Call
+                                        </template>
+                                    </button>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                        AI agent talks to customer
+                                    </p>
+                                </div>
                             </div>
                         </template>
 

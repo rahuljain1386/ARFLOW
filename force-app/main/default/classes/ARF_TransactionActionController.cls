@@ -338,6 +338,64 @@ public with sharing class ARF_TransactionActionController {
         return result;
     }
 
+    // ===== AI CALL (RETELL) =====
+
+    @AuraEnabled
+    public static Map<String, String> initiateAICall(Id accountId, Id contactId, String phoneNumber) {
+        Map<String, String> result = new Map<String, String>();
+
+        if (String.isBlank(phoneNumber)) {
+            throw new AuraHandledException('Phone number is required.');
+        }
+
+        if (!ARF_RetellService.isConfigured()) {
+            throw new AuraHandledException('Retell AI is not configured. Go to Setup → Custom Settings → ARF_Retell_Config__c and add API Key, Agent ID, and Phone Number.');
+        }
+
+        // Build dynamic context for the AI agent
+        Map<String, Object> dynamicVars = new Map<String, Object>();
+        if (accountId != null) {
+            Account acct = [SELECT Name, ARF_Total_AR__c, ARF_Past_Due__c, ARF_Open_Invoice_Count__c FROM Account WHERE Id = :accountId LIMIT 1];
+            dynamicVars.put('account_name', acct.Name);
+            dynamicVars.put('total_past_due', acct.ARF_Past_Due__c != null ? String.valueOf(acct.ARF_Past_Due__c) : '0');
+            dynamicVars.put('total_ar', acct.ARF_Total_AR__c != null ? String.valueOf(acct.ARF_Total_AR__c) : '0');
+            dynamicVars.put('overdue_count', acct.ARF_Open_Invoice_Count__c != null ? String.valueOf(acct.ARF_Open_Invoice_Count__c.intValue()) : '0');
+        }
+        if (contactId != null) {
+            Contact con = [SELECT FirstName, LastName FROM Contact WHERE Id = :contactId LIMIT 1];
+            dynamicVars.put('contact_name', con.FirstName + ' ' + con.LastName);
+        }
+
+        // Make Retell callout FIRST (before DML)
+        String callId;
+        try {
+            callId = ARF_RetellService.initiateCall(phoneNumber, accountId, contactId, dynamicVars);
+        } catch (Exception e) {
+            throw new AuraHandledException('AI Call failed: ' + e.getMessage());
+        }
+
+        // Create Communication record
+        ARF_Communication__c comm = new ARF_Communication__c(
+            Account__c = accountId,
+            Channel__c = 'Phone',
+            Direction__c = 'Outbound',
+            Contact__c = contactId,
+            To_Address__c = phoneNumber,
+            Subject__c = 'AI Collection Call',
+            Status__c = 'In Progress',
+            Sent_Date__c = Datetime.now(),
+            Thread_ID__c = callId,
+            AI_Drafted__c = true
+        );
+        insert comm;
+
+        result.put('status', 'success');
+        result.put('callId', callId);
+        result.put('communicationId', comm.Id);
+        result.put('message', 'AI agent is calling ' + phoneNumber);
+        return result;
+    }
+
     // ===== CSV GENERATION =====
 
     @AuraEnabled
