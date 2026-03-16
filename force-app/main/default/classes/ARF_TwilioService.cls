@@ -59,24 +59,35 @@ public class ARF_TwilioService {
     // ===== INITIATE CALL =====
 
     public static String initiateCall(String toNumber) {
+        // Get collector's phone from current user
+        String collectorPhone = getCollectorPhone();
+        return initiateCallBridge(collectorPhone, toNumber);
+    }
+
+    // Click-to-Dial: Calls the collector first, then bridges to customer
+    public static String initiateCallBridge(String collectorPhone, String customerPhone) {
         ARF_Twilio_Config__c config = getConfig();
         if (!isConfigured()) {
             throw new TwilioException('Twilio not configured. Add credentials in Setup > Custom Settings > ARF Twilio Config.');
         }
 
+        if (String.isBlank(collectorPhone)) {
+            throw new TwilioException('Your phone number is not set. Go to your User record and add your phone number in the Phone field, or add it in the Callback Base URL field of ARF_Twilio_Config__c.');
+        }
+
         String endpoint = TWILIO_API_BASE + config.Account_SID__c + '/Calls.json';
 
-        // TwiML: announce recording, then record with transcription
         String callbackBase = String.isNotBlank(config.Callback_Base_URL__c)
             ? config.Callback_Base_URL__c : '';
-        String transcribeUrl = callbackBase + '/services/apexrest/arflow/twilio/voice/transcription';
-        String statusUrl = callbackBase + '/services/apexrest/arflow/twilio/voice/status';
+        String statusUrl = String.isNotBlank(callbackBase)
+            ? callbackBase + '/services/apexrest/arflow/twilio/voice/status' : '';
 
+        // TwiML: Say a brief message, then Dial the customer with recording
         String twiml = '<Response>' +
-            '<Say>This call is being recorded for quality and training purposes.</Say>' +
-            '<Record maxLength="3600" transcribe="true"' +
-            ' transcribeCallback="' + transcribeUrl + '"' +
-            ' action="' + statusUrl + '" />' +
+            '<Say>Connecting you now. This call will be recorded.</Say>' +
+            '<Dial record="record-from-answer-dual" timeout="30">' +
+            '<Number>' + customerPhone + '</Number>' +
+            '</Dial>' +
             '</Response>';
 
         HttpRequest req = new HttpRequest();
@@ -85,10 +96,10 @@ public class ARF_TwilioService {
         req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
         req.setHeader('Authorization', buildAuthHeader(config));
 
-        String body = 'To=' + EncodingUtil.urlEncode(toNumber, 'UTF-8') +
+        // Call the COLLECTOR first — when they pick up, TwiML dials the CUSTOMER
+        String body = 'To=' + EncodingUtil.urlEncode(collectorPhone, 'UTF-8') +
                       '&From=' + EncodingUtil.urlEncode(config.Phone_Number__c, 'UTF-8') +
-                      '&Twiml=' + EncodingUtil.urlEncode(twiml, 'UTF-8') +
-                      '&Record=true';
+                      '&Twiml=' + EncodingUtil.urlEncode(twiml, 'UTF-8');
 
         if (String.isNotBlank(statusUrl)) {
             body += '&StatusCallback=' + EncodingUtil.urlEncode(statusUrl, 'UTF-8') +
@@ -107,6 +118,19 @@ public class ARF_TwilioService {
         } else {
             throw new TwilioException('Call failed: ' + res.getStatusCode() + ' ' + res.getBody());
         }
+    }
+
+    // Get current user's phone number for click-to-dial
+    private static String getCollectorPhone() {
+        User currentUser = [SELECT Phone, MobilePhone FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+        if (String.isNotBlank(currentUser.MobilePhone)) return currentUser.MobilePhone;
+        if (String.isNotBlank(currentUser.Phone)) return currentUser.Phone;
+        // Fallback: check if Callback_Base_URL has a phone (for testing)
+        ARF_Twilio_Config__c config = getConfig();
+        if (String.isNotBlank(config.Callback_Base_URL__c) && config.Callback_Base_URL__c.startsWith('+')) {
+            return config.Callback_Base_URL__c;
+        }
+        return null;
     }
 
     // ===== SEND SMS + CREATE COMMUNICATION =====
