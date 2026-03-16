@@ -193,13 +193,22 @@
                                     placeholder="Select contact..."></lightning-combobox>
                             </div>
                             <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="tel" label="Phone Number"
+                                    value={contactPhoneNumber} onchange={handlePhoneNumberChange}
+                                    placeholder="+1 (555) 123-4567" required></lightning-input>
+                            </div>
+                        </div>
+                        <div class="slds-grid slds-gutters slds-m-bottom_small">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input label="Subject" value={emailSubject}
+                                    onchange={handleSubjectChange}
+                                    placeholder="Call subject..."></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
                                 <lightning-input type="number" label="Duration (seconds)"
                                     value={callDuration} onchange={handleDurationChange}></lightning-input>
                             </div>
                         </div>
-                        <lightning-input label="Subject" value={emailSubject}
-                            onchange={handleSubjectChange} class="slds-m-bottom_small"
-                            placeholder="Call subject..."></lightning-input>
                         <lightning-textarea label="Call Notes" value={noteBody}
                             onchange={handleNoteBodyChange} class="slds-m-bottom_small"
                             placeholder="What was discussed..."></lightning-textarea>
@@ -224,9 +233,18 @@
                 <!-- SMS CHANNEL -->
                 <template lwc:if={isSms}>
                     <div class="simple-channel-form">
-                        <lightning-combobox label="Contact" value={selectedContactId}
-                            options={contactPickerOptions} onchange={handleContactPickerChange}
-                            placeholder="Select contact..." class="slds-m-bottom_small"></lightning-combobox>
+                        <div class="slds-grid slds-gutters slds-m-bottom_small">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Contact" value={selectedContactId}
+                                    options={contactPickerOptions} onchange={handleContactPickerChange}
+                                    placeholder="Select contact..."></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="tel" label="Phone Number"
+                                    value={contactPhoneNumber} onchange={handlePhoneNumberChange}
+                                    placeholder="+1 (555) 123-4567" required></lightning-input>
+                            </div>
+                        </div>
                         <lightning-textarea label="Message" value={smsMessage}
                             onchange={handleSmsMessageChange} max-length="160"
                             placeholder="Type your SMS message (160 chars max)..." class="slds-m-bottom_small">

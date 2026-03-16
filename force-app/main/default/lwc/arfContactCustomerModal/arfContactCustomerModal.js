@@ -60,6 +60,8 @@ export default class ArfContactCustomerModal extends LightningElement {
 
     // Phone
     callDuration = 0;
+    contactPhoneNumber = '';
+    allContactsData = [];
 
     // SMS
     smsMessage = '';
@@ -249,12 +251,18 @@ export default class ArfContactCustomerModal extends LightningElement {
 
             // All contacts for Phone/SMS
             const allContacts = [...toContacts, ...ccContacts];
-            this.contactPickerOptions = allContacts.map(c => ({
-                label: `${c.name} (${c.email})`,
-                value: c.id
-            }));
+            this.allContactsData = allContacts;
+            this.contactPickerOptions = allContacts.map(c => {
+                const phone = c.phoneDirect || c.phone || '';
+                const phoneLabel = phone ? ` — ${phone}` : '';
+                return {
+                    label: `${c.name} (${c.email})${phoneLabel}`,
+                    value: c.id
+                };
+            });
             if (allContacts.length > 0) {
                 this.selectedContactId = allContacts[0].id;
+                this.contactPhoneNumber = allContacts[0].phoneDirect || allContacts[0].phone || '';
             }
 
             // Templates — filter by account locale, fallback to all
@@ -401,7 +409,14 @@ export default class ArfContactCustomerModal extends LightningElement {
 
     // === HANDLERS: Contact (Phone/SMS) ===
 
-    handleContactPickerChange(event) { this.selectedContactId = event.detail.value; }
+    handleContactPickerChange(event) {
+        this.selectedContactId = event.detail.value;
+        const contact = this.allContactsData.find(c => c.id === this.selectedContactId);
+        if (contact) {
+            this.contactPhoneNumber = contact.phoneDirect || contact.phone || '';
+        }
+    }
+    handlePhoneNumberChange(event) { this.contactPhoneNumber = event.detail.value; }
 
     // === HANDLERS: Phone ===
 

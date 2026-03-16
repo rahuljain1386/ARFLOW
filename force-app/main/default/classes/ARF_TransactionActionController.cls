@@ -92,7 +92,7 @@ public with sharing class ARF_TransactionActionController {
             throw new AuraHandledException('Account ID is required');
         }
         List<Contact> allContacts = [
-            SELECT Id, Name, Email, ARF_Primary_AR_Contact__c, ARF_AR_Role__c
+            SELECT Id, Name, Email, Phone, ARF_Phone_Direct__c, ARF_Primary_AR_Contact__c, ARF_AR_Role__c
             FROM Contact
             WHERE AccountId = :accountId AND Email != null
             ORDER BY ARF_Primary_AR_Contact__c DESC, Name ASC
@@ -105,6 +105,8 @@ public with sharing class ARF_TransactionActionController {
                 'id' => c.Id,
                 'name' => c.Name,
                 'email' => c.Email,
+                'phone' => c.Phone != null ? c.Phone : '',
+                'phoneDirect' => c.ARF_Phone_Direct__c != null ? c.ARF_Phone_Direct__c : '',
                 'role' => c.ARF_AR_Role__c != null ? c.ARF_AR_Role__c : ''
             };
             if (c.ARF_Primary_AR_Contact__c == true) {
