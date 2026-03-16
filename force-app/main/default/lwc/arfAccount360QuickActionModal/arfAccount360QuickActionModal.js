@@ -17,8 +17,10 @@ export default class ArfAccount360QuickActionModal extends LightningElement {
     subject = '';
     body = '';
     toAddress = '';
+    phoneNumber = '';
     callDuration = 0;
     direction = 'Outbound';
+    contactsData = [];
     noteTitle = '';
     noteBody = '';
     noteType = 'General';
@@ -38,13 +40,19 @@ export default class ArfAccount360QuickActionModal extends LightningElement {
     @wire(getARContacts, { accountId: '$recordId' })
     wiredContacts({ data }) {
         if (data) {
-            this.contactOptions = data.map(c => ({
-                label: `${c.Name} (${c.ARF_AR_Role__c || 'General'})`,
-                value: c.Id
-            }));
+            this.contactsData = data;
+            this.contactOptions = data.map(c => {
+                const phone = c.ARF_Phone_Direct__c || c.Phone || '';
+                const phoneLabel = phone ? ` — ${phone}` : '';
+                return {
+                    label: `${c.Name} (${c.ARF_AR_Role__c || 'General'})${phoneLabel}`,
+                    value: c.Id
+                };
+            });
             if (data.length > 0) {
                 this.contactId = data[0].Id;
                 this.toAddress = data[0].Email || '';
+                this.phoneNumber = data[0].ARF_Phone_Direct__c || data[0].Phone || '';
             }
         }
     }
@@ -128,7 +136,16 @@ export default class ArfAccount360QuickActionModal extends LightningElement {
     }
 
     // Field change handlers
-    handleContactChange(event) { this.contactId = event.detail.value; }
+    handleContactChange(event) {
+        this.contactId = event.detail.value;
+        const contact = this.contactsData.find(c => c.Id === this.contactId);
+        if (contact) {
+            this.toAddress = contact.Email || '';
+            this.phoneNumber = contact.ARF_Phone_Direct__c || contact.Phone || '';
+        }
+    }
+    handlePhoneChange(event) { this.phoneNumber = event.detail.value; }
+    get charCount() { return (this.body || '').length; }
     handleSubjectChange(event) { this.subject = event.detail.value; }
     handleBodyChange(event) { this.body = event.detail.value; }
     handleToAddressChange(event) { this.toAddress = event.detail.value; }
@@ -180,7 +197,7 @@ export default class ArfAccount360QuickActionModal extends LightningElement {
             Body__c: this.body,
             Direction__c: this.direction,
             Contact__c: this.contactId || null,
-            To_Address__c: this.toAddress,
+            To_Address__c: (this.isCall || this.isSMS) ? this.phoneNumber : this.toAddress,
             Status__c: 'Draft',
             Sent_Date__c: new Date().toISOString()
         };

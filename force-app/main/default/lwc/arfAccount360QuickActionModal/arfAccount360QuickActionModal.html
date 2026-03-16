@@ -51,6 +51,14 @@
                         options={contactOptions}
                         onchange={handleContactChange}>
                     </lightning-combobox>
+                    <lightning-input
+                        label="Phone Number"
+                        type="tel"
+                        value={phoneNumber}
+                        onchange={handlePhoneChange}
+                        placeholder="+1 (555) 123-4567"
+                        required>
+                    </lightning-input>
                     <lightning-textarea
                         label="Message"
                         value={body}
@@ -58,6 +66,9 @@
                         max-length="160"
                         required>
                     </lightning-textarea>
+                    <div class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                        {charCount}/160 characters
+                    </div>
                 </template>
 
                 <!-- Call Form -->
@@ -68,6 +79,14 @@
                         options={contactOptions}
                         onchange={handleContactChange}>
                     </lightning-combobox>
+                    <lightning-input
+                        label="Phone Number"
+                        type="tel"
+                        value={phoneNumber}
+                        onchange={handlePhoneChange}
+                        placeholder="+1 (555) 123-4567"
+                        required>
+                    </lightning-input>
                     <lightning-combobox
                         label="Direction"
                         value={direction}
