@@ -186,46 +186,96 @@
                 <!-- PHONE CHANNEL -->
                 <template lwc:if={isPhone}>
                     <div class="simple-channel-form">
-                        <div class="slds-grid slds-gutters slds-m-bottom_small">
-                            <div class="slds-col slds-size_1-of-2">
-                                <lightning-combobox label="Contact" value={selectedContactId}
-                                    options={contactPickerOptions} onchange={handleContactPickerChange}
-                                    placeholder="Select contact..."></lightning-combobox>
-                            </div>
-                            <div class="slds-col slds-size_1-of-2">
-                                <lightning-input type="tel" label="Phone Number"
-                                    value={contactPhoneNumber} onchange={handlePhoneNumberChange}
-                                    placeholder="+1 (555) 123-4567" required></lightning-input>
-                            </div>
-                        </div>
-                        <div class="slds-grid slds-gutters slds-m-bottom_small">
-                            <div class="slds-col slds-size_1-of-2">
-                                <lightning-input label="Subject" value={emailSubject}
-                                    onchange={handleSubjectChange}
-                                    placeholder="Call subject..."></lightning-input>
-                            </div>
-                            <div class="slds-col slds-size_1-of-2">
-                                <lightning-input type="number" label="Duration (seconds)"
-                                    value={callDuration} onchange={handleDurationChange}></lightning-input>
-                            </div>
-                        </div>
-                        <lightning-textarea label="Call Notes" value={noteBody}
-                            onchange={handleNoteBodyChange} class="slds-m-bottom_small"
-                            placeholder="What was discussed..."></lightning-textarea>
-                        <lightning-input type="checkbox" label="Create follow-up task"
-                            checked={createFollowUp} onchange={handleFollowUpToggle}
-                            class="slds-m-bottom_small"></lightning-input>
-                        <template lwc:if={createFollowUp}>
-                            <div class="slds-grid slds-gutters">
-                                <div class="slds-col slds-size_1-of-4">
-                                    <lightning-input type="number" label="Follow up in (days)"
-                                        value={followUpDays} min="1" onchange={handleFollowUpDaysChange}></lightning-input>
+                        <!-- Pre-Call: Setup -->
+                        <template lwc:if={isPreCall}>
+                            <div class="slds-grid slds-gutters slds-m-bottom_small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox label="Contact" value={selectedContactId}
+                                        options={contactPickerOptions} onchange={handleContactPickerChange}
+                                        placeholder="Select contact..."></lightning-combobox>
                                 </div>
-                                <div class="slds-col slds-size_3-of-4">
-                                    <lightning-input label="Task Subject" value={followUpSubject}
-                                        onchange={handleFollowUpSubjectChange}></lightning-input>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="tel" label="Phone Number"
+                                        value={contactPhoneNumber} onchange={handlePhoneNumberChange}
+                                        placeholder="+1 (555) 123-4567" required></lightning-input>
                                 </div>
                             </div>
+                            <lightning-input label="Subject" value={emailSubject}
+                                onchange={handleSubjectChange} class="slds-m-bottom_small"
+                                placeholder="Call subject..."></lightning-input>
+                            <div class="slds-text-align_center slds-m-top_medium">
+                                <button class="call-now-btn" onclick={handleCallNow} disabled={isCallDisabled}>
+                                    <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                    Call Now
+                                </button>
+                                <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                    Initiates an outbound call via Twilio to {contactPhoneNumber}
+                                </p>
+                            </div>
+                        </template>
+
+                        <!-- In-Call: Active call screen -->
+                        <template lwc:if={isCallActive}>
+                            <div class="call-active-screen">
+                                <div class="call-status-icon">
+                                    <lightning-icon icon-name="utility:call" size="large" variant="success"></lightning-icon>
+                                </div>
+                                <h3 class="call-status-title">Call In Progress</h3>
+                                <p class="call-contact-name">{selectedContactName}</p>
+                                <p class="call-phone-display">{contactPhoneNumber}</p>
+                                <div class="call-timer">{callTimerDisplay}</div>
+                                <div class="call-recording-badge">
+                                    <span class="recording-dot"></span> Recording
+                                </div>
+                                <div class="slds-m-top_medium">
+                                    <lightning-textarea label="Live Notes" value={noteBody}
+                                        onchange={handleNoteBodyChange}
+                                        placeholder="Type notes during the call..."></lightning-textarea>
+                                </div>
+                                <div class="slds-text-align_center slds-m-top_medium">
+                                    <button class="end-call-btn" onclick={handleEndCall}>
+                                        <lightning-icon icon-name="utility:end_call" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                        End Call &amp; Log
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Post-Call: Log details -->
+                        <template lwc:if={isPostCall}>
+                            <div class="call-completed-banner">
+                                <lightning-icon icon-name="utility:success" size="small" variant="success" class="slds-m-right_x-small"></lightning-icon>
+                                Call completed — {callTimerDisplay}
+                            </div>
+                            <div class="slds-grid slds-gutters slds-m-bottom_small slds-m-top_small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input label="Subject" value={emailSubject}
+                                        onchange={handleSubjectChange}
+                                        placeholder="Call subject..."></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="number" label="Duration (seconds)"
+                                        value={callDuration} onchange={handleDurationChange}></lightning-input>
+                                </div>
+                            </div>
+                            <lightning-textarea label="Call Notes" value={noteBody}
+                                onchange={handleNoteBodyChange} class="slds-m-bottom_small"
+                                placeholder="Summarize what was discussed..."></lightning-textarea>
+                            <lightning-input type="checkbox" label="Create follow-up task"
+                                checked={createFollowUp} onchange={handleFollowUpToggle}
+                                class="slds-m-bottom_small"></lightning-input>
+                            <template lwc:if={createFollowUp}>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_1-of-4">
+                                        <lightning-input type="number" label="Follow up in (days)"
+                                            value={followUpDays} min="1" onchange={handleFollowUpDaysChange}></lightning-input>
+                                    </div>
+                                    <div class="slds-col slds-size_3-of-4">
+                                        <lightning-input label="Task Subject" value={followUpSubject}
+                                            onchange={handleFollowUpSubjectChange}></lightning-input>
+                                    </div>
+                                </div>
+                            </template>
                         </template>
                     </div>
                 </template>
@@ -273,8 +323,13 @@
             <footer class="slds-modal__footer composer-footer">
                 <lightning-button label="Cancel" onclick={handleCancel}
                     class="slds-m-right_x-small"></lightning-button>
-                <lightning-button variant="brand" label={sendButtonLabel}
-                    disabled={isSubmitDisabled} onclick={handleExecute}></lightning-button>
+                <template lwc:if={hideFooterButtons}>
+                    <!-- Hidden during pre-call and active call — use inline buttons instead -->
+                </template>
+                <template lwc:else>
+                    <lightning-button variant="brand" label={sendButtonLabel}
+                        disabled={isSubmitDisabled} onclick={handleExecute}></lightning-button>
+                </template>
             </footer>
         </div>
     </section>

@@ -208,3 +208,120 @@
     border-top: 1px solid #e5e5e5 !important;
     background: #fafbfc !important;
 }
+
+/* ─── Call Now Button ─── */
+.call-now-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #2e844a, #45a049);
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 4px 12px rgba(46, 132, 74, 0.3);
+}
+.call-now-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46, 132, 74, 0.4);
+}
+.call-now-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Call Active Screen ─── */
+.call-active-screen {
+    text-align: center;
+    padding: 1.5rem 0;
+}
+.call-status-icon {
+    margin-bottom: 0.75rem;
+}
+.call-status-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2e844a;
+    margin-bottom: 0.25rem;
+}
+.call-contact-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.125rem;
+}
+.call-phone-display {
+    font-size: 0.875rem;
+    color: #475569;
+    margin-bottom: 1rem;
+}
+.call-timer {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+.call-recording-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #c23934;
+    background: #fef0ef;
+    border: 1px solid #f5c6c6;
+    border-radius: 1rem;
+}
+.recording-dot {
+    width: 8px;
+    height: 8px;
+    background: #c23934;
+    border-radius: 50%;
+    animation: pulse-recording 1.5s ease-in-out infinite;
+}
+@keyframes pulse-recording {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ─── End Call Button ─── */
+.end-call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(135deg, #c23934, #ef4444);
+    border: none;
+    border-radius: 2rem;
+    cursor: pointer;
+    transition: all 200ms ease;
+    box-shadow: 0 4px 12px rgba(194, 57, 52, 0.3);
+}
+.end-call-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(194, 57, 52, 0.4);
+}
+
+/* ─── Post Call Banner ─── */
+.call-completed-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #ecfdf3;
+    border: 1px solid #a7f3d0;
+    border-radius: 0.5rem;
+    color: #2e844a;
+    font-weight: 600;
+    font-size: 0.875rem;
+}

@@ -62,6 +62,9 @@ export default class ArfContactCustomerModal extends LightningElement {
     callDuration = 0;
     contactPhoneNumber = '';
     allContactsData = [];
+    callState = 'pre'; // pre, active, post
+    callTimerSeconds = 0;
+    _callTimerInterval = null;
 
     // SMS
     smsMessage = '';
@@ -144,12 +147,16 @@ export default class ArfContactCustomerModal extends LightningElement {
     // === GETTERS: Submit ===
 
     get isSubmitDisabled() {
+        if (this.isPhone && this.callState !== 'post') return true;
         return this.isSubmitting;
+    }
+    get hideFooterButtons() {
+        return this.isPhone && this.callState !== 'post';
     }
     get sendButtonLabel() {
         if (this.isSubmitting) return 'Sending...';
         if (this.isEmail) return 'Send Email';
-        if (this.isPhone) return 'Log Call';
+        if (this.isPhone) return 'Save Call Log';
         if (this.isSms) return 'Send SMS';
         return 'Execute';
     }
@@ -419,6 +426,45 @@ export default class ArfContactCustomerModal extends LightningElement {
     handlePhoneNumberChange(event) { this.contactPhoneNumber = event.detail.value; }
 
     // === HANDLERS: Phone ===
+
+    get isPreCall() { return this.callState === 'pre'; }
+    get isCallActive() { return this.callState === 'active'; }
+    get isPostCall() { return this.callState === 'post'; }
+    get isCallDisabled() { return !this.contactPhoneNumber || !this.selectedContactId; }
+
+    get selectedContactName() {
+        const contact = this.allContactsData.find(c => c.id === this.selectedContactId);
+        return contact ? contact.name : '';
+    }
+
+    get callTimerDisplay() {
+        const mins = Math.floor(this.callTimerSeconds / 60);
+        const secs = this.callTimerSeconds % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+    }
+
+    handleCallNow() {
+        this.callState = 'active';
+        this.callTimerSeconds = 0;
+        // Start timer
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        this._callTimerInterval = setInterval(() => {
+            this.callTimerSeconds++;
+        }, 1000);
+
+        // The actual Twilio call is initiated when we save (handleExecute)
+        // For now we just show the in-progress UI
+    }
+
+    handleEndCall() {
+        // Stop timer
+        if (this._callTimerInterval) {
+            clearInterval(this._callTimerInterval);
+            this._callTimerInterval = null;
+        }
+        this.callDuration = this.callTimerSeconds;
+        this.callState = 'post';
+    }
 
     handleDurationChange(event) { this.callDuration = parseInt(event.detail.value, 10) || 0; }
 
