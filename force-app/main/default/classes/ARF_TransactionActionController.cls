@@ -314,7 +314,15 @@ public with sharing class ARF_TransactionActionController {
             throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
         }
 
-        // Create Communication record immediately
+        // 1. Make the Twilio callout FIRST (before any DML)
+        String callSid;
+        try {
+            callSid = ARF_TwilioService.initiateCall(phoneNumber);
+        } catch (Exception e) {
+            throw new AuraHandledException('Call failed: ' + e.getMessage());
+        }
+
+        // 2. Now do DML after callout succeeds
         ARF_Communication__c comm = new ARF_Communication__c(
             Account__c = accountId,
             Channel__c = 'Phone',
@@ -322,7 +330,8 @@ public with sharing class ARF_TransactionActionController {
             Contact__c = contactId,
             To_Address__c = phoneNumber,
             Status__c = 'In Progress',
-            Sent_Date__c = Datetime.now()
+            Sent_Date__c = Datetime.now(),
+            Thread_ID__c = callSid
         );
         insert comm;
 
@@ -338,21 +347,10 @@ public with sharing class ARF_TransactionActionController {
             insert junctions;
         }
 
-        // Initiate the actual Twilio call
-        try {
-            String callSid = ARF_TwilioService.initiateCall(phoneNumber);
-            comm.Thread_ID__c = callSid;
-            update comm;
-            result.put('status', 'success');
-            result.put('callSid', callSid);
-            result.put('communicationId', comm.Id);
-            result.put('message', 'Call initiated to ' + phoneNumber);
-        } catch (Exception e) {
-            comm.Status__c = 'Failed';
-            comm.Body__c = '[CALL ERROR: ' + e.getMessage() + ']';
-            update comm;
-            throw new AuraHandledException('Call failed: ' + e.getMessage());
-        }
+        result.put('status', 'success');
+        result.put('callSid', callSid);
+        result.put('communicationId', comm.Id);
+        result.put('message', 'Call initiated to ' + phoneNumber);
 
         return result;
     }
