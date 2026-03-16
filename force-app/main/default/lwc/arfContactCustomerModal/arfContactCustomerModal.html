@@ -195,12 +195,9 @@
                                 value={contactPhoneNumber} onchange={handlePhoneNumberChange}
                                 placeholder="+1 (555) 123-4567" required
                                 class="slds-m-bottom_small"></lightning-input>
-                            <lightning-textarea label="Notes" value={noteBody}
-                                onchange={handleNoteBodyChange} class="slds-m-bottom_small"
-                                placeholder="Call notes..."></lightning-textarea>
 
                             <template lwc:if={isBrowserCallReady}>
-                                <div class="slds-text-align_center slds-m-top_medium">
+                                <div class="slds-text-align_center slds-m-top_small">
                                     <button class="call-now-btn" onclick={handleBrowserCall} disabled={isBrowserCallDisabled}>
                                         <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
                                         Call from Browser
@@ -211,26 +208,12 @@
                                 </div>
                             </template>
                             <template lwc:else>
-                                <!-- Fallback: phone bridge -->
-                                <div class="slds-grid slds-gutters slds-m-bottom_small">
-                                    <div class="slds-col">
-                                        <lightning-input type="tel" label="My Phone (fallback)"
-                                            value={collectorPhone} onchange={handleCollectorPhoneChange}
-                                            placeholder="+1 (469) 325-8262"
-                                            field-level-help="Browser calling not available. Your phone rings first, then connects to customer."></lightning-input>
-                                        <div class="remember-phone-row">
-                                            <lightning-input type="checkbox" label="Remember my number"
-                                                checked={rememberMyNumber} onchange={handleRememberMyNumberChange}
-                                                class="remember-checkbox"></lightning-input>
-                                            <template lwc:if={hasRememberedPhone}>
-                                                <button class="clear-saved-link" onclick={handleClearSavedPhone}>
-                                                    Clear saved
-                                                </button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="slds-text-align_center slds-m-top_medium">
+                                <lightning-input type="tel" label="My Phone"
+                                    value={collectorPhone} onchange={handleCollectorPhoneChange}
+                                    placeholder="+14693258262" required
+                                    class="slds-m-bottom_small"
+                                    field-level-help="Your phone rings first, then connects to customer"></lightning-input>
+                                <div class="slds-text-align_center slds-m-top_small">
                                     <button class="call-now-btn" onclick={handleCallNow} disabled={isCallDisabledOrSubmitting}>
                                         <template lwc:if={isSubmitting}>
                                             <lightning-spinner alternative-text="Calling..." size="small" class="slds-m-right_x-small"></lightning-spinner>

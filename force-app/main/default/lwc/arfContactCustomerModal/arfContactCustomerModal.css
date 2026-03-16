@@ -2,7 +2,11 @@
 .composer-modal .slds-modal__container {
     width: 95% !important;
     max-width: 1200px !important;
-    min-height: 80vh;
+    max-height: 90vh;
+}
+.composer-modal .slds-modal__content {
+    overflow-y: auto !important;
+    max-height: calc(90vh - 140px) !important;
 }
 
 /* Header */
