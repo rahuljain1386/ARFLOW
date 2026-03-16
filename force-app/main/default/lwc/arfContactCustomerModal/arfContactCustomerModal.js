@@ -505,6 +505,7 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
     get isCallDisabled() { return !this.contactPhoneNumber || !this.collectorPhone; }
+    get isCallDisabledOrSubmitting() { return this.isCallDisabled || this.isSubmitting; }
     get isBrowserCallDisabled() { return !this.contactPhoneNumber; }
     get muteIcon() { return this.isMuted ? 'utility:unmute' : 'utility:mute'; }
     get muteLabel() { return this.isMuted ? 'Unmute' : 'Mute'; }
@@ -602,10 +603,8 @@ export default class ArfContactCustomerModal extends LightningElement {
         } catch (e) { /* localStorage may be unavailable */ }
 
         // Initiate real Twilio call immediately
+        this.isSubmitting = true;
         try {
-            this.callState = 'active';
-            this.callTimerSeconds = 0;
-
             const result = await initiateCallNow({
                 accountId: this.accountId,
                 contactId: this.selectedContactId,
@@ -617,15 +616,21 @@ export default class ArfContactCustomerModal extends LightningElement {
             this._callCommunicationId = result.communicationId;
             this._callSid = result.callSid;
 
+            // Only go to active AFTER call is confirmed
+            this.callState = 'active';
+            this.callTimerSeconds = 0;
+            this.isSubmitting = false;
+
             this.showToast('Call Connected', result.message, 'success');
 
-            // Start timer after call is confirmed initiated
+            // Start timer
             // eslint-disable-next-line @lwc/lwc/no-async-operation
             this._callTimerInterval = setInterval(() => {
                 this.callTimerSeconds++;
             }, 1000);
 
         } catch (error) {
+            this.isSubmitting = false;
             this.callState = 'pre';
             this.showToast('Call Failed', this.extractError(error), 'error');
         }

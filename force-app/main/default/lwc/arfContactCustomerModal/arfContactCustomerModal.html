@@ -231,9 +231,15 @@
                                     </div>
                                 </div>
                                 <div class="slds-text-align_center slds-m-top_medium">
-                                    <button class="call-now-btn" onclick={handleCallNow} disabled={isCallDisabled}>
-                                        <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
-                                        Call Now
+                                    <button class="call-now-btn" onclick={handleCallNow} disabled={isCallDisabledOrSubmitting}>
+                                        <template lwc:if={isSubmitting}>
+                                            <lightning-spinner alternative-text="Calling..." size="small" class="slds-m-right_x-small"></lightning-spinner>
+                                            Calling...
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
+                                            Call Now
+                                        </template>
                                     </button>
                                     <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
                                         Your phone rings first, then we connect you to the customer
