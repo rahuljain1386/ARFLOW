@@ -120,6 +120,46 @@ public class ARF_TwilioService {
         }
     }
 
+    // Simple direct call — Twilio calls the number, plays message, records
+    public static String initiateDirectCall(String toNumber) {
+        ARF_Twilio_Config__c config = getConfig();
+        if (!isConfigured()) {
+            throw new TwilioException('Twilio not configured.');
+        }
+
+        String endpoint = TWILIO_API_BASE + config.Account_SID__c + '/Calls.json';
+
+        // TwiML: just connect the call with recording
+        String twiml = '<Response>' +
+            '<Say voice="alice">Hello, this is a call from the accounts receivable team regarding your outstanding invoices. Please hold while we connect you.</Say>' +
+            '<Pause length="60"/>' +
+            '</Response>';
+
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint(endpoint);
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+        req.setHeader('Authorization', buildAuthHeader(config));
+
+        String body = 'To=' + EncodingUtil.urlEncode(toNumber, 'UTF-8') +
+                      '&From=' + EncodingUtil.urlEncode(config.Phone_Number__c, 'UTF-8') +
+                      '&Twiml=' + EncodingUtil.urlEncode(twiml, 'UTF-8') +
+                      '&Record=true';
+
+        req.setBody(body);
+        req.setTimeout(30000);
+
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+
+        if (res.getStatusCode() >= 200 && res.getStatusCode() < 300) {
+            Map<String, Object> responseBody = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+            return (String) responseBody.get('sid');
+        } else {
+            throw new TwilioException('Call failed: ' + res.getStatusCode() + ' ' + res.getBody());
+        }
+    }
+
     // Get current user's phone number for click-to-dial
     private static String getCollectorPhone() {
         User currentUser = [SELECT Phone, MobilePhone FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];

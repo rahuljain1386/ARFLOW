@@ -434,8 +434,7 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isPreCall() { return this.callState === 'pre'; }
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
-    get isCallDisabled() { return !this.contactPhoneNumber || !this.selectedContactId || !this.collectorPhone; }
-    handleCollectorPhoneChange(event) { this.collectorPhone = event.detail.value; }
+    get isCallDisabled() { return !this.contactPhoneNumber; }
 
     get selectedContactName() {
         const contact = this.allContactsData.find(c => c.id === this.selectedContactId);
@@ -458,7 +457,7 @@ export default class ArfContactCustomerModal extends LightningElement {
                 accountId: this.accountId,
                 contactId: this.selectedContactId,
                 phoneNumber: this.contactPhoneNumber,
-                collectorPhone: this.collectorPhone,
+                collectorPhone: null,
                 invoiceIds: this.invoiceIds
             });
 

@@ -188,37 +188,23 @@
                     <div class="simple-channel-form">
                         <!-- Pre-Call: Setup -->
                         <template lwc:if={isPreCall}>
-                            <div class="slds-grid slds-gutters slds-m-bottom_small">
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-combobox label="Contact" value={selectedContactId}
-                                        options={contactPickerOptions} onchange={handleContactPickerChange}
-                                        placeholder="Select contact..."></lightning-combobox>
-                                </div>
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-input type="tel" label="Customer Number"
-                                        value={contactPhoneNumber} onchange={handlePhoneNumberChange}
-                                        placeholder="+1 (555) 123-4567" required></lightning-input>
-                                </div>
-                            </div>
-                            <div class="slds-grid slds-gutters slds-m-bottom_small">
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-input type="tel" label="Your Number (Collector)"
-                                        value={collectorPhone} onchange={handleCollectorPhoneChange}
-                                        placeholder="+1 (469) 325-8262" required></lightning-input>
-                                </div>
-                                <div class="slds-col slds-size_1-of-2">
-                                    <lightning-input label="Subject" value={emailSubject}
-                                        onchange={handleSubjectChange}
-                                        placeholder="Call subject..."></lightning-input>
-                                </div>
-                            </div>
+                            <lightning-combobox label="Contact" value={selectedContactId}
+                                options={contactPickerOptions} onchange={handleContactPickerChange}
+                                placeholder="Select contact..." class="slds-m-bottom_small"></lightning-combobox>
+                            <lightning-input type="tel" label="Phone Number"
+                                value={contactPhoneNumber} onchange={handlePhoneNumberChange}
+                                placeholder="+1 (555) 123-4567" required
+                                class="slds-m-bottom_small"></lightning-input>
+                            <lightning-textarea label="Notes" value={noteBody}
+                                onchange={handleNoteBodyChange} class="slds-m-bottom_small"
+                                placeholder="Call notes..."></lightning-textarea>
                             <div class="slds-text-align_center slds-m-top_medium">
                                 <button class="call-now-btn" onclick={handleCallNow} disabled={isCallDisabled}>
                                     <lightning-icon icon-name="utility:call" size="small" class="slds-m-right_x-small"></lightning-icon>
                                     Call Now
                                 </button>
                                 <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                    Your phone will ring first, then we connect you to {contactPhoneNumber}
+                                    Calls {contactPhoneNumber} from Twilio
                                 </p>
                             </div>
                         </template>
