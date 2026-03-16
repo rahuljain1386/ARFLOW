@@ -66,9 +66,11 @@ export default class ArfContactCustomerModal extends LightningElement {
     callState = 'pre'; // pre, active, post
     callTimerSeconds = 0;
     collectorPhone = '';
+    rememberMyNumber = true;
     _callTimerInterval = null;
     _callCommunicationId = null;
     _callSid = null;
+    _COLLECTOR_PHONE_KEY = 'arf_collector_phone';
 
     // SMS
     smsMessage = '';
@@ -173,6 +175,17 @@ export default class ArfContactCustomerModal extends LightningElement {
             ...inv,
             pillLabel: `${inv.Document_Number__c || inv.Name} — $${(inv.Balance__c || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
         }));
+
+        // Auto-load saved collector phone from localStorage
+        try {
+            const savedPhone = localStorage.getItem(this._COLLECTOR_PHONE_KEY);
+            if (savedPhone) {
+                this.collectorPhone = savedPhone;
+                this.rememberMyNumber = true;
+            }
+        } catch (e) {
+            // localStorage may not be available in some contexts
+        }
 
         // Apply reply/forward prefills
         if (this.replyMode) {
@@ -435,7 +448,13 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
     get isCallDisabled() { return !this.contactPhoneNumber || !this.collectorPhone; }
+    get hasRememberedPhone() {
+        try { return !!localStorage.getItem(this._COLLECTOR_PHONE_KEY); }
+        catch (e) { return false; }
+    }
+
     handleCollectorPhoneChange(event) { this.collectorPhone = event.detail.value; }
+    handleRememberMyNumberChange(event) { this.rememberMyNumber = event.target.checked; }
 
     get selectedContactName() {
         const contact = this.allContactsData.find(c => c.id === this.selectedContactId);
@@ -448,7 +467,24 @@ export default class ArfContactCustomerModal extends LightningElement {
         return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
     }
 
+    handleClearSavedPhone() {
+        try {
+            localStorage.removeItem(this._COLLECTOR_PHONE_KEY);
+            this.collectorPhone = '';
+            this.rememberMyNumber = true;
+        } catch (e) { /* ignore */ }
+    }
+
     async handleCallNow() {
+        // Save collector phone to localStorage if "Remember" is checked
+        try {
+            if (this.rememberMyNumber && this.collectorPhone) {
+                localStorage.setItem(this._COLLECTOR_PHONE_KEY, this.collectorPhone);
+            } else {
+                localStorage.removeItem(this._COLLECTOR_PHONE_KEY);
+            }
+        } catch (e) { /* localStorage may be unavailable */ }
+
         // Initiate real Twilio call immediately
         try {
             this.callState = 'active';

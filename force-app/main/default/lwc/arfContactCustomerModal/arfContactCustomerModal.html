@@ -202,6 +202,16 @@
                                         value={collectorPhone} onchange={handleCollectorPhoneChange}
                                         placeholder="+1 (469) 325-8262" required
                                         field-level-help="Your phone rings first, then connects to customer"></lightning-input>
+                                    <div class="remember-phone-row">
+                                        <lightning-input type="checkbox" label="Remember my number"
+                                            checked={rememberMyNumber} onchange={handleRememberMyNumberChange}
+                                            class="remember-checkbox"></lightning-input>
+                                        <template lwc:if={hasRememberedPhone}>
+                                            <button class="clear-saved-link" onclick={handleClearSavedPhone}>
+                                                Clear saved
+                                            </button>
+                                        </template>
+                                    </div>
                                 </div>
                             </div>
                             <lightning-textarea label="Notes" value={noteBody}
@@ -213,7 +223,7 @@
                                     Call Now
                                 </button>
                                 <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                    Your phone rings → pick up → connected to customer
+                                    Your phone rings first, then we connect you to the customer
                                 </p>
                             </div>
                         </template>

@@ -203,6 +203,29 @@
     background: #fafbfc;
 }
 
+/* Remember phone row */
+.remember-phone-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.35rem;
+}
+.remember-checkbox {
+    flex: 0 0 auto;
+}
+.clear-saved-link {
+    background: none;
+    border: none;
+    color: #706e6b;
+    font-size: 0.75rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+.clear-saved-link:hover {
+    color: #c23934;
+}
+
 /* Footer */
 .composer-footer {
     border-top: 1px solid #e5e5e5 !important;
