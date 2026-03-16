@@ -293,11 +293,14 @@ public with sharing class ARF_TransactionActionController {
     // ===== INITIATE CALL NOW =====
 
     @AuraEnabled
-    public static Map<String, String> initiateCallNow(Id accountId, Id contactId, String phoneNumber, List<Id> invoiceIds) {
+    public static Map<String, String> initiateCallNow(Id accountId, Id contactId, String phoneNumber, String collectorPhone, List<Id> invoiceIds) {
         Map<String, String> result = new Map<String, String>();
 
         if (String.isBlank(phoneNumber)) {
-            throw new AuraHandledException('Phone number is required to make a call.');
+            throw new AuraHandledException('Customer phone number is required.');
+        }
+        if (String.isBlank(collectorPhone)) {
+            throw new AuraHandledException('Your phone number is required. Enter it in the "Your Number" field.');
         }
 
         if (!ARF_TwilioService.isConfigured()) {
@@ -305,9 +308,10 @@ public with sharing class ARF_TransactionActionController {
         }
 
         // 1. Make the Twilio callout FIRST (before any DML)
+        // Click-to-Dial: calls collector first, then bridges to customer
         String callSid;
         try {
-            callSid = ARF_TwilioService.initiateCall(phoneNumber);
+            callSid = ARF_TwilioService.initiateCallBridge(collectorPhone, phoneNumber);
         } catch (Exception e) {
             throw new AuraHandledException('Call failed: ' + e.getMessage());
         }
