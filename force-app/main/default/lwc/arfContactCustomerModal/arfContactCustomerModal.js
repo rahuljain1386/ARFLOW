@@ -511,10 +511,35 @@ export default class ArfContactCustomerModal extends LightningElement {
             this.showToast('Missing Phone', 'Enter the phone number to call.', 'error');
             return;
         }
-        if (this.isBrowserCallReady) {
-            this.handleBrowserCall();
-        } else {
-            this.handleCallNow();
+
+        this.isSubmitting = true;
+        try {
+            const result = await initiateCallNow({
+                accountId: this.accountId,
+                contactId: this.selectedContactId,
+                phoneNumber: this.contactPhoneNumber,
+                collectorPhone: null,
+                invoiceIds: this.invoiceIds
+            });
+
+            this._callCommunicationId = result.communicationId;
+            this._callSid = result.callSid;
+
+            this.callState = 'active';
+            this.callTimerSeconds = 0;
+            this.isSubmitting = false;
+
+            this.showToast('Call Connected', result.message, 'success');
+
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            this._callTimerInterval = setInterval(() => {
+                this.callTimerSeconds++;
+            }, 1000);
+
+        } catch (error) {
+            this.isSubmitting = false;
+            this.callState = 'pre';
+            this.showToast('Call Failed', this.extractError(error), 'error');
         }
     }
     get isCallDisabledOrSubmitting() { return this.isSubmitting; }
