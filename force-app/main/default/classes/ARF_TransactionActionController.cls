@@ -202,41 +202,56 @@ public with sharing class ARF_TransactionActionController {
 
         // 3a. If SMS channel, send via Twilio
         if (channel == 'SMS' && contactId != null) {
+            if (!ARF_TwilioService.isConfigured()) {
+                comm.Status__c = 'Failed';
+                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[ERROR: Twilio not configured. Check Custom Settings → ARF_Twilio_Config__c]';
+                update comm;
+                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
+            }
+            String phone = getContactPhone(contactId);
+            if (String.isBlank(phone)) {
+                comm.Status__c = 'Failed';
+                update comm;
+                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
+            }
             try {
-                if (ARF_TwilioService.isConfigured()) {
-                    String phone = getContactPhone(contactId);
-                    if (String.isNotBlank(phone)) {
-                        String smsBody = String.isNotBlank(htmlBody) ? htmlBody.stripHtmlTags() : subject;
-                        String smsSid = ARF_TwilioService.sendSms(phone, smsBody);
-                        comm.Thread_ID__c = smsSid;
-                        comm.To_Address__c = phone;
-                        comm.Status__c = 'Sent';
-                    } else {
-                        comm.Status__c = 'Sent'; // Log only
-                    }
-                } else {
-                    comm.Status__c = 'Sent'; // Log only, Twilio not configured
-                }
+                String smsBody = String.isNotBlank(htmlBody) ? htmlBody.stripHtmlTags() : subject;
+                String smsSid = ARF_TwilioService.sendSms(phone, smsBody);
+                comm.Thread_ID__c = smsSid;
+                comm.To_Address__c = phone;
+                comm.Status__c = 'Sent';
                 update comm;
             } catch (Exception e) {
                 comm.Status__c = 'Failed';
+                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[SMS ERROR: ' + e.getMessage() + ']';
                 update comm;
+                throw new AuraHandledException('SMS failed: ' + e.getMessage());
             }
         }
 
-        // 3b. If Phone channel and Twilio configured, initiate call
-        if (channel == 'Phone' && contactId != null && ARF_TwilioService.isConfigured()) {
+        // 3b. If Phone channel, initiate call via Twilio
+        if (channel == 'Phone' && contactId != null) {
+            if (!ARF_TwilioService.isConfigured()) {
+                comm.Status__c = 'Draft';
+                update comm;
+                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
+            }
+            String phone = getContactPhone(contactId);
+            if (String.isBlank(phone)) {
+                comm.Status__c = 'Draft';
+                update comm;
+                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
+            }
             try {
-                String phone = getContactPhone(contactId);
-                if (String.isNotBlank(phone)) {
-                    String callSid = ARF_TwilioService.initiateCall(phone);
-                    comm.Thread_ID__c = callSid;
-                    comm.Status__c = 'In Progress';
-                    update comm;
-                }
+                String callSid = ARF_TwilioService.initiateCall(phone);
+                comm.Thread_ID__c = callSid;
+                comm.Status__c = 'In Progress';
+                update comm;
             } catch (Exception e) {
-                System.debug(LoggingLevel.ERROR, 'Twilio call initiation failed: ' + e.getMessage());
-                // Keep existing logged call behavior
+                comm.Status__c = 'Failed';
+                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[CALL ERROR: ' + e.getMessage() + ']';
+                update comm;
+                throw new AuraHandledException('Call failed: ' + e.getMessage());
             }
         }
 
