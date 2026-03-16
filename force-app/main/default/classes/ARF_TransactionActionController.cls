@@ -164,7 +164,51 @@ public with sharing class ARF_TransactionActionController {
             }
         }
 
-        // 1. Create Communication record
+        // ── STEP 1: Do ALL callouts BEFORE any DML (Salesforce requirement) ──
+
+        String smsSid = null;
+        String callSid = null;
+        String smsPhone = null;
+
+        // SMS callout
+        if (channel == 'SMS' && contactId != null) {
+            if (!ARF_TwilioService.isConfigured()) {
+                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
+            }
+            smsPhone = getContactPhone(contactId);
+            if (String.isBlank(smsPhone)) {
+                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
+            }
+            try {
+                String smsBody = String.isNotBlank(htmlBody) ? htmlBody.stripHtmlTags() : subject;
+                smsSid = ARF_TwilioService.sendSms(smsPhone, smsBody);
+            } catch (Exception e) {
+                throw new AuraHandledException('SMS failed: ' + e.getMessage());
+            }
+        }
+
+        // Phone callout
+        if (channel == 'Phone' && contactId != null) {
+            if (!ARF_TwilioService.isConfigured()) {
+                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
+            }
+            String phone = getContactPhone(contactId);
+            if (String.isBlank(phone)) {
+                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
+            }
+            try {
+                callSid = ARF_TwilioService.initiateCall(phone);
+            } catch (Exception e) {
+                throw new AuraHandledException('Call failed: ' + e.getMessage());
+            }
+        }
+
+        // ── STEP 2: Now do all DML after callouts are done ──
+
+        String commStatus = 'Draft';
+        if (smsSid != null) commStatus = 'Sent';
+        else if (callSid != null) commStatus = 'In Progress';
+
         ARF_Communication__c comm = new ARF_Communication__c(
             Account__c = accountId,
             Channel__c = channel == 'Print' ? 'Letter' : channel,
@@ -172,23 +216,24 @@ public with sharing class ARF_TransactionActionController {
             Subject__c = subject,
             Body__c = htmlBody != null ? htmlBody.stripHtmlTags() : '',
             HTML_Body__c = htmlBody,
-            To_Address__c = toAddress,
+            To_Address__c = smsPhone != null ? smsPhone : toAddress,
             CC_Addresses__c = ccAddresses,
             BCC_Addresses__c = bccAddresses,
             Contact__c = contactId,
-            Status__c = 'Draft',
+            Status__c = commStatus,
             Sent_Date__c = Datetime.now(),
             Template_Used__c = templateName,
             Has_Attachment__c = attachStatement == true && hasInvoices,
             Invoice_Count__c = hasInvoices ? invoiceIds.size() : 0,
-            Total_Balance__c = totalBalance
+            Total_Balance__c = totalBalance,
+            Thread_ID__c = smsSid != null ? smsSid : callSid
         );
         if (String.isNotBlank(fromAddressId)) {
             comm.From_Address__c = fromAddressId;
         }
         insert comm;
 
-        // 2. Create junction records
+        // Create junction records
         if (hasInvoices) {
             List<ARF_Communication_Invoice__c> junctions = new List<ARF_Communication_Invoice__c>();
             for (Id invId : invoiceIds) {
@@ -198,61 +243,6 @@ public with sharing class ARF_TransactionActionController {
                 ));
             }
             insert junctions;
-        }
-
-        // 3a. If SMS channel, send via Twilio
-        if (channel == 'SMS' && contactId != null) {
-            if (!ARF_TwilioService.isConfigured()) {
-                comm.Status__c = 'Failed';
-                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[ERROR: Twilio not configured. Check Custom Settings → ARF_Twilio_Config__c]';
-                update comm;
-                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
-            }
-            String phone = getContactPhone(contactId);
-            if (String.isBlank(phone)) {
-                comm.Status__c = 'Failed';
-                update comm;
-                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
-            }
-            try {
-                String smsBody = String.isNotBlank(htmlBody) ? htmlBody.stripHtmlTags() : subject;
-                String smsSid = ARF_TwilioService.sendSms(phone, smsBody);
-                comm.Thread_ID__c = smsSid;
-                comm.To_Address__c = phone;
-                comm.Status__c = 'Sent';
-                update comm;
-            } catch (Exception e) {
-                comm.Status__c = 'Failed';
-                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[SMS ERROR: ' + e.getMessage() + ']';
-                update comm;
-                throw new AuraHandledException('SMS failed: ' + e.getMessage());
-            }
-        }
-
-        // 3b. If Phone channel, initiate call via Twilio
-        if (channel == 'Phone' && contactId != null) {
-            if (!ARF_TwilioService.isConfigured()) {
-                comm.Status__c = 'Draft';
-                update comm;
-                throw new AuraHandledException('Twilio is not configured. Go to Setup → Custom Settings → ARF_Twilio_Config__c and add Account SID, Auth Token, and Phone Number.');
-            }
-            String phone = getContactPhone(contactId);
-            if (String.isBlank(phone)) {
-                comm.Status__c = 'Draft';
-                update comm;
-                throw new AuraHandledException('No phone number found for the selected contact. Please add a phone number to the Contact record.');
-            }
-            try {
-                String callSid = ARF_TwilioService.initiateCall(phone);
-                comm.Thread_ID__c = callSid;
-                comm.Status__c = 'In Progress';
-                update comm;
-            } catch (Exception e) {
-                comm.Status__c = 'Failed';
-                comm.Body__c = (comm.Body__c != null ? comm.Body__c : '') + '\n\n[CALL ERROR: ' + e.getMessage() + ']';
-                update comm;
-                throw new AuraHandledException('Call failed: ' + e.getMessage());
-            }
         }
 
         // 3c. If email channel and sending enabled, send actual email
