@@ -297,7 +297,7 @@ public with sharing class ARF_TransactionActionController {
         Map<String, String> result = new Map<String, String>();
 
         if (String.isBlank(phoneNumber)) {
-            throw new AuraHandledException('Phone number is required.');
+            throw new AuraHandledException('Customer phone number is required.');
         }
 
         if (!ARF_TwilioService.isConfigured()) {
@@ -307,7 +307,13 @@ public with sharing class ARF_TransactionActionController {
         // 1. Make the Twilio callout FIRST (before any DML)
         String callSid;
         try {
-            callSid = ARF_TwilioService.initiateDirectCall(phoneNumber);
+            if (String.isNotBlank(collectorPhone)) {
+                // Bridge: call collector first, then connect to customer
+                callSid = ARF_TwilioService.initiateCallBridge(collectorPhone, phoneNumber);
+            } else {
+                // Direct: just call the number
+                callSid = ARF_TwilioService.initiateDirectCall(phoneNumber);
+            }
         } catch (Exception e) {
             throw new AuraHandledException('Call failed: ' + e.getMessage());
         }

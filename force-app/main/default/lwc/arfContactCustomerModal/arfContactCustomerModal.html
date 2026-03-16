@@ -191,10 +191,19 @@
                             <lightning-combobox label="Contact" value={selectedContactId}
                                 options={contactPickerOptions} onchange={handleContactPickerChange}
                                 placeholder="Select contact..." class="slds-m-bottom_small"></lightning-combobox>
-                            <lightning-input type="tel" label="Phone Number"
-                                value={contactPhoneNumber} onchange={handlePhoneNumberChange}
-                                placeholder="+1 (555) 123-4567" required
-                                class="slds-m-bottom_small"></lightning-input>
+                            <div class="slds-grid slds-gutters slds-m-bottom_small">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="tel" label="Customer Phone"
+                                        value={contactPhoneNumber} onchange={handlePhoneNumberChange}
+                                        placeholder="+1 (555) 123-4567" required></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-input type="tel" label="My Phone"
+                                        value={collectorPhone} onchange={handleCollectorPhoneChange}
+                                        placeholder="+1 (469) 325-8262" required
+                                        field-level-help="Your phone rings first, then connects to customer"></lightning-input>
+                                </div>
+                            </div>
                             <lightning-textarea label="Notes" value={noteBody}
                                 onchange={handleNoteBodyChange} class="slds-m-bottom_small"
                                 placeholder="Call notes..."></lightning-textarea>
@@ -204,7 +213,7 @@
                                     Call Now
                                 </button>
                                 <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
-                                    Calls {contactPhoneNumber} from Twilio
+                                    Your phone rings → pick up → connected to customer
                                 </p>
                             </div>
                         </template>
