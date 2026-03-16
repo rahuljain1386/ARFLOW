@@ -504,8 +504,8 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isPreCall() { return this.callState === 'pre'; }
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
-    get isCallDisabled() { return !this.contactPhoneNumber || !this.collectorPhone; }
-    get isCallDisabledOrSubmitting() { return this.isCallDisabled || this.isSubmitting; }
+    get isCallDisabled() { return false; }
+    get isCallDisabledOrSubmitting() { return this.isSubmitting; }
     get isBrowserCallDisabled() { return !this.contactPhoneNumber; }
     get muteIcon() { return this.isMuted ? 'utility:unmute' : 'utility:mute'; }
     get muteLabel() { return this.isMuted ? 'Unmute' : 'Mute'; }
