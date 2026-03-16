@@ -505,6 +505,18 @@ export default class ArfContactCustomerModal extends LightningElement {
     get isCallActive() { return this.callState === 'active'; }
     get isPostCall() { return this.callState === 'post'; }
     get isCallDisabled() { return false; }
+
+    async handleMakeCall() {
+        if (!this.contactPhoneNumber) {
+            this.showToast('Missing Phone', 'Enter the phone number to call.', 'error');
+            return;
+        }
+        if (this.isBrowserCallReady) {
+            this.handleBrowserCall();
+        } else {
+            this.handleCallNow();
+        }
+    }
     get isCallDisabledOrSubmitting() { return this.isSubmitting; }
     get isBrowserCallDisabled() { return !this.contactPhoneNumber; }
     get muteIcon() { return this.isMuted ? 'utility:unmute' : 'utility:mute'; }
@@ -602,7 +614,6 @@ export default class ArfContactCustomerModal extends LightningElement {
             }
         } catch (e) { /* localStorage may be unavailable */ }
 
-        // Validate before calling
         if (!this.contactPhoneNumber) {
             this.showToast('Missing Phone', 'Enter the phone number to call.', 'error');
             return;
