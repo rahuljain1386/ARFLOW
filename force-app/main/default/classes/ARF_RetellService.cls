@@ -56,7 +56,8 @@ public class ARF_RetellService {
             Map<String, Object> responseBody = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
             return (String) responseBody.get('call_id');
         } else {
-            throw new RetellException('Retell API error: ' + res.getStatusCode() + ' ' + res.getBody());
+            String errBody = res.getBody() != null ? res.getBody().abbreviate(500) : 'No response body';
+            throw new RetellException('Retell API error: ' + res.getStatusCode() + ' | ' + errBody);
         }
     }
 
